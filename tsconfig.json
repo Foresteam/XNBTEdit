@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"module": "CommonJS",
+		"target": "ES2020",
+		"noImplicitAny": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"outDir": "dist",
+		"declaration": true
+	},
+	"files": [
+		"index.ts"
+	]
+}
