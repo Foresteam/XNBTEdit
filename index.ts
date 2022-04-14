@@ -170,6 +170,7 @@ data = ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
 
 const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, name?: string): void => {
 	if (typeof(block.value) != 'object') {
+		// not sure it's a good idea, but it greatly boosts readability
 		if (block.type == TYPE('byte') && [0, 1].includes(block.value))
 			block.value = block.value ? 'true' : 'false';
 		parent.element(TYPES[block.type], { name }, block.value);
