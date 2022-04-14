@@ -1,7 +1,7 @@
 import fs from 'fs';
 import chokidar from 'chokidar';
 import tempy from 'tempy';
-import XMLBuilder from 'xmlbuilder';
+import XMLBuilder, { XMLElement } from 'xmlbuilder';
 
 const TYPES = [
 	'end',
@@ -95,13 +95,13 @@ const ReadString = (buffer: Buffer, pos: number, type: number, headless = false)
 	return { entry: self, endPos: pos + len, name };
 };
 const ReadArray = (buffer: Buffer, pos: number, type: number, headless = false): RSReturn => {
-	let self: Entry = { type, value: [] };
+	let self: Entry = { type, value: [], contentType: TYPE(TYPES[type].replace('[]', '')) };
 	let { name, offset: nameOffset } = GetName(pos, buffer, headless);
 	pos += nameOffset;
 	let len = buffer.readInt32BE(pos);
 	pos += 4;
 	for (let i = 0; i < len; i++) {
-		let entryInfo = ReadNumber(buffer, pos, TYPE(TYPES[type].replace('[]', '')), true);
+		let entryInfo = ReadNumber(buffer, pos, self.contentType, true);
 		(self.value as Entry[]).push(entryInfo.entry);
 		pos = entryInfo.endPos;
 	}
@@ -168,21 +168,35 @@ const ReadCompound = (buffer: Buffer, pos: number, _type: number, headless = fal
 
 data = ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
 
-const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement): void => {
+const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, name?: string): void => {
 	if (typeof(block.value) != 'object') {
 		if (block.type == TYPE('byte') && [0, 1].includes(block.value))
 			block.value = block.value ? 'true' : 'false';
-		parent.element(TYPES[block.type], {}, block.value);
+		parent.element(TYPES[block.type], { name }, block.value);
 		return;
 	}
+
+	let tag: XMLElement;
+	let named = false;
 	if (block.type == TYPE('compound')) {
-		
-		return;
+		named = true;
+		if (root)
+			tag = parent;
+		else
+			tag = parent.element('compound', { name });
 	}
+	if (block.type == TYPE('list'))
+		tag = parent.element('list', { of: TYPES[block.contentType], name });
+	if (TYPES[block.type].includes('[]')) {
+		tag = parent.element('array', { of: TYPES[block.contentType], name });
+	}
+
+	for (let [k, v] of Object.entries(block.value))
+		BuildXML(v as Entry, tag, false, named ? k : null);
 };
 
-let root = XMLBuilder.create('root');
-BuildXML(data, root);
-let xml = root.end({ pretty: true });
+let root = XMLBuilder.create('compound');
+BuildXML(data, root, true);
+let xml = root.end({ pretty: true, indent: '\t' });
 // console.log(JSON.stringify(data, null, '\t'));
 fs.writeFileSync('tests/lol.xml', xml);
