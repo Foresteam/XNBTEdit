@@ -26,6 +26,7 @@
     "@types/node": "^17.0.23",
     "@types/xml2js": "^0.4.9",
     "chokidar": "^3.5.3",
+    "fast-xml-parser": "^4.0.7",
     "tempy": "^2.0.0",
     "xml2js": "^0.4.23",
     "xmlbuilder": "^15.1.1"

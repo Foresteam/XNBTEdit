@@ -19,6 +19,7 @@ const TYPES = [
 	'long[]'
 ];
 const TYPE = (name: string) => TYPES.indexOf(name);
+const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == 8;
 
 interface Entry {
 	type: number;
@@ -201,3 +202,31 @@ BuildXML(data, root, true);
 let xml = root.end({ pretty: true, indent: '\t' });
 // console.log(JSON.stringify(data, null, '\t'));
 fs.writeFileSync('tests/lol.xml', xml);
+
+
+
+interface XMLEntryDescriptor {
+	name: string;
+	of: string;
+}
+interface XMLEntry {
+	[type: string]: XMLEntry[] | XMLEntryDescriptor;
+	':@'?: XMLEntryDescriptor;
+}
+const Entrify = (tag: XMLEntry, index = -1): [string | number, Entry] => {
+	let [type, entries] = Object.entries(tag)[0];
+	let entry: Entry;
+	entry.type = TYPE(type);
+	if (IS_INLINE(TYPE(type)))
+		entry.value = (entries as XMLEntry[])[0]['#text'];
+    else if (type == 'list')
+		entry.value = (entries as XMLEntry[]).map((e, i) => Entrify(e, i));
+	else if (type == 'compound')
+		entry.value = { ...(entries as XMLEntry[]).map(e => Entrify(e)) };
+	return [index < 0 ? tag[':@'].name : index, entry];
+}
+
+import { XMLParser } from 'fast-xml-parser';
+let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
+let json = parser.parse(fs.readFileSync('tests/lol.xml'));
+fs.writeFileSync('tests/lol.json', JSON.stringify(json, null, '\t'));

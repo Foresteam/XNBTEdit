@@ -4,6 +4,7 @@ specifiers:
   '@types/node': ^17.0.23
   '@types/xml2js': ^0.4.9
   chokidar: ^3.5.3
+  fast-xml-parser: ^4.0.7
   tempy: ^2.0.0
   xml2js: ^0.4.23
   xmlbuilder: ^15.1.1
@@ -12,6 +13,7 @@ dependencies:
   '@types/node': 17.0.23
   '@types/xml2js': 0.4.9
   chokidar: 3.5.3
+  fast-xml-parser: 4.0.7
   tempy: 2.0.0
   xml2js: 0.4.23
   xmlbuilder: 15.1.1
@@ -154,6 +156,13 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.5
+    dev: false
+
+  /fast-xml-parser/4.0.7:
+    resolution: {integrity: sha512-dMtibyus3kC7nbxj1CpVtysLzO13UOAZEFAb5vpQg3T4O6qvetmSePpXKFx5KPNCHKoGwjtgjfF5DOyn7s1ylQ==}
+    hasBin: true
+    dependencies:
+      strnum: 1.0.5
     dev: false
 
   /fastq/1.13.0:
@@ -363,6 +372,10 @@ packages:
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+    dev: false
+
+  /strnum/1.0.5:
+    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
     dev: false
 
   /temp-dir/2.0.0:
