@@ -26,7 +26,7 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 	if (tag[':@']?.of) {
 		entry.contentType = TYPE(tag[':@'].of as NBTType);
 		if (type == 'array')
-			entry.type = TYPE(`${entry.contentType}[]` as NBTType);
+			entry.type = TYPE(`${TYPES[entry.contentType]}[]` as NBTType);
 	}
 	return [tag[':@']?.name, entry];
 }
@@ -35,7 +35,7 @@ let nbtOut: fs.WriteStream;
 const WriteBuf = (buf: Buffer) => new Promise(resolve => nbtOut.write(buf, 'binary', resolve));
 const WriteTypeAndName = async (type: number, name?: string, headless = false) => {
 	if (headless)
-		return false;
+		return;
 	let nameLen = name ? Buffer.from(name, 'utf-8').byteLength : 0;
 	let buf = Buffer.alloc(1 + 2 + nameLen);
 	buf.writeUInt8(type);
@@ -77,9 +77,7 @@ const WriteInline = async (type: number, entry: Entry, name?: string, headless =
 		buf.writeUInt16BE(len);
 		buf.write(entry.value, 2, 'utf-8');
 	}
-	console.log(name, buf.toString('hex'), nbtOut.bytesWritten);
 	await WriteBuf(buf);
-	console.log(name, buf.toString('hex'), nbtOut.bytesWritten);
 }
 const WriteArray = async (entry: Entry, name?: string, headless = false) => {
 	await WriteTypeAndName(entry.type, name, headless);
@@ -87,7 +85,7 @@ const WriteArray = async (entry: Entry, name?: string, headless = false) => {
 	length.writeInt32BE((entry.value as Entry[]).length);
 	await WriteBuf(length);
 	for (let v of entry.value as Entry[])
-	await WriteInline(entry.contentType, v, null, true);
+		await WriteInline(entry.contentType, v, null, true);
 }
 const WriteSwitch = async (type: number, entry: Entry, name?: string, headless = false) => {
 	if (IS_INLINE(entry.type))
@@ -103,7 +101,7 @@ const WriteList = async (entry: Entry, name?: string, headless = false) => {
 	await WriteTypeAndName(entry.type, name, headless);
 	let info = Buffer.alloc(1 + 4);
 	info.writeUInt8(entry.contentType);
-	info.writeInt32BE((entry.value as Entry[]).length);
+	info.writeInt32BE((entry.value as Entry[]).length, 1);
 	await WriteBuf(info);
 	for (let v of entry.value as Entry[])
 		await WriteSwitch(entry.contentType, v, null, true);
@@ -120,7 +118,6 @@ const WriteCompound = async (entry: Entry, name?: string, headless = false) => {
 }
 
 import { XMLParser } from 'fast-xml-parser';
-import { exit } from 'process';
 let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
 let json = parser.parse(fs.readFileSync('tests/lol.xml')) as XMLEntry[];
 let root = Entrify(json[0])[1];
