@@ -12,6 +12,9 @@
 		"declaration": true
 	},
 	"files": [
-		"index.ts"
+		"src/Common.ts",
+		"src/Reader.ts",
+		"src/Writer.ts",
+		"index.ts",
 	]
 }
