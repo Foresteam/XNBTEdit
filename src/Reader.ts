@@ -1,6 +1,6 @@
 import XMLBuilder, { XMLElement } from 'xmlbuilder';
 import fs from 'fs';
-import { TYPES, TYPE, Entry } from './Common';
+import { TYPES, TYPE, Entry, NBTType } from './Common';
 
 let nbtBytes: Buffer;
 
@@ -63,7 +63,7 @@ const ReadString = (buffer: Buffer, pos: number, type: number, headless = false)
 	return { entry: self, endPos: pos + len, name };
 };
 const ReadArray = (buffer: Buffer, pos: number, type: number, headless = false): RSReturn => {
-	let self: Entry = { type, value: [], contentType: TYPE(TYPES[type].replace('[]', '')) };
+	let self: Entry = { type, value: [], contentType: TYPE(TYPES[type].replace('[]', '') as NBTType) };
 	let { name, offset: nameOffset } = GetName(pos, buffer, headless);
 	pos += nameOffset;
 	let len = buffer.readInt32BE(pos);
@@ -134,8 +134,6 @@ const ReadCompound = (buffer: Buffer, pos: number, _type: number, headless = fal
 	return { entry: self, endPos: pos, name };
 };
 
-data = ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
-
 const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, name?: string): void => {
 	if (typeof (block.value) != 'object') {
 		// not sure it's a good idea, but it greatly boosts readability
@@ -167,6 +165,7 @@ const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, nam
 
 export default {
 	ReadNBT() {
+		data = ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
 		nbtBytes = fs.readFileSync('tests/test.dat.uncompressed')
 		let root = XMLBuilder.create('compound');
 		BuildXML(data, root, true);

@@ -33,12 +33,14 @@ const TYPES = Array.from({
 	12: 'long[]',
 	length: 13
 });
-const TYPE = (name: string) => TYPES.indexOf(name);
+type NBTType = 'end' | 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'byte[]' | 'string' | 'list' | 'compound' | 'int[]' | 'long[]';
+const TYPE = (name: NBTType) => TYPES.indexOf(name);
 const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == 8;
+const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE('int[]');
 
 interface Entry {
 	type: number;
 	contentType?: number;
 	value: any;
 };
-export { TYPES, TYPE, IS_INLINE, Entry };
+export { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType };
