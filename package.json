@@ -1,7 +1,7 @@
 {
-  "name": "nbt2xml",
+  "name": "xne",
   "version": "1.0.0",
-  "description": "Named Binary Tag to XML converter",
+  "description": "Named Binary Tag XML editor/converter",
   "main": "index.js",
   "scripts": {
     "debug": "nodemon index.ts",
@@ -9,19 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Foresteam/NBT2XML.git"
+    "url": "git+https://github.com/Foresteam/XNBTEdit.git"
   },
   "keywords": [
     "nbt",
     "minecraft",
-    "xml"
+    "xml",
+	"edit"
   ],
   "author": "Foresteam",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/Foresteam/NBT2XML/issues"
+    "url": "https://github.com/Foresteam/XNBTEdit/issues"
   },
-  "homepage": "https://github.com/Foresteam/NBT2XML#readme",
+  "homepage": "https://github.com/Foresteam/XNBTEdit#readme",
   "dependencies": {
     "@types/node": "^17.0.23",
     "@types/xml2js": "^0.4.9",
