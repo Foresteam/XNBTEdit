@@ -1,6 +1,7 @@
-import XMLBuilder, { XMLElement } from 'xmlbuilder';
+import { create as XMLBegin } from 'xmlbuilder2';
 import fs from 'fs';
 import { TYPES, TYPE, Entry, NBTType } from './Common';
+import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 
 const GetName = (pos: number, bytes: Buffer, headless: boolean) => {
 	if (headless)
@@ -130,28 +131,28 @@ const ReadCompound = (buffer: Buffer, pos: number, _type: number, headless = fal
 	return { entry: self, endPos: pos, name };
 };
 
-const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, name?: string): void => {
-	if (typeof (block.value) != 'object') {
+const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string): void => {
+	if (typeof block.value != 'object') {
 		// not sure it's a good idea, but it greatly boosts readability
 		if (block.type == TYPE('byte') && [0, 1].includes(block.value))
 			block.value = block.value ? 'true' : 'false';
-		parent.element(TYPES[block.type], { name }, block.value);
+		parent.ele(TYPES[block.type], { name }).txt(block.value);
 		return;
 	}
 
-	let tag: XMLElement;
+	let tag: XMLBuilder;
 	let named = false;
 	if (block.type == TYPE('compound')) {
 		named = true;
 		if (root)
 			tag = parent;
 		else
-			tag = parent.element('compound', { name });
+			tag = parent.ele('compound', { name });
 	}
 	if (block.type == TYPE('list'))
-		tag = parent.element('list', { of: TYPES[block.contentType], name });
+		tag = parent.ele('list', { of: TYPES[block.contentType], name });
 	if (TYPES[block.type].includes('[]')) {
-		tag = parent.element('array', { of: TYPES[block.contentType], name });
+		tag = parent.ele('array', { of: TYPES[block.contentType], name });
 	}
 
 	for (let [k, v] of Object.entries(block.value))
@@ -167,9 +168,10 @@ export default {
 	},
 	// 'tests/lol.xml'
 	WriteXML(filename: string, data: Entry) {
-		let root = XMLBuilder.create('compound');
+		let root = XMLBegin().ele('compound');
+		root.dtd({ sysID: '../document.dtd' });
 		BuildXML(data, root, true);
-		let xml = root.end({ pretty: true, indent: '\t' });
+		let xml = root.end({ prettyPrint: true, indent: '\t' });
 		fs.writeFileSync(filename, xml);
 	}
 }
