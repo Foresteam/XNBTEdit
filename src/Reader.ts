@@ -2,10 +2,6 @@ import XMLBuilder, { XMLElement } from 'xmlbuilder';
 import fs from 'fs';
 import { TYPES, TYPE, Entry, NBTType } from './Common';
 
-let nbtBytes: Buffer;
-
-let data: Entry;
-
 const GetName = (pos: number, bytes: Buffer, headless: boolean) => {
 	if (headless)
 		return { name: null, offset: 0 };
@@ -27,27 +23,27 @@ const ReadNumber = (buffer: Buffer, pos: number, type: number, headless = false)
 	pos += nameOffset;
 	switch (type) {
 		case TYPE('byte'):
-			self.value = nbtBytes.readInt8(pos);
+			self.value = buffer.readInt8(pos);
 			pos += 1;
 			break;
 		case TYPE('short'):
-			self.value = nbtBytes.readInt16BE(pos);
+			self.value = buffer.readInt16BE(pos);
 			pos += 2;
 			break;
 		case TYPE('int'):
-			self.value = nbtBytes.readInt32BE(pos);
+			self.value = buffer.readInt32BE(pos);
 			pos += 4;
 			break;
 		case TYPE('long'):
-			self.value = nbtBytes.readBigUInt64BE(pos);
+			self.value = buffer.readBigUInt64BE(pos);
 			pos += 8;
 			break;
 		case TYPE('float'):
-			self.value = nbtBytes.readFloatBE(pos);
+			self.value = buffer.readFloatBE(pos);
 			pos += 4;
 			break;
 		case TYPE('double'):
-			self.value = nbtBytes.readDoubleBE(pos);
+			self.value = buffer.readDoubleBE(pos);
 			pos += 8;
 			break;
 	}
@@ -116,8 +112,8 @@ const ReadCompound = (buffer: Buffer, pos: number, _type: number, headless = fal
 	let self: Entry = { value: {}, type: _type };
 	let { name, offset: nameOffset } = GetName(pos, buffer, headless);
 	pos += nameOffset;
-	while (pos < Buffer.byteLength(nbtBytes)) {
-		let type: number = nbtBytes.readUInt8(pos);
+	while (pos < Buffer.byteLength(buffer)) {
+		let type: number = buffer.readUInt8(pos);
 		if (type == TYPE('end')) {
 			pos++;
 			break;
@@ -164,13 +160,16 @@ const BuildXML = (block: Entry, parent: XMLBuilder.XMLElement, root = false, nam
 
 
 export default {
-	ReadNBT() {
-		data = ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
-		nbtBytes = fs.readFileSync('tests/test.dat.uncompressed')
+	// 'tests/test.dat.uncompressed'
+	ReadNBT(filename: string): Entry {
+		let nbtBytes: Buffer = fs.readFileSync(filename);
+		return ReadCompound(nbtBytes, 1, TYPE('compound')).entry;
+	},
+	// 'tests/lol.xml'
+	WriteXML(filename: string, data: Entry) {
 		let root = XMLBuilder.create('compound');
 		BuildXML(data, root, true);
 		let xml = root.end({ pretty: true, indent: '\t' });
-		// console.log(JSON.stringify(data, null, '\t'));
-		fs.writeFileSync('tests/lol.xml', xml);
+		fs.writeFileSync(filename, xml);
 	}
 }

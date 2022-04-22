@@ -15,6 +15,6 @@
 		"src/Common.ts",
 		"src/Reader.ts",
 		"src/Writer.ts",
-		"index.ts",
+		"src/index.ts",
 	]
 }

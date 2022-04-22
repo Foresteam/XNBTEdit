@@ -4,6 +4,7 @@ specifiers:
   '@types/node': ^17.0.23
   '@types/xml2js': ^0.4.9
   chokidar: ^3.5.3
+  colors: ^1.4.0
   fast-xml-parser: ^4.0.7
   tempy: ^2.0.0
   xml2js: ^0.4.23
@@ -13,6 +14,7 @@ dependencies:
   '@types/node': 17.0.23
   '@types/xml2js': 0.4.9
   chokidar: 3.5.3
+  colors: 1.4.0
   fast-xml-parser: 4.0.7
   tempy: 2.0.0
   xml2js: 0.4.23
@@ -113,6 +115,11 @@ packages:
   /clean-stack/2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
     engines: {node: '>=6'}
+    dev: false
+
+  /colors/1.4.0:
+    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
+    engines: {node: '>=0.1.90'}
     dev: false
 
   /concat-map/0.0.1:

@@ -4,8 +4,8 @@
   "description": "Named Binary Tag XML editor/converter",
   "main": "index.js",
   "scripts": {
-    "debug": "nodemon index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "debug": "nodemon src/index.ts",
+    "test": "ts-node src/tests.ts"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
     "nbt",
     "minecraft",
     "xml",
-	"edit"
+    "edit"
   ],
   "author": "Foresteam",
   "license": "GPL-3.0-or-later",
@@ -27,6 +27,7 @@
     "@types/node": "^17.0.23",
     "@types/xml2js": "^0.4.9",
     "chokidar": "^3.5.3",
+    "colors": "^1.4.0",
     "fast-xml-parser": "^4.0.7",
     "tempy": "^2.0.0",
     "xml2js": "^0.4.23",
