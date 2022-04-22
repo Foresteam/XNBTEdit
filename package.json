@@ -1,6 +1,6 @@
 {
-  "name": "xne",
-  "version": "1.0.0",
+  "name": "xnbtedit",
+  "version": "0.8.0",
   "description": "Named Binary Tag XML editor/converter",
   "main": "index.js",
   "scripts": {
