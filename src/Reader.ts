@@ -1,7 +1,8 @@
 import { create as XMLBegin } from 'xmlbuilder2';
 import fs from 'fs';
-import { TYPES, TYPE, Entry, NBTType } from './Common';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
+import { gunzipSync } from 'zlib';
+import { TYPES, TYPE, Entry, NBTType } from './Common';
 
 interface RSReturn {
 	entry: Entry;
@@ -167,8 +168,10 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 
 export default {
 	// 'tests/test.dat.uncompressed'
-	ReadNBT(filename: string): Entry {
+	ReadNBT(filename: string, gunzip = false): Entry {
 		let nbtBytes: Buffer = fs.readFileSync(filename);
+		if (gunzip)
+			nbtBytes = gunzipSync(nbtBytes);
 		return new Reader(nbtBytes).ReadCompound(1, TYPE('compound')).entry;
 	},
 	// 'tests/lol.xml'

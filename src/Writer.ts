@@ -1,17 +1,18 @@
 import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
+import { gzipSync } from 'zlib';
 import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType } from './Common';
 
 class Writer {
-	out: fs.WriteStream;
-	constructor(out: fs.WriteStream) {
-		this.out = out;
+	#buffers: Buffer[];
+	constructor() {
+		this.#buffers = [];
 	}
 
 	WriteBuf(buf: Buffer) {
-		return new Promise(resolve => this.out.write(buf, 'binary', resolve));
+		this.#buffers.push(buf);
 	}
-	async WriteTypeAndName(type: number, name?: string, headless = false) {
+	WriteTypeAndName(type: number, name?: string, headless = false) {
 		if (headless)
 			return;
 		let nameLen = name ? Buffer.from(name, 'utf-8').byteLength : 0;
@@ -20,10 +21,10 @@ class Writer {
 		buf.writeUInt16BE(nameLen, 1);
 		if (name)
 			buf.write(name, 3, 'utf-8');
-		await this.WriteBuf(buf);
+		this.WriteBuf(buf);
 	}
-	async WriteInline(type: number, entry: Entry, name?: string, headless = false) {
-		await this.WriteTypeAndName(type, name, headless);
+	WriteInline(type: number, entry: Entry, name?: string, headless = false) {
+		this.WriteTypeAndName(type, name, headless);
 		let buf: Buffer;
 		if (type == TYPE('byte')) {
 			buf = Buffer.alloc(1);
@@ -55,44 +56,51 @@ class Writer {
 			buf.writeUInt16BE(len);
 			buf.write(entry.value, 2, 'utf-8');
 		}
-		await this.WriteBuf(buf);
+		this.WriteBuf(buf);
 	}
-	async WriteArray(entry: Entry, name?: string, headless = false) {
-		await this.WriteTypeAndName(entry.type, name, headless);
+	WriteArray(entry: Entry, name?: string, headless = false) {
+		this.WriteTypeAndName(entry.type, name, headless);
 		let length = Buffer.alloc(4);
 		length.writeInt32BE((entry.value as Entry[]).length);
-		await this.WriteBuf(length);
+		this.WriteBuf(length);
 		for (let v of entry.value as Entry[])
-			await this.WriteInline(entry.contentType, v, null, true);
+			this.WriteInline(entry.contentType, v, null, true);
 	}
-	async WriteSwitch(type: number, entry: Entry, name?: string, headless = false) {
+	WriteSwitch(type: number, entry: Entry, name?: string, headless = false) {
 		if (IS_INLINE(entry.type))
-			await this.WriteInline(type, entry, name, headless);
+			this.WriteInline(type, entry, name, headless);
 		if (IS_ARRAY(entry.type))
-			await this.WriteArray(entry, name, headless);
+			this.WriteArray(entry, name, headless);
 		if (entry.type == TYPE('list'))
-			await this.WriteList(entry, name, headless);
+			this.WriteList(entry, name, headless);
 		if (TYPES[entry.type] == 'compound')
-			await this.WriteCompound(entry, name, headless);
+			this.WriteCompound(entry, name, headless);
 	}
-	async WriteList(entry: Entry, name?: string, headless = false) {
-		await this.WriteTypeAndName(entry.type, name, headless);
+	WriteList(entry: Entry, name?: string, headless = false) {
+		this.WriteTypeAndName(entry.type, name, headless);
 		let info = Buffer.alloc(1 + 4);
 		info.writeUInt8(entry.contentType);
 		info.writeInt32BE((entry.value as Entry[]).length, 1);
-		await this.WriteBuf(info);
+		this.WriteBuf(info);
 		for (let v of entry.value as Entry[])
-			await this.WriteSwitch(entry.contentType, v, null, true);
+			this.WriteSwitch(entry.contentType, v, null, true);
 	}
 	// headless = !!name
-	async WriteCompound(entry: Entry, name?: string, headless = false) {
-		await this.WriteTypeAndName(TYPE('compound'), name, headless);
+	WriteCompound(entry: Entry, name?: string, headless = false) {
+		this.WriteTypeAndName(TYPE('compound'), name, headless);
 		for (let [name, child] of Object.entries(entry.value) as [string, Entry][])
-			await this.WriteSwitch(child.type, child, name);
+			this.WriteSwitch(child.type, child, name);
 		// WriteInline(TYPE('byte'), , 'seenCredits');
 		let buf = Buffer.alloc(1);
 		buf.writeUInt8(TYPE('end'));
-		await this.WriteBuf(buf);
+		this.WriteBuf(buf);
+	}
+
+	End(filename: string, gzip = false) {
+		let buf = Buffer.concat(this.#buffers);
+		if (gzip)
+			buf = gzipSync(buf);
+		fs.writeFileSync(filename, buf, 'binary');
 	}
 }
 
@@ -133,9 +141,9 @@ export default {
 		return Entrify(json[0])[1];
 	},
 	// 'tests/result.dat.uncompressed'
-	async WriteNBT(filename: string, root: Entry): Promise<void> {
-		let nbtOut = fs.createWriteStream(filename, 'binary');
-		await new Writer(nbtOut).WriteCompound(root);
-		await nbtOut.close();
+	async WriteNBT(filename: string, root: Entry, gzip = false): Promise<void> {
+		let writer = new Writer();
+		writer.WriteCompound(root);
+		writer.End(filename, gzip);
 	}
 }
