@@ -169,7 +169,7 @@ export default {
 	// 'tests/lol.xml'
 	WriteXML(filename: string, data: Entry) {
 		let root = XMLBegin().ele('compound');
-		root.dtd({ sysID: '../document.dtd' });
+		root.dtd({ sysID: 'https://raw.githubusercontent.com/Foresteam/XNBTEdit/master/document.dtd' });
 		BuildXML(data, root, true);
 		let xml = root.end({ prettyPrint: true, indent: '\t' });
 		fs.writeFileSync(filename, xml);
