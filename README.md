@@ -64,9 +64,39 @@ After:
 	...
 </compound>
 ```
+### The SNBT
+Basically:
+```xml
+<list of="string" name="Lore">
+	<string>[{"text":"Text"}]</string>
+</list>
+```
+But you get:
+```xml
+<list of="slist" name="Lore">
+	<slist of="compound">
+		<compound>
+			<string name="text">Text</string>
+		</compound>
+	</slist>
+</list>
+```
 
 ## Getting started
-### Installation...
+### Setup
+Download a binary distribution from ***Releases*** section
+
+OR **Install** NodeJS v16.13.2 (i'm using this), pnpm.
+Then:
+```sh
+git clone https://github.com/Foresteam/XNBTEdit.git
+cd XNBTEdit
+pnpm install
+```
+To run the program:
+```sh
+pnpm start
+```
 ### Usage
 ```sh
 xnbtedit --help
