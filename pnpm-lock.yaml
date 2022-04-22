@@ -10,6 +10,7 @@ specifiers:
   command-line-args: ^5.2.1
   command-line-usage: ^6.1.3
   fast-xml-parser: ^4.0.7
+  mojangson-parser: ^2.1.3
   tempy: ^2.0.0
   xml2js: ^0.4.23
   xmlbuilder: ^15.1.1
@@ -25,6 +26,7 @@ dependencies:
   command-line-args: 5.2.1
   command-line-usage: 6.1.3
   fast-xml-parser: 4.0.7
+  mojangson-parser: 2.1.3
   tempy: 2.0.0
   xml2js: 0.4.23
   xmlbuilder: 15.1.1
@@ -457,6 +459,10 @@ packages:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
     dependencies:
       brace-expansion: 1.1.11
+    dev: false
+
+  /mojangson-parser/2.1.3:
+    resolution: {integrity: sha512-8PwO+bwbOJr7weH8msfSW+llOHJf79VwoIvk9Io94zzTgIJe+5XDtPCC2eCVuHcuDaFsiZzkR+LiyfIf/nIipQ==}
     dev: false
 
   /normalize-path/3.0.0:

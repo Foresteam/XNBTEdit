@@ -1,6 +1,6 @@
 {
   "name": "xnbtedit",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Named Binary Tag XML editor/converter",
   "main": "index.js",
   "scripts": {
@@ -33,6 +33,7 @@
     "command-line-args": "^5.2.1",
     "command-line-usage": "^6.1.3",
     "fast-xml-parser": "^4.0.7",
+    "mojangson-parser": "^2.1.3",
     "tempy": "^2.0.0",
     "xml2js": "^0.4.23",
     "xmlbuilder": "^15.1.1",
