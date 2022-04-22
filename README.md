@@ -64,21 +64,23 @@ After:
 	...
 </compound>
 ```
-### The SNBT
+### SNBT (not implemented yet)
 Basically:
 ```xml
 <list of="string" name="Lore">
 	<string>[{"text":"Text"}]</string>
 </list>
 ```
-But you get:
+But you'll get:
 ```xml
-<list of="slist" name="Lore">
-	<slist of="compound">
-		<compound>
-			<string name="text">Text</string>
-		</compound>
-	</slist>
+<list of="string" name="Lore">
+	<string nbt="">
+		<list of="compound">
+			<compound>
+				<string name="text">Text</string>
+			</compound>
+		</list>
+	</string>
 </list>
 ```
 
