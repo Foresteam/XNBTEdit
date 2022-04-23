@@ -2,7 +2,7 @@ import { create as XMLBegin } from 'xmlbuilder2';
 import fs from 'fs';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { gunzipSync } from 'zlib';
-import { TYPES, TYPE, Entry, NBTType } from './Common';
+import { TYPES, TYPE, Entry, NBTType } from './Common.js';
 
 interface RSReturn {
 	entry: Entry;

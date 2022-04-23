@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
 import { gzipSync } from 'zlib';
-import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType } from './Common';
+import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType } from './Common.js';
 
 class Writer {
 	#buffers: Buffer[];
