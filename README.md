@@ -2,9 +2,9 @@
 Find JSON too hard to read and GUI too slow for your needs? Here it is.
 A combination of the ease of use of high-level formats and the speed of editing in text.
 ## Features
-* Possibility to only convert a file (NBT->XML and back)
-* Easy editing in a high-level eXtensive Markup Languge
-* *The text editor of your choice*
+* Easy editing in XML (similar to HTML)
+* Text editor of your choice
+* **Ability** to only convert a file, without opening the editor (NBT->XML and back)
 * *SNBTs are also parsed. No more scary inline tags!*
 
 Before:
