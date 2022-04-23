@@ -5,11 +5,9 @@
 		"noImplicitAny": true,
 		"removeComments": true,
 		"preserveConstEnums": true,
-		"sourceMap": true,
 		"moduleResolution": "node",
 		"esModuleInterop": true,
-		"outDir": "dist",
-		"declaration": true
+		"outDir": "dist"
 	},
 	"ts-node": {
 		"esm": true
@@ -18,6 +16,6 @@
 		"src/Common.ts",
 		"src/Reader.ts",
 		"src/Writer.ts",
-		"src/index.ts",
+		"src/index.ts"
 	]
 }

@@ -51,26 +51,35 @@ class Config {
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
-	{ name: 'gzip', alias: 'g', type: String, description: 'Use GZip to compress/decompress (yes/no)? if not specified, will guess by extension' },
-	{ name: 'src', alias: 's', type: String, description: 'Input file: XML, or NBT' },
-	{ name: 'dst', alias: 'd', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' }
+	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by extension' },
+	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
+	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
 ];
 const options = cmdargs(optionList);
 const usage = cmdusage([
 	{
 		header: 'XNBTEdit'.cyan,
 		content: [
+			'Author: Foresteam (https://github.com/Foresteam)',
+			'Git repository: https://github.com/Foresteam/XNBTEdit',
+			'',
 			'Edit NBT files with ease, or only convert them to XML and back.',
-			'xnbtedit [options] {bold --src} {underline file} [{bold --dst} {underline file}]'
+			'xnbtedit [options] {underline <input_file>} [{bold --out} {underline file}]',
 		]
 	},
 	{
 		header: 'Examples',
 		content: [
-			'xnbtedit {bold --gzip} {bold --src} {underline example.dat}',
-			'xnbtedit {bold --src} {underline example.dat.uncompressed} {bold --dst} {underline example.xml}',
-			'xnbtedit {bold --dst} {underline example.xml} {bold --src} {underline example.dat}',
-			'xnbtedit {bold --set-editor} {underline subl}'
+			'Open compressed file for edit:'.italic.dim,
+			`${'xnbtedit'.green} {bold --compression=gzip} {underline example.dat}`,
+			'Convert from uncompressed .dat to xml:'.italic.dim,
+			`${'xnbtedit'.green} {underline example.dat.uncompressed} {bold --out} {underline example.xml}`,
+			'Convert from xml to .dat, {underline compress (implicit)} (gzip assumed):'.italic.dim,
+			`${'xnbtedit'.green} {underline example.xml} {bold --out} {underline example.dat}`,
+			'Convert from xml to .dat, {underline do not compress (explicit)} (despite the .dat extension):'.italic.dim,
+			`${'xnbtedit'.green} {bold -c} {underline none} {underline example.xml} {bold --out} {underline example.dat}`,
+			'Set the editor:'.italic.dim,
+			`${'xnbtedit'.green} {bold --set-editor} {underline vscodium}`
 		]
 	},
 	{
@@ -99,41 +108,41 @@ const Main = () => {
 		exit(0);
 	}
 
-	let { src, dst } = options as { src?: string, dst?: string };
-	let gzip: boolean = options.gzip == 'yes' ? true : (options.gzip == 'no' ? false : undefined);
+	let { input, out } = options as { input?: string, out?: string };
+	let gzip: boolean = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
 
-	if (!src) {
+	if (!input) {
 		console.log('No input file specified.');
 		exit(1);
 	}
 
 	const XML2NBT = () => {
-		if (!dst) {
-			console.log('Destination should be specified for XML --src.');
+		if (!out) {
+			console.log('Destination should be specified for XML --input.');
 			exit(1);
 		}
-		Writer.WriteNBT(dst, Writer.ReadXML(src), gzip);
+		Writer.WriteNBT(out, Writer.ReadXML(input), gzip);
 	}
-	if ((src as string).endsWith('.xml')) {
-		gzip ||= gzip == undefined && !dst.endsWith('.uncompressed');
+	if ((input as string).endsWith('.xml')) {
+		gzip ||= gzip == undefined && !out.endsWith('.uncompressed');
 		XML2NBT();
 		exit(0);
 	}
 	else {
-		gzip ||= gzip == undefined && !src.endsWith('.uncompressed');
-		let edit = !dst;
-		if (!dst)
-			dst = tempy.file({ 'name': basename(src) + '.xml' });
-		Reader.WriteXML(dst, Reader.ReadNBT(src, gzip));
+		gzip ||= gzip == undefined && !input.endsWith('.uncompressed');
+		let edit = !out;
+		if (!out)
+			out = tempy.file({ 'name': basename(input) + '.xml' });
+		Reader.WriteXML(out, Reader.ReadNBT(input, gzip));
 		if (!edit)
 			exit(0);
-		let watcher = chokidar.watch(dst, { awaitWriteFinish: true });
-		watcher.on('change', () => Writer.WriteNBT(src, Writer.ReadXML(dst), gzip));
-		spawn(config.self.editor, [dst]);
+		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		watcher.on('change', () => Writer.WriteNBT(input, Writer.ReadXML(out), gzip));
+		spawn(config.self.editor, [out]);
 
 		process.on('exit', () => {
 			watcher.close();
-			fs.rmSync(dst);
+			fs.rmSync(out);
 		});
 		process.on('SIGINT', process.exit);
 	}

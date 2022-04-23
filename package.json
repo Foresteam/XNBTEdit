@@ -4,9 +4,14 @@
 	"description": "Named Binary Tag XML editor/converter",
 	"main": "dist/index.js",
 	"type": "module",
+	"bin": "dist/index.js",
 	"scripts": {
 		"test": "ts-node src/tests.ts",
-		"build": "tsc && nexe dist/index.js"
+		"build": "tsc && pkg ."
+	},
+	"pkg": {
+		"scripts": "dist/**/*.js",
+		"assets": "LICENSE"
 	},
 	"repository": {
 		"type": "git",
@@ -19,7 +24,7 @@
 		"edit"
 	],
 	"author": "Foresteam",
-	"license": "GPL-3.0-or-later",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/Foresteam/XNBTEdit/issues"
 	},
