@@ -121,9 +121,9 @@ const Main = () => {
 	}
 	else {
 		gzip ||= gzip == undefined && !src.endsWith('.uncompressed');
-		let edit = !!dst;
+		let edit = !dst;
 		if (!dst)
-			dst = tempy.file({ 'name': basename(src) });
+			dst = tempy.file({ 'name': basename(src) + '.xml' });
 		Reader.WriteXML(dst, Reader.ReadNBT(src, gzip));
 		if (!edit)
 			exit(0);
@@ -136,7 +136,6 @@ const Main = () => {
 			fs.rmSync(dst);
 		});
 		process.on('SIGINT', process.exit);
-		process.on('SIGKILL', process.exit);
 	}
 };
 

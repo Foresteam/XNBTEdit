@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "ts-node src/tests.ts",
-		"prepublish": "tsc"
+		"build": "tsc && nexe dist/index.js"
 	},
 	"repository": {
 		"type": "git",

@@ -107,7 +107,6 @@ xnbtedit --help
 #
 Plans for now:
 * SNBT support
-* Add realtime editing via temp files
 
 Maybe somewhen:
 * Make it a plugin for Code / Sublime Text / Vim etc.
