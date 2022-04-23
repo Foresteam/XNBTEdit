@@ -41,7 +41,7 @@ class Reader {
 				pos += 4;
 				break;
 			case TYPE('long'):
-				self.value = this.buffer.readBigUInt64BE(pos);
+				self.value = this.buffer.readBigInt64BE(pos);
 				pos += 8;
 				break;
 			case TYPE('float'):

@@ -40,14 +40,7 @@ class Writer {
 		}
 		if (type == TYPE('long')) {
 			buf = Buffer.alloc(8);
-			// a solution?
-			try {
-				buf.writeBigInt64BE(BigInt(entry.value));
-			}
-			catch {
-				console.log(`${name}: failed to write as Int64. Trying UInt64`);
-				buf.writeBigUInt64BE(BigInt(entry.value));
-			}
+			buf.writeBigInt64BE(BigInt(entry.value));
 		}
 		if (type == TYPE('float')) {
 			buf = Buffer.alloc(4);
