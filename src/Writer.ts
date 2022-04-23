@@ -40,7 +40,14 @@ class Writer {
 		}
 		if (type == TYPE('long')) {
 			buf = Buffer.alloc(8);
-			buf.writeBigInt64BE(entry.value);
+			// a solution?
+			try {
+				buf.writeBigInt64BE(BigInt(entry.value));
+			}
+			catch {
+				console.log(`${name}: failed to write as Int64. Trying UInt64`);
+				buf.writeBigUInt64BE(BigInt(entry.value));
+			}
 		}
 		if (type == TYPE('float')) {
 			buf = Buffer.alloc(4);
@@ -51,10 +58,10 @@ class Writer {
 			buf.writeDoubleBE(entry.value);
 		}
 		if (type == TYPE('string')) {
-			let len = Buffer.from(entry.value, 'utf-8').byteLength;
+			let len = Buffer.from(String(entry.value), 'utf-8').byteLength;
 			buf = Buffer.alloc(2 + len);
 			buf.writeUInt16BE(len);
-			buf.write(entry.value, 2, 'utf-8');
+			buf.write(String(entry.value), 2, 'utf-8');
 		}
 		this.WriteBuf(buf);
 	}

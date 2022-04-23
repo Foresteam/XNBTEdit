@@ -2,8 +2,8 @@ import fs from 'fs';
 import { spawnSync } from 'child_process';
 import 'colors';
 
-import Reader from './Reader';
-import Writer from './Writer';
+import Reader from './Reader.js';
+import Writer from './Writer.js';
 
 const Compare = (f1: string, f2: string) => {
 	let inHash = spawnSync('sha512sum', ['-b', f1]).output.toString().split(' ')[0].substring(1);
@@ -14,10 +14,10 @@ const Compare = (f1: string, f2: string) => {
 }
 
 (async () => {
-	let input = 'tests/test.dat.uncompressed', output = 'tests/result.dat.uncompressed';
+	let input = 'tests/level.dat', output = 'tests/result.dat';
 
 	console.log('#1 Simple nbt-xml-nbt conversion');
-	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input));
-	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'));
+	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true));
+	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'), true);
 	Compare(input, output);
 })();
