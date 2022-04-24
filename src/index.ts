@@ -108,17 +108,17 @@ const Main = () => {
 		exit(1);
 	}
 
-	const XML2NBT = () => {
+	const XML2NBT = async () => {
 		if (!out) {
 			console.log('Destination should be specified for XML --input.');
 			exit(1);
 		}
-		Writer.WriteNBT(out, Writer.ReadXML(input), gzip);
+		console.log(`Writing to ${out}...`);
+		await Writer.WriteNBT(out, Writer.ReadXML(input), gzip);
 	}
 	if ((input as string).endsWith('.xml')) {
 		gzip ||= gzip == undefined && !out.endsWith('.uncompressed');
-		XML2NBT();
-		exit(0);
+		XML2NBT().then(() => exit(0));
 	}
 	else {
 		gzip ||= gzip == undefined && !input.endsWith('.uncompressed');
@@ -130,7 +130,6 @@ const Main = () => {
 			exit(0);
 		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
 		watcher.on('change', () => {
-			console.log('Saving changes...');
 			Writer.WriteNBT(input, Writer.ReadXML(out), gzip);
 		});
 		spawn(config.self.editor, [out]);

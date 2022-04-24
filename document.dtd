@@ -9,9 +9,8 @@
 <!ATTLIST array of (byte|int|long) #REQUIRED>
 <!ATTLIST array name CDATA #IMPLIED>
 
-<!ELEMENT string ANY>
+<!ELEMENT string (#PCDATA)>
 <!ATTLIST string name CDATA #IMPLIED>
-<!ATTLIST string nbt CDATA #IMPLIED>
 
 <!ELEMENT byte (#PCDATA)>
 <!ATTLIST byte name CDATA #IMPLIED>
@@ -30,3 +29,6 @@
 
 <!ELEMENT double (#PCDATA)>
 <!ATTLIST double name CDATA #IMPLIED>
+
+<!ELEMENT snbt ANY>
+<!ATTLIST snbt name CDATA #IMPLIED>

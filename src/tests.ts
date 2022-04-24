@@ -17,7 +17,12 @@ const Compare = (f1: string, f2: string) => {
 	let input = 'tests/level.dat', output = 'tests/result.dat';
 
 	console.log('#1 Simple nbt-xml-nbt conversion');
-	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true));
+	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true, false));
+	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'), true);
+	Compare(input, output);
+
+	console.log('#2 Nbt-xml-nbt conversion + SNBT parsing');
+	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true, true));
 	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'), true);
 	Compare(input, output);
 })();

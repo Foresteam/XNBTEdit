@@ -12,8 +12,10 @@ interface RSReturn {
 };
 class Reader {
 	buffer: Buffer;
-	constructor(buffer: Buffer) {
+	parseSNBT: boolean;
+	constructor(buffer: Buffer, parseSNBT: boolean) {
 		this.buffer = buffer;
+		this.parseSNBT = parseSNBT;
 	}
 	GetName(pos: number, headless: boolean) {
 		if (headless)
@@ -64,10 +66,9 @@ class Reader {
 		pos += 2;
 		self.value = this.buffer.toString('utf-8', pos, pos + len);
 
-		let start: string = self.value && self.value[0];
-		if ('{['.indexOf(start) >= 0) {
+		if ('{['.indexOf(self.value && self.value[0]) >= 0 && this.parseSNBT) {
 			self.value = Mojangson2Entry(mojangson.parse(self.value));
-			// console.log('#3', self.value);
+			self.type = TYPE('snbt');
 		}
 
 		return { entry: self, endPos: pos + len, name };
@@ -169,10 +170,10 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 	if (TYPES[block.type].includes('[]')) {
 		tag = parent.ele('array', { of: TYPES[block.contentType], name });
 	}
-	if (block.type == TYPE('string') && typeof block.value == 'object') {
-		tag = parent.ele('string', { nbt: '', name });
-		console.log(name);
+	if (block.type == TYPE('snbt')) {
+		tag = parent.ele('snbt', { name });
 		block.value = [block.value];
+		console.log(name);
 	}
 
 	for (let [k, v] of Object.entries(block.value))
@@ -182,11 +183,11 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 
 export default {
 	// 'tests/test.dat.uncompressed'
-	ReadNBT(filename: string, gunzip = false): Entry {
+	ReadNBT(filename: string, gunzip = false, parseSNBT = true): Entry {
 		let nbtBytes: Buffer = fs.readFileSync(filename);
 		if (gunzip)
 			nbtBytes = gunzipSync(nbtBytes);
-		return new Reader(nbtBytes).ReadCompound(1, TYPE('compound')).entry;
+		return new Reader(nbtBytes, parseSNBT).ReadCompound(1, TYPE('compound')).entry;
 	},
 	// 'tests/lol.xml'
 	WriteXML(filename: string, data: Entry) {

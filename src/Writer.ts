@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
 import { gzipSync } from 'zlib';
-import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType } from './Common.js';
+import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson } from './Common.js';
+import mojangson from 'mojangson'
 
 class Writer {
 	#buffers: Buffer[];
@@ -50,12 +51,21 @@ class Writer {
 			buf = Buffer.alloc(8);
 			buf.writeDoubleBE(entry.value);
 		}
+		if (type == TYPE('snbt')) {
+			type = TYPE('string');
+			entry.value = mojangson.stringify(Entry2Mojangson(entry.value));
+			console.log(typeof entry.value, entry.value);
+		}
 		if (type == TYPE('string')) {
 			let len = Buffer.from(String(entry.value), 'utf-8').byteLength;
 			buf = Buffer.alloc(2 + len);
 			buf.writeUInt16BE(len);
 			buf.write(String(entry.value), 2, 'utf-8');
 		}
+		// if (buf == undefined) {
+		// 	console.log(name, type);
+		// 	console.trace();
+		// }
 		this.WriteBuf(buf);
 	}
 	WriteArray(entry: Entry, name?: string, headless = false) {
@@ -82,7 +92,7 @@ class Writer {
 		info.writeUInt8(entry.contentType);
 		info.writeInt32BE((entry.value as Entry[]).length, 1);
 		this.WriteBuf(info);
-		for (let v of entry.value as Entry[])
+		for (let v of entry.value as Entry[]) 
 			this.WriteSwitch(entry.contentType, v, null, true);
 	}
 	// headless = !!name
@@ -120,7 +130,9 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 		entry.value = (entries as XMLEntry[]).map(e => Entrify(e)[1]);
 	else
 		entry.type = TYPE(type as NBTType);
-	if (IS_INLINE(TYPE(type as NBTType)))
+	if (type == 'snbt')
+		entry.value = entries ? Entrify((entries as XMLEntry[])[0])[1] : {};
+	else if (IS_INLINE(TYPE(type as NBTType)))
 		entry.value = (entries as XMLEntry[])[0]['#text'];
 	else if (type == 'list')
 		entry.value = (entries as XMLEntry[]).map(e => Entrify(e)[1]);

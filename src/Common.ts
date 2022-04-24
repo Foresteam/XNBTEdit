@@ -1,3 +1,5 @@
+import { MojangsonEntry } from "mojangson";
+
 /**
  * Types assoc.
  * I should stop writing inlines in TS....
@@ -31,12 +33,13 @@ const TYPES = Array.from({
 	10: 'compound',
 	11: 'int[]',
 	12: 'long[]',
-	length: 13
+	13: 'snbt',
+	length: 14
 }) as NBTType[];
-type NBTType = 'end' | 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'byte[]' | 'string' | 'list' | 'compound' | 'int[]' | 'long[]';
+type NBTType = 'end' | 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'byte[]' | 'string' | 'list' | 'compound' | 'int[]' | 'long[]' | 'snbt';
 const TYPE = (name: NBTType) => TYPES.indexOf(name);
-const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == 8;
-const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE('int[]');
+const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == TYPE('string') || type == TYPE('snbt');
+const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE('int[]') && type != TYPE('snbt');
 
 interface Entry {
 	type: number;
@@ -71,7 +74,7 @@ const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
 	return { value: mjvalue.value || mjvalue, type: TYPE(type as NBTType) };
 };
 const MojangsonType = (type: NBTType): string => type.indexOf('[]') >= 0 ? type.replace('[]', 'Array') : type;
-const Entry2Mojangson = (entry: Entry): object => {
+const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
 	if (TYPES[entry.type] == 'list')
 		return {
 			type: MojangsonType(TYPES[entry.type]),
@@ -88,7 +91,12 @@ const Entry2Mojangson = (entry: Entry): object => {
 				value: (entry.value as Entry[]).map(v => v.value)
 			}
 		};
-	return { value: entry.value, type: entry.type };
+	if (TYPES[entry.type] == 'compound')
+		return {
+			type: MojangsonType(TYPES[entry.type]),
+			value: Object.fromEntries(Object.entries(entry.value).map(([k, v]) => ([k, Entry2Mojangson(v as Entry)])))
+		}
+	return { value: entry.value, type: MojangsonType(TYPES[entry.type]) };
 };
 
 export { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Mojangson2Entry, Entry2Mojangson };
