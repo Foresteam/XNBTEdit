@@ -11,14 +11,6 @@ import { spawn } from 'child_process';
 import Reader from './Reader.js';
 import Writer from './Writer.js';
 
-// type Mojangson = {
-// 	simplify(data: object): object;
-// 	stringify({ value, type }: { value: object, type: string }): string;
-// 	parse(text: string): object;
-// 	normalize(str: string): string;
-// };
-// const mojangson = require('mojangson') as Mojangson;
-
 interface IConfig {
 	editor?: string;
 }
@@ -137,7 +129,10 @@ const Main = () => {
 		if (!edit)
 			exit(0);
 		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
-		watcher.on('change', () => Writer.WriteNBT(input, Writer.ReadXML(out), gzip));
+		watcher.on('change', () => {
+			console.log('Saving changes...');
+			Writer.WriteNBT(input, Writer.ReadXML(out), gzip);
+		});
 		spawn(config.self.editor, [out]);
 
 		process.on('exit', () => {

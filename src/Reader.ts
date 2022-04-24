@@ -2,7 +2,8 @@ import { create as XMLBegin } from 'xmlbuilder2';
 import fs from 'fs';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { gunzipSync } from 'zlib';
-import { TYPES, TYPE, Entry, NBTType } from './Common.js';
+import { TYPES, TYPE, Entry, NBTType, Mojangson2Entry } from './Common.js';
+import mojangson from 'mojangson';
 
 interface RSReturn {
 	entry: Entry;
@@ -62,6 +63,13 @@ class Reader {
 		let len = this.buffer.readUInt16BE(pos);
 		pos += 2;
 		self.value = this.buffer.toString('utf-8', pos, pos + len);
+
+		let start: string = self.value && self.value[0];
+		if ('{['.indexOf(start) >= 0) {
+			self.value = Mojangson2Entry(mojangson.parse(self.value));
+			// console.log('#3', self.value);
+		}
+
 		return { entry: self, endPos: pos + len, name };
 	};
 	ReadArray(pos: number, type: number, headless = false): RSReturn {
@@ -138,6 +146,7 @@ class Reader {
 }
 
 const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string): void => {
+	// console.log(block.type, block);
 	if (typeof block.value != 'object') {
 		// not sure it's a good idea, but it greatly boosts readability
 		if (block.type == TYPE('byte') && [0, 1].includes(block.value))
@@ -159,6 +168,11 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 		tag = parent.ele('list', { of: TYPES[block.contentType], name });
 	if (TYPES[block.type].includes('[]')) {
 		tag = parent.ele('array', { of: TYPES[block.contentType], name });
+	}
+	if (block.type == TYPE('string') && typeof block.value == 'object') {
+		tag = parent.ele('string', { nbt: '', name });
+		console.log(name);
+		block.value = [block.value];
 	}
 
 	for (let [k, v] of Object.entries(block.value))

@@ -9,7 +9,7 @@
 <!ATTLIST array of (byte|int|long) #REQUIRED>
 <!ATTLIST array name CDATA #IMPLIED>
 
-<!ELEMENT string (#PCDATA)>
+<!ELEMENT string ANY>
 <!ATTLIST string name CDATA #IMPLIED>
 <!ATTLIST string nbt CDATA #IMPLIED>
 

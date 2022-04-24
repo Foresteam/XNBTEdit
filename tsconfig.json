@@ -7,7 +7,8 @@
 		"preserveConstEnums": true,
 		"moduleResolution": "node",
 		"esModuleInterop": true,
-		"outDir": "dist"
+		"outDir": "dist",
+		"typeRoots": ["types"]
 	},
 	"ts-node": {
 		"esm": true
