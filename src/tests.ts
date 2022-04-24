@@ -14,15 +14,15 @@ const Compare = (f1: string, f2: string) => {
 }
 
 (async () => {
-	let input = 'tests/level.dat', output = 'tests/result.dat';
+	let input = 'tests/test.dat.uncompressed', output = 'tests/result';
 
 	console.log('#1 Simple nbt-xml-nbt conversion');
-	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true, false));
-	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'), true);
-	Compare(input, output);
+	Reader.WriteXML('tests/temp_edit1.xml', Reader.ReadNBT(input, false, false));
+	await Writer.WriteNBT(`${output}1.dat.uncompressed`, Writer.ReadXML('tests/temp_edit1.xml'), false);
+	Compare(input, `${output}1.dat.uncompressed`);
 
 	console.log('#2 Nbt-xml-nbt conversion + SNBT parsing');
-	Reader.WriteXML('tests/temp_edit.xml', Reader.ReadNBT(input, true, true));
-	await Writer.WriteNBT(output, Writer.ReadXML('tests/temp_edit.xml'), true);
-	Compare(input, output);
+	Reader.WriteXML('tests/temp_edit2.xml', Reader.ReadNBT(input, false, true));
+	await Writer.WriteNBT(`${output}2.dat.uncompressed`, Writer.ReadXML('tests/temp_edit2.xml'), false);
+	Compare(input, `${output}2.dat.uncompressed`);
 })();
