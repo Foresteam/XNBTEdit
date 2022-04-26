@@ -14,17 +14,17 @@ const Compare = (f1: string, f2: string) => {
 }
 
 (async () => {
-	let input = 'tests/test.dat.uncompressed', output = 'tests/result';
+	let input = 'tests/test.dat', output = 'tests/result';
 
 	// check fails with gzip pack/unpack. Different versions?
 	console.log('#1 Simple nbt-xml-nbt conversion');
-	Reader.WriteXML('tests/temp_edit1.xml', Reader.ReadNBT(input, false, false));
-	await Writer.WriteNBT(`${output}1.dat.uncompressed`, Writer.ReadXML('tests/temp_edit1.xml'), false);
-	Compare(input, `${output}1.dat.uncompressed`);
+	Reader.WriteXML('tests/temp_edit1.xml', Reader.ReadNBT(input, true, false));
+	await Writer.WriteNBT(`${output}1.dat`, Writer.ReadXML('tests/temp_edit1.xml'), true);
+	Compare(input, `${output}1.dat`);
 
 	// fails. The cause seems to be Mojangson parser removing quotes that are not necessary
 	console.log('#2 Nbt-xml-nbt conversion + SNBT parsing');
-	Reader.WriteXML('tests/temp_edit2.xml', Reader.ReadNBT(input, false, true));
-	await Writer.WriteNBT(`${output}2.dat.uncompressed`, Writer.ReadXML('tests/temp_edit2.xml'), false);
-	Compare(input, `${output}2.dat.uncompressed`);
+	Reader.WriteXML('tests/temp_edit2.xml', Reader.ReadNBT(input, true, true));
+	await Writer.WriteNBT(`${output}2.dat`, Writer.ReadXML('tests/temp_edit2.xml'), true);
+	Compare(input, `${output}2.dat`);
 })();
