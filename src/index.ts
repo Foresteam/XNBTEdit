@@ -55,6 +55,8 @@ const usage = cmdusage([
 			'Author: Foresteam (https://github.com/Foresteam)',
 			'Git repository: https://github.com/Foresteam/XNBTEdit',
 			'',
+			'WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.'.red,
+			'',
 			'Edit NBT files with ease, or only convert them to XML and back.',
 			'xnbtedit [options] {underline <input_file>} [{bold --out} {underline file}]',
 		]
@@ -113,7 +115,7 @@ const Main = () => {
 			console.log('Destination should be specified for XML --input.');
 			exit(1);
 		}
-		console.log(`Writing to ${out}...`);
+		console.log(`Writing to ${out}`);
 		await Writer.WriteNBT(out, Writer.ReadXML(input), gzip);
 	}
 	if ((input as string).endsWith('.xml')) {
@@ -126,11 +128,12 @@ const Main = () => {
 		if (!out)
 			out = tempy.file({ 'name': basename(input) + '.xml' });
 		Reader.WriteXML(out, Reader.ReadNBT(input, gzip));
+		fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
 		if (!edit)
 			exit(0);
 		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
 		watcher.on('change', () => {
-			console.log(`Writing to ${input}...`);
+			console.log(`Writing to ${input}`);
 			Writer.WriteNBT(input, Writer.ReadXML(out), gzip);
 		});
 		spawn(config.self.editor, [out]);

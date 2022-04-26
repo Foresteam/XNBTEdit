@@ -7,6 +7,8 @@ NBT-XML converter. Helps you with editing.
 * Possibility to convert a file without opening the editor (if you want to share it, for example)
 * SNBTs are also parsed. No more scary inline tags! (IN PROGRESS)
 
+**WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.**
+
 Before:
 ```h
 0a00 0001 000b 7365 656e 4372 6564 6974
