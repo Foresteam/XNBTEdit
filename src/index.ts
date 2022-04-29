@@ -43,7 +43,7 @@ class Config {
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
-	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by extension (or header)' },
+	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by header' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
 ];
@@ -57,7 +57,7 @@ const usage = cmdusage([
 			'',
 			'WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.'.red,
 			'',
-			'Edit NBT files with ease, or only convert them to XML and back.',
+			'Edit NBT files, or convert to XML.',
 			'xnbtedit [options] {underline <input_file>} [{bold --out} {underline file}]',
 		]
 	},
@@ -106,20 +106,23 @@ const Main = () => {
 	let gzip: boolean = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
 
 	if (!input) {
-		console.log('No input file specified.');
+		console.log('No input file specified.'.red);
 		exit(1);
 	}
 
 	const XML2NBT = async () => {
 		if (!out) {
-			console.log('Destination should be specified for XML --input.');
+			console.log('Destination should be specified for XML --input.'.red);
 			exit(1);
 		}
 		console.log(`Writing to ${out}`);
 		await Writer.X2NPipe(input, out, { gzip });
 	}
 	if ((input as string).endsWith('.xml')) {
-		gzip ||= gzip == undefined && !out.endsWith('.uncompressed');
+		if (gzip == undefined) {
+			console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
+			exit(1);
+		}
 		XML2NBT().then(() => exit(0));
 	}
 	else (async () => {

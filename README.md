@@ -1,13 +1,14 @@
 # XNBTEdit. Edit NBT in XML
-NBT-XML converter. Helps you with editing.
+NBT-XML converter. Also capable of editing.
 ## Features
 * NBT -> XML and back
 * Easy editing in XML (similar to HTML)
 * Text editor of your choice
-* Possibility to convert a file without opening the editor (if you want to share it, for example)
-* SNBTs are also parsed. No more scary inline tags! (IN PROGRESS)
+* Ability to only convert a file
+* SNBTs are also parsed. No more scary inline tags!
+*There may be issues with non-ASCII characters. Gonna implement, later.*
 
-**WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.**
+**WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version saved in the same folder with .backup extension.**
 
 Before:
 ```h
@@ -66,7 +67,7 @@ After:
 	...
 </compound>
 ```
-### SNBT (not implemented yet)
+### SNBT
 Basically:
 ```xml
 <list of="string" name="Lore">
@@ -86,29 +87,25 @@ But you'll get:
 </list>
 ```
 
-## Getting started
-### Setup
-Download a binary distribution from ***Releases*** section
+# Installation
+## Binary
+Download a distribution from ***Releases*** section.
+## From source
+Install **NodeJS v17.9.0** (i used this version), **pnpm**.
 
-OR **Install** NodeJS v16.13.2 (i'm using this), pnpm.
 Then:
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
 pnpm install
+pnpm build # may require unix-like shell
 ```
-To run the program:
-```sh
-pnpm start
-```
-### Usage
+The executable would be in **./dist/bin**
+# Usage
 ```sh
 xnbtedit --help
 ```
 
 #
-Plans for now:
-* SNBT support
-
-Maybe somewhen:
-* Make it a plugin for Code / Sublime Text / Vim etc.
+Somewhen:
+* Add bulk convertion/editing.

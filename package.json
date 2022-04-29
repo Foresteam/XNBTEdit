@@ -8,7 +8,8 @@
 	"scripts": {
 		"test": "ts-node src/tests.ts",
 		"prepare": "tsc",
-		"build": "rm -r dist && tsc && mkdir dist/bin && caxa -i . '{{caxa}}/node_modules/.bin/node' '{{caxa}}/dist' -o dist/bin/xnbtedit && cd dist && tar -caf xnbtedit.tar.gz bin/xnbtedit ../LICENSE && cd ..",
+		"build": "rm -r dist && tsc && mkdir dist/bin && caxa -i . '{{caxa}}/node_modules/.bin/node' '{{caxa}}/dist' -o dist/bin/xnbtedit",
+		"pack": "cd dist && tar -caf xnbtedit.tar.gz bin/xnbtedit ../LICENSE && cd ..",
 		"build-win": "tsc && caxa -i . '{{caxa}}/node_modules/.bin/node' '{{caxa}}/dist' -o dist/xnbtedit.exe"
 	},
 	"pkg": {
