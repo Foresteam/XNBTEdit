@@ -109,7 +109,7 @@ class Writer {
 	End(filename: string, gzip = false) {
 		let buf = Buffer.concat(this.#buffers);
 		if (gzip)
-			buf = gzipSync(buf.toString());
+			buf = gzipSync(buf.toString(), { info: false, 'level': 6 });
 		fs.writeFileSync(filename, buf, 'binary');
 	}
 }
