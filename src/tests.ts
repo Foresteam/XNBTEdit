@@ -39,12 +39,12 @@ const Compare = async (f1: string, f2: string, gzip: boolean) => {
 
 	console.log('#3 Simple nbt-xml-nbt conversion (uncompressed)');
 	await Reader.N2XPipe(input, 'tests/temp_edit3.xml', { gzip: false, parseSNBT: false });
-	await Writer.X2NPipe('tests/temp_edit3.xml', `${output}1.dat.uncompressed`, { gzip: false });
-	await Compare(input, `${output}1.dat.uncompressed`, false);
+	await Writer.X2NPipe('tests/temp_edit3.xml', `${output}3.dat.uncompressed`, { gzip: false });
+	await Compare(input, `${output}3.dat.uncompressed`, false);
 
 	// fails. The cause seems to be Mojangson parser removing quotes that are not necessary
 	console.log('#4 Nbt-xml-nbt conversion + SNBT parsing (uncompressed)');
 	await Reader.N2XPipe(input, 'tests/temp_edit4.xml', { gzip: false, parseSNBT: true })
-	await Writer.X2NPipe('tests/temp_edit4.xml', `${output}2.dat.uncompressed`, { gzip: false })
-	await Compare(input, `${output}2.dat.uncompressed`, false);
+	await Writer.X2NPipe('tests/temp_edit4.xml', `${output}4.dat.uncompressed`, { gzip: false })
+	await Compare(input, `${output}4.dat.uncompressed`, false);
 })();

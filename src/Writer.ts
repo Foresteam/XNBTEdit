@@ -110,7 +110,7 @@ class Writer {
 	End(gzip = false) {
 		let buf = Buffer.concat(this.#buffers);
 		if (gzip)
-			buf = gzipSync(buf.toString(), { info: false, 'level': 6 });
+			buf = gzipSync(buf, { info: false, level: 6, chunkSize: 16 * 1024 });
 		return buf;
 	}
 }
