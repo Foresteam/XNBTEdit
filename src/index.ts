@@ -43,7 +43,7 @@ class Config {
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
-	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by extension' },
+	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by extension (or header)' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
 ];
@@ -122,8 +122,12 @@ const Main = () => {
 		gzip ||= gzip == undefined && !out.endsWith('.uncompressed');
 		XML2NBT().then(() => exit(0));
 	}
-	else {
-		gzip ||= gzip == undefined && !input.endsWith('.uncompressed');
+	else (async () => {
+		if (gzip == undefined) {
+			let istream = fs.createReadStream(input, { mode: 1 });
+			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+		}
 		let edit = !out;
 		if (!out)
 			out = tempy.file({ 'name': basename(input) + '.xml' });
@@ -143,11 +147,12 @@ const Main = () => {
 			fs.rmSync(out);
 		});
 		process.on('SIGINT', process.exit);
-	}
+	})();
 };
 
 Main();
 
+// mutf8. Later...
 // function encodeUTF8(str) {
 // 	var array = [], i, c;
 // 	for (i = 0; i < str.length; i++) {
