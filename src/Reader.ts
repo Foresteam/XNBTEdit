@@ -2,8 +2,9 @@ import { create as XMLBegin } from 'xmlbuilder2';
 import fs from 'fs';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { gunzipSync } from 'zlib';
-import { TYPES, TYPE, Entry, NBTType, Mojangson2Entry } from './Common.js';
+import { TYPES, TYPE, Entry, NBTType, Mojangson2Entry, PipeOptions } from './Common.js';
 import mojangson from 'mojangson';
+import { promisify } from 'util';
 
 interface RSReturn {
 	entry: Entry;
@@ -181,22 +182,27 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 };
 
 
-export default {
-	// 'tests/test.dat.uncompressed'
-	ReadNBT(filename: string, gunzip = false, parseSNBT = true): Entry {
-		let nbtBytes: Buffer = fs.readFileSync(filename);
-		if (gunzip)
-			nbtBytes = gunzipSync(nbtBytes);
-		return new Reader(nbtBytes, parseSNBT).ReadCompound(1, TYPE('compound')).entry;
-	},
-	// 'tests/lol.xml'
-	WriteXML(filename: string, data: Entry) {
-		let root = XMLBegin();
-		root.dtd({ sysID: 'https://raw.githubusercontent.com/Foresteam/XNBTEdit/master/document.dtd' });
-		root.com('Generated with XNBTEdit by Foresteam (https://github.com/Foresteam/XNBTEdit)');
-		root = root.ele('compound');
-		BuildXML(data, root, true);
-		let xml = root.end({ prettyPrint: true, indent: '\t' });
-		fs.writeFileSync(filename, xml);
-	}
+const ReadNBT = ({ nbtBytes, gunzip = false, parseSNBT = true, filename }: { nbtBytes?: Buffer, gunzip?: boolean, parseSNBT?: boolean, filename?: string }): Entry => {
+	if (filename)
+		nbtBytes = fs.readFileSync(filename);
+	if (gunzip)
+		nbtBytes = gunzipSync(nbtBytes);
+	return new Reader(nbtBytes, parseSNBT).ReadCompound(1, TYPE('compound')).entry;
+};
+const WriteXML = async ({ data, filename }: { data: Entry, filename?: string }): Promise<string|void> => {
+	let root = XMLBegin();
+	root.dtd({ sysID: 'https://raw.githubusercontent.com/Foresteam/XNBTEdit/master/document.dtd' });
+	root.com('Generated with XNBTEdit by Foresteam (https://github.com/Foresteam/XNBTEdit)');
+	root = root.ele('compound');
+	BuildXML(data, root, true);
+	let xml = root.end({ prettyPrint: true, indent: '\t' });
+	if (filename)
+		await promisify(fs.writeFile)(filename, xml);
+	else
+		return xml;
+};
+const N2XPipe = async (nbtInput: string, xmlOutput: string, { gzip: gunzip, parseSNBT }: PipeOptions = {}): Promise<void> => {
+	await WriteXML({ filename: xmlOutput, data: ReadNBT({ filename: nbtInput, gunzip, parseSNBT }) });
 }
+
+export default { ReadNBT, WriteXML, N2XPipe}

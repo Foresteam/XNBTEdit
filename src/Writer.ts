@@ -1,8 +1,9 @@
 import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
 import { gzipSync } from 'zlib';
-import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson } from './Common.js';
+import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson, PipeOptions } from './Common.js';
 import mojangson from 'mojangson'
+import { promisify } from 'util';
 
 class Writer {
 	#buffers: Buffer[];
@@ -106,11 +107,11 @@ class Writer {
 		this.WriteBuf(buf);
 	}
 
-	End(filename: string, gzip = false) {
+	End(gzip = false) {
 		let buf = Buffer.concat(this.#buffers);
 		if (gzip)
 			buf = gzipSync(buf.toString(), { info: false, 'level': 6 });
-		fs.writeFileSync(filename, buf, 'binary');
+		return buf;
 	}
 }
 
@@ -146,16 +147,21 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 	return [tag[':@']?.name, entry];
 }
 
-export default {
-	ReadXML(filename: string): Entry {
-		let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
-		let json = parser.parse(fs.readFileSync(filename)) as XMLEntry[];
-		return Entrify(json[0])[1];
-	},
-	// 'tests/result.dat.uncompressed'
-	async WriteNBT(filename: string, root: Entry, gzip = false): Promise<void> {
-		let writer = new Writer();
-		writer.WriteCompound(root);
-		writer.End(filename, gzip);
-	}
+const ReadXML = ({ xml, filename }: { xml?: string, filename?: string}): Entry => {
+	let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
+	let json = parser.parse(filename ? fs.readFileSync(filename) : xml) as XMLEntry[];
+	return Entrify(json[0])[1];
 }
+const WriteNBT = async ({ filename, root, gzip = false }: { filename?: string, root: Entry, gzip?: boolean }): Promise<Buffer|void> => {
+	let writer = new Writer();
+	writer.WriteCompound(root);
+	let buf = writer.End(gzip);
+	if (filename)
+		await promisify(fs.writeFile)(filename, buf, 'binary');
+	else
+		return buf;
+}
+const X2NPipe = async (xmlInput: string, nbtOutput: string, { gzip }: PipeOptions = {}): Promise<void> => {
+	await WriteNBT({ filename: nbtOutput, root: ReadXML({ filename: xmlInput }), gzip });
+}
+export default { ReadXML, WriteNBT, X2NPipe };
