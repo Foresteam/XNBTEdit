@@ -127,6 +127,7 @@ const Main = () => {
 			let istream = fs.createReadStream(input, { mode: 1 });
 			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
 			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+			istream.close();
 		}
 		let edit = !out;
 		if (!out)
