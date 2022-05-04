@@ -174,7 +174,6 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 	if (block.type == TYPE('snbt')) {
 		tag = parent.ele('snbt', { name });
 		block.value = [block.value];
-		console.log(name);
 	}
 
 	for (let [k, v] of Object.entries(block.value))

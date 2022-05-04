@@ -1,10 +1,9 @@
 {
 	"name": "xnbtedit",
-	"version": "0.9.10",
+	"version": "0.9.11",
 	"description": "Named Binary Tag XML editor/converter",
 	"main": "dist/index.js",
 	"type": "module",
-	"bin": "dist/index.js",
 	"scripts": {
 		"test": "ts-node src/tests.ts",
 		"prepare": "tsc",

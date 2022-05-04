@@ -4,7 +4,7 @@ declare module "mojangson" {
 		type: string;
 	}
 	function simplify(data: object): object;
-	function stringify({ value, type }: MojangsonEntry): string;
+	function stringify({ value, type }: MojangsonEntry, quotes?: boolean): string;
 	function parse(text: string): object;
 	function normalize(str: string): string;
 }

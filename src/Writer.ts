@@ -2,7 +2,7 @@ import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
 import { gzipSync } from 'zlib';
 import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson, PipeOptions } from './Common.js';
-import mojangson from 'mojangson'
+import mojangson from 'mojangson';
 import { promisify } from 'util';
 
 class Writer {
@@ -26,7 +26,6 @@ class Writer {
 		this.WriteBuf(buf);
 	}
 	WriteInline(type: number, entry: Entry, name?: string, headless = false) {
-		this.WriteTypeAndName(type, name, headless);
 		let buf: Buffer;
 		if (type == TYPE('byte')) {
 			buf = Buffer.alloc(1);
@@ -54,19 +53,18 @@ class Writer {
 		}
 		if (type == TYPE('snbt')) {
 			type = TYPE('string');
-			entry.value = mojangson.stringify(Entry2Mojangson(entry.value));
-			console.log(typeof entry.value, entry.value);
+			entry.value = mojangson.stringify(Entry2Mojangson(entry.value), true);
 		}
 		if (type == TYPE('string')) {
-			let len = Buffer.from(String(entry.value), 'binary').byteLength;
+			let len = Buffer.from(String(entry.value), 'utf-8').byteLength;
 			buf = Buffer.alloc(2 + len);
 			buf.writeUInt16BE(len);
-			buf.write(String(entry.value), 2, 'binary');
+			buf.write(String(entry.value), 2, 'utf-8');
 		}
-		// if (buf == undefined) {
-		// 	console.log(name, type);
-		// 	console.trace();
-		// }
+
+		// should be in the end, 'cause otherwise it'll write the artificient SNBT tag
+		this.WriteTypeAndName(type, name, headless);
+
 		this.WriteBuf(buf);
 	}
 	WriteArray(entry: Entry, name?: string, headless = false) {
