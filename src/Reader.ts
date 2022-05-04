@@ -23,7 +23,7 @@ class Reader {
 			return { name: null, offset: 0 };
 		let len = this.buffer.readUInt16BE(pos);
 		return {
-			name: this.buffer.toString('utf-8', pos + 2, pos + 2 + len),
+			name: this.buffer.toString('binary', pos + 2, pos + 2 + len),
 			offset: 2 + len
 		};
 	}
@@ -65,7 +65,7 @@ class Reader {
 		pos += nameOffset;
 		let len = this.buffer.readUInt16BE(pos);
 		pos += 2;
-		self.value = this.buffer.toString('utf-8', pos, pos + len);
+		self.value = this.buffer.toString('binary', pos, pos + len);
 
 		if ('{['.indexOf(self.value && self.value[0]) >= 0 && this.parseSNBT) {
 			self.value = Mojangson2Entry(mojangson.parse(self.value));

@@ -17,12 +17,12 @@ class Writer {
 	WriteTypeAndName(type: number, name?: string, headless = false) {
 		if (headless)
 			return;
-		let nameLen = name ? Buffer.from(name, 'utf-8').byteLength : 0;
+		let nameLen = name ? Buffer.from(name, 'binary').byteLength : 0;
 		let buf = Buffer.alloc(1 + 2 + nameLen);
 		buf.writeUInt8(type);
 		buf.writeUInt16BE(nameLen, 1);
 		if (name)
-			buf.write(name, 3, 'utf-8');
+			buf.write(name, 3, 'binary');
 		this.WriteBuf(buf);
 	}
 	WriteInline(type: number, entry: Entry, name?: string, headless = false) {
@@ -58,10 +58,10 @@ class Writer {
 			console.log(typeof entry.value, entry.value);
 		}
 		if (type == TYPE('string')) {
-			let len = Buffer.from(String(entry.value), 'utf-8').byteLength;
+			let len = Buffer.from(String(entry.value), 'binary').byteLength;
 			buf = Buffer.alloc(2 + len);
 			buf.writeUInt16BE(len);
-			buf.write(String(entry.value), 2, 'utf-8');
+			buf.write(String(entry.value), 2, 'binary');
 		}
 		// if (buf == undefined) {
 		// 	console.log(name, type);
@@ -110,7 +110,7 @@ class Writer {
 	End(gzip = false) {
 		let buf = Buffer.concat(this.#buffers);
 		if (gzip)
-			buf = gzipSync(buf, { info: false, level: 6, chunkSize: 16 * 1024 });
+			buf = gzipSync(buf, { info: false });
 		return buf;
 	}
 }

@@ -44,6 +44,7 @@ const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
 	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by header' },
+	{ name: 'no-snbt', alias: 's', type: Boolean, description: 'If specified, SNBTs won\'t be parsed' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
 ];
@@ -135,7 +136,7 @@ const Main = () => {
 		let edit = !out;
 		if (!out)
 			out = tempy.file({ 'name': basename(input) + '.xml' });
-		Reader.N2XPipe(input, out, { gzip });
+		Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
 		fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
 		if (!edit)
 			exit(0);
