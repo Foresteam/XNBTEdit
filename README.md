@@ -91,16 +91,31 @@ But you'll get:
 ## Binary
 Download a distribution from ***Releases*** section.
 ## From source
-Install **NodeJS v17.9.0** (i used this version), **pnpm**.
+Install **NodeJS v17.9.0** (i used this version), ***pnpm*** (not on Windows).
 
 Then:
+
+Linux / Mac(?):
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
 pnpm install
 pnpm build # may require unix-like shell
 ```
-The executable would be in **./dist/bin**
+Windows (git bash):
+```sh
+git clone https://github.com/Foresteam/XNBTEdit.git
+cd XNBTEdit
+npm i
+npm run build-win
+```
+**Important note**: on Windows ***npm*** should be used instead. For pnpm creates privilege issues with Caxa archives (argues something about symlinks), and thus requires admin rights to build or first time execute the binary either.
+
+The executable will be in **./dist/bin**. You can also pack it, if you like (requires TAR):
+```sh
+pnpm pack # or npm run pack
+```
+
 # Usage
 ```sh
 xnbtedit --help
