@@ -1,4 +1,4 @@
-import { MojangsonEntry } from "mojangson";
+import { MojangsonEntry } from "@foresteam/mojangson";
 
 /**
  * Types assoc.

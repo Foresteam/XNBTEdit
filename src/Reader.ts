@@ -3,7 +3,7 @@ import fs from 'fs';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { gunzipSync } from 'zlib';
 import { TYPES, TYPE, Entry, NBTType, Mojangson2Entry, PipeOptions } from './Common.js';
-import mojangson from 'mojangson';
+import mojangson from '@foresteam/mojangson';
 import { promisify } from 'util';
 
 interface RSReturn {
