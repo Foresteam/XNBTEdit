@@ -113,7 +113,7 @@ npm run build-win
 
 The executable will be in **./dist/bin**. You can also pack it, if you like (requires TAR):
 ```sh
-pnpm pack # or npm run pack
+pnpm pack-lin # or npm run pack-win
 ```
 
 # Usage
