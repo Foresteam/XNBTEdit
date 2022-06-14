@@ -47,6 +47,7 @@ const optionList = [
 	{ name: 'no-snbt', alias: 's', type: Boolean, description: 'If specified, SNBTs won\'t be parsed' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
+	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' }
 ];
 const options = cmdargs(optionList);
 const usage = cmdusage([
@@ -74,7 +75,9 @@ const usage = cmdusage([
 			'Convert from xml to .dat, {underline do not compress (explicit)} (despite the .dat extension):'.italic.dim,
 			`${'xnbtedit'.green} {bold -c} {underline none} {underline example.xml} {bold --out} {underline example.dat}`,
 			'Set the editor:'.italic.dim,
-			`${'xnbtedit'.green} {bold --set-editor} {underline vscodium}`
+			`${'xnbtedit'.green} {bold --set-editor} {underline vscodium}`,
+			'Bulk covert:'.italic.dim,
+			`${'xnbtedit'.green} {bold --bulk} {underline folder1/} {bold --out} {underline folder2/}`
 		]
 	},
 	{
