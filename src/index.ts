@@ -48,7 +48,8 @@ const optionList = [
 	{ name: 'no-snbt', alias: 's', type: Boolean, description: 'If specified, SNBTs won\'t be parsed' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
-	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' }
+	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' },
+	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Convertion mode for bulk mode. Default is nbt -> xml' }
 ];
 const options = cmdargs(optionList);
 const usage = cmdusage([
@@ -108,8 +109,9 @@ const Main = async () => {
 	}
 
 	const { input: _input, out: _out } = options as { input?: string, out?: string };
-	let gzip: boolean = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
-	const bulk: boolean = !!options.bulk;
+	let gzip = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
+	const bulk = !!options.bulk;
+	const xmlinput = !!options.xmlinput;
 	
 	if (!_input) {
 		console.log('No input file specified.'.red);
@@ -145,51 +147,51 @@ const Main = async () => {
 	else
 		inputs.push(_input), outs.push(_out);
 
-	console.log(inputs);
-	exit(0);
+	const XML2NBT = async (input: string, out: string = null) => {
+		if (!out) {
+			console.log('Destination should be specified for XML --input.'.red);
+			exit(1);
+		}
+		console.log(`Writing to ${out}`);
+		await Writer.X2NPipe(input, out, { gzip });
+	}
+	const OpenEditor = (fn: string) => spawn(config.self.editor, [fn]);;
+	if (!bulk && _input.endsWith('.xml') || bulk && xmlinput) {
+		if (gzip == undefined) {
+			console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
+			exit(1);
+		}
+		for (let [i, o] of inputs.map((v, i) => ([v, outs.length > i ? outs[i] : null])))
+			await XML2NBT(i, o);
+		exit(0);
+	}
+	else (async () => {
+		if (gzip == undefined) {
+			let istream = fs.createReadStream(input, { mode: 1 });
+			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+			istream.close();
+		}
+		let edit = !out;
+		if (!out)
+			out = tempy.file({ 'name': path.basename(input) + '.xml' });
+		Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
+		fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
+		if (!edit)
+			exit(0);
+		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		watcher.on('change', () => {
+			console.log(`Writing to ${input}`);
+			Writer.X2NPipe(out, input, { gzip });
+		});
+		OpenEditor();
 
-	// const XML2NBT = async () => {
-	// 	if (!out) {
-	// 		console.log('Destination should be specified for XML --input.'.red);
-	// 		exit(1);
-	// 	}
-	// 	console.log(`Writing to ${out}`);
-	// 	await Writer.X2NPipe(input, out, { gzip });
-	// }
-	// if ((input as string).endsWith('.xml')) {
-	// 	if (gzip == undefined) {
-	// 		console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
-	// 		exit(1);
-	// 	}
-	// 	XML2NBT().then(() => exit(0));
-	// }
-	// else (async () => {
-	// 	if (gzip == undefined) {
-	// 		let istream = fs.createReadStream(input, { mode: 1 });
-	// 		let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
-	// 		gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
-	// 		istream.close();
-	// 	}
-	// 	let edit = !out;
-	// 	if (!out)
-	// 		out = tempy.file({ 'name': path.basename(input) + '.xml' });
-	// 	Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
-	// 	fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
-	// 	if (!edit)
-	// 		exit(0);
-	// 	let watcher = chokidar.watch(out, { awaitWriteFinish: true });
-	// 	watcher.on('change', () => {
-	// 		console.log(`Writing to ${input}`);
-	// 		Writer.X2NPipe(out, input, { gzip });
-	// 	});
-	// 	spawn(config.self.editor, [out]);
-
-	// 	process.on('exit', () => {
-	// 		watcher.close();
-	// 		fs.rmSync(out);
-	// 	});
-	// 	process.on('SIGINT', process.exit);
-	// })();
+		process.on('exit', () => {
+			watcher.close();
+			fs.rmSync(out);
+		});
+		process.on('SIGINT', process.exit);
+	})();
 };
 
 Main();
