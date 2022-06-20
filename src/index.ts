@@ -4,6 +4,7 @@ import cmdusage from 'command-line-usage';
 import 'colors';
 import { exit } from 'process';
 import fs from 'fs';
+import fsp from 'node:fs/promises';
 import os from 'os';
 import tempy from 'tempy';
 import path from 'path';
@@ -146,16 +147,23 @@ interface OpenFileArgs {
 	bulk: boolean;
 	xmlinput: boolean;
 }
-const OpenFile = async ({ input, inputMeaningful, tempDir, outDir, outName, bulk, xmlinput, gzip }: OpenFileArgs): Promise<null|chokidar.FSWatcher> => {
+interface OpenFileResult {
+	filename: string;
+	watcher: chokidar.FSWatcher;
+}
+const OpenFile = async ({ input, inputMeaningful, tempDir, outDir, outName, bulk, xmlinput, gzip }: OpenFileArgs): Promise<OpenFileResult> => {
 	// out=false means we should create temp file. Else we only create the missing path component
 	// now we have to check outName too...
 	let out = '';
-	if (tempDir)
+	if (tempDir !== undefined)
 		out = path.join(tempDir, inputMeaningful);
-	else if (outDir)
+	else if (outDir !== undefined)
 		out = path.join(outDir, inputMeaningful);
 	else if (outName)
 		out = outName;
+
+	if (out)
+		await fsp.mkdir(path.dirname(out), { recursive: true }).catch(() => {});
 
 	const XML2NBT = async (input: string, out: string) => {
 		if (!out) {
@@ -189,12 +197,7 @@ const OpenFile = async ({ input, inputMeaningful, tempDir, outDir, outName, bulk
 			return null;
 		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
 		watcher.on('change', () => XML2NBT(out, input));
-
-		// process.on('exit', () => {
-		// 	watcher.close();
-		// 	fs.rmSync(out);
-		// });
-		// process.on('SIGINT', process.exit);
+		return { filename: out, watcher };
 	}
 }
 
@@ -250,15 +253,30 @@ const Main = async () => {
 	console.log(FindTopFolderName(_input));
 	// exit();
 
-	let tmpDir: string = null, outDir: string = null;
+	const top = FindTopFolderName(_input);
+	let tempDir: string, outDir: string;
 	if (bulk) {
 		if (edit)
-			tmpDir = tempy.directory();
+			tempDir = tempy.directory();
 		else
-			outDir = FindTopFolderName(_input);
+			outDir = top;
 	}
-	let watchers = inputs.map(fn => {
-
-	});
+	let opened: OpenFileResult[] = [];
+	for (let fn of inputs)
+		opened.push(await OpenFile({
+			input: fn,
+			inputMeaningful: SubtractBeginning(fn, top),
+			tempDir,
+			outDir,
+			outName: !bulk ? _out : undefined,
+			bulk, xmlinput, gzip
+		}));
+	process.on('exit', () => opened.forEach((rs?: OpenFileResult) => {
+		if (!rs)
+			return;
+		rs.watcher.close();
+		fs.rmSync(rs.filename);
+	}));
+	process.on('SIGINT', process.exit);
 };
 Main();
