@@ -3,6 +3,7 @@ import { MojangsonEntry } from "@foresteam/mojangson";
 /**
  * Types assoc.
  * I should stop writing inlines in TS....
+ * Still weird, btw. I thought i know a better implementation, but realized i don't
  * */
 // const TYPES = Array.from(((v: { [index: number]: string }): ArrayLike<string> => ({ length: Object.entries(v).length, ...Object.entries(v) }))({
 // 	0: 'end',

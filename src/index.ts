@@ -44,6 +44,7 @@ class Config {
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
+	{ name: 'edit', alias: 'e', type: Boolean, description: 'Open for editing' },
 	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress (gzip|none)? If not specified, will guess by header' },
 	{ name: 'no-snbt', alias: 's', type: Boolean, description: 'If specified, SNBTs won\'t be parsed' },
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
@@ -51,7 +52,17 @@ const optionList = [
 	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' },
 	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Convertion mode for bulk mode. Default is nbt -> xml' }
 ];
-const options = cmdargs(optionList);
+const options = cmdargs(optionList) as {
+	help?: boolean;
+	'set-editor'?: string;
+	edit?: boolean;
+	compression?: 'gzip' | 'none';
+	'no-snbt'?: boolean;
+	input?: string;
+	out?: string;
+	bulk?: boolean;
+	xmlinput?: boolean;
+};
 const usage = cmdusage([
 	{
 		header: 'XNBTEdit'.cyan,
@@ -107,7 +118,84 @@ const FindTopFolderName = (p: string): string => {
 		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
 			break;
 		}
-	return parts.splice(0, i + 1).join(path.sep);
+	return path.resolve(parts.splice(0, i).join(path.sep));
+}
+const SubtractBeginning = (path: string, top: string) => {
+	path = path.substring(top.length);
+	if (path.startsWith('/'))
+		path = path.substring(1);
+	return path;
+}
+
+interface OpenFileArgs {
+	/** Input file */
+	input: string;
+
+	/** Out directory, "edit mode" */
+	tempDir?: string;
+	/** The part with future "project directory" */
+	inputMeaningful?: string;
+
+	/** Out directory, "convert mode" */
+	outDir?: string;
+
+	/** Out name, "single convert mode" */
+	outName?: string;
+
+	gzip: boolean;
+	bulk: boolean;
+	xmlinput: boolean;
+}
+const OpenFile = async ({ input, inputMeaningful, tempDir, outDir, outName, bulk, xmlinput, gzip }: OpenFileArgs): Promise<null|chokidar.FSWatcher> => {
+	// out=false means we should create temp file. Else we only create the missing path component
+	// now we have to check outName too...
+	let out = '';
+	if (tempDir)
+		out = path.join(tempDir, inputMeaningful);
+	else if (outDir)
+		out = path.join(outDir, inputMeaningful);
+	else if (outName)
+		out = outName;
+
+	const XML2NBT = async (input: string, out: string) => {
+		if (!out) {
+			console.log('Destination should be specified for XML --input.'.red);
+			exit(1);
+		}
+		console.log(`Writing to ${out}`);
+		await Writer.X2NPipe(input, out, { gzip });
+	}
+	if (!bulk && input.endsWith('.xml') || bulk && xmlinput) {
+		if (gzip == undefined) {
+			console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
+			exit(1);
+		}
+		await XML2NBT(input, out);
+		return null;
+	}
+	else {
+		if (gzip == undefined) {
+			let istream = fs.createReadStream(input, { mode: 1 });
+			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+			istream.close();
+		}
+		let edit = !!tempDir || !out;
+		if (!out)
+			out = tempy.file({ 'name': path.basename(input) + '.xml' });
+		Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
+		fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
+		if (!edit)
+			return null;
+		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		watcher.on('change', () => XML2NBT(out, input));
+
+		// process.on('exit', () => {
+		// 	watcher.close();
+		// 	fs.rmSync(out);
+		// });
+		// process.on('SIGINT', process.exit);
+	}
 }
 
 const Main = async () => {
@@ -118,17 +206,15 @@ const Main = async () => {
 		exit(0);
 	}
 
-	const { input: _input, out: _out } = options as { input?: string, out?: string };
+	const { input: _input, out: _out, bulk, xmlinput, edit } = options;
 	let gzip = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
-	const bulk = !!options.bulk;
-	const xmlinput = !!options.xmlinput;
 	
 	if (!_input) {
 		console.log('No input file specified.'.red);
 		exit(1);
 	}
 
-	const inputs: string[] = [], outs: string[] = [];
+	const inputs: string[] = [];
 	if (bulk) {
 		try {
 			if (fs.statSync(_input).isFile())
@@ -158,57 +244,21 @@ const Main = async () => {
 		}
 	}
 	else
-		inputs.push(_input), outs.push(_out);
+		inputs.push(_input);
 
-	console.log(inputs, outs);
+	console.log(inputs);
 	console.log(FindTopFolderName(_input));
-	exit();
+	// exit();
 
-	// const XML2NBT = async (input: string, out: string = null) => {
-	// 	if (!out) {
-	// 		console.log('Destination should be specified for XML --input.'.red);
-	// 		exit(1);
-	// 	}
-	// 	console.log(`Writing to ${out}`);
-	// 	await Writer.X2NPipe(input, out, { gzip });
-	// }
-	// const OpenEditor = (fn: string) => spawn(config.self.editor, [fn]);
-	// if (!bulk && _input.endsWith('.xml') || bulk && xmlinput) {
-	// 	if (gzip == undefined) {
-	// 		console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
-	// 		exit(1);
-	// 	}
-	// 	for (let [i, o] of inputs.map((v, i) => ([v, outs.length > i ? outs[i] : null])))
-	// 		await XML2NBT(i, o);
-	// 	exit(0);
-	// }
-	// else {
-	// 	if (gzip == undefined) {
-	// 		let istream = fs.createReadStream(input, { mode: 1 });
-	// 		let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
-	// 		gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
-	// 		istream.close();
-	// 	}
-	// 	let edit = !out;
-	// 	if (!out)
-	// 		out = tempy.file({ 'name': path.basename(input) + '.xml' });
-	// 	Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
-	// 	fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
-	// 	if (!edit)
-	// 		exit(0);
-	// 	let watcher = chokidar.watch(out, { awaitWriteFinish: true });
-	// 	watcher.on('change', () => {
-	// 		console.log(`Writing to ${input}`);
-	// 		Writer.X2NPipe(out, input, { gzip });
-	// 	});
-	// 	OpenEditor();
+	let tmpDir: string = null, outDir: string = null;
+	if (bulk) {
+		if (edit)
+			tmpDir = tempy.directory();
+		else
+			outDir = FindTopFolderName(_input);
+	}
+	let watchers = inputs.map(fn => {
 
-	// 	process.on('exit', () => {
-	// 		watcher.close();
-	// 		fs.rmSync(out);
-	// 	});
-	// 	process.on('SIGINT', process.exit);
-	// }
+	});
 };
-
 Main();
