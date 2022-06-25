@@ -12,10 +12,5 @@
 	"ts-node": {
 		"esm": true
 	},
-	"files": [
-		"src/Common.ts",
-		"src/Reader.ts",
-		"src/Writer.ts",
-		"src/index.ts"
-	]
+	"include": ["src/*.ts"]
 }

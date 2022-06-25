@@ -189,7 +189,6 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		}
 		else
 			throw `No out dir was specified, nor edit mode (${'-e'.bold}) was selected.`.red;
-		dir = dir;
 	}
 	
 	const opened: OpenFileResult[] = [];
@@ -203,15 +202,14 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		}));
 
 	process.on('exit', () => opened.forEach(rs => {
-		if (rs.watcher || rs.filename == undefined)
+		if (!rs.watcher || rs.filename == undefined)
 			return;
 		rs.watcher.close();
 		fs.rmSync(rs.filename);
 	}));
-	process.on('SIGINT', () => process.exit(1));
 
 	if (edit)
-		spawn(config.self.editor, [dir !== undefined ? dir : opened[0].filename]);
+		await spawn(config.self.editor, [dir !== undefined ? dir : opened[0].filename]);
 	
 	return opened;
 }

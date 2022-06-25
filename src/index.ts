@@ -29,6 +29,7 @@ const options = cmdargs(optionList) as main.Options;
 options.Rename('set-editor', 'set-editor');
 options.Rename('no-snbt', 'no-snbt');
 options.compression = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
+options.snbt = !!options.snbt;
 
 const usage = cmdusage([
 	{
@@ -78,6 +79,10 @@ if (main.CheckOpenGUI(options)) {
 	console.log('Opened GUI');
 	exit(0);
 }
+if (!options.edit && !options.out) {
+	console.error(`No output was specified, nor edit mode (${'-e'.bold}) was selected`.red);
+	exit(1);
+}
 
 const Main = async () => {
 	const { input: _input, out: _out, bulk, xmlinput, edit, overwrite, snbt } = options;
@@ -92,6 +97,7 @@ const Main = async () => {
 		exit(1);
 	}
 
+	process.on('SIGINT', () => process.exit(1));
 	if (!edit) {
 		for (let rs of opened)
 			if (rs && rs.convertPromise)
