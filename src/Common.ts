@@ -192,13 +192,7 @@ export class Config {
 	}
 }
 
-declare global {
-	interface Object {
-		Rename(old: string, _new: string): Object;
-	}
+export function RenameKey(old: string, _new: string) {
+	delete Object.assign(this, { [_new]: this[old] })[old];
+	return this;
 }
-if (!Object.prototype.Rename)
-	Object.prototype.Rename = function (old: string, _new: string) {
-		delete Object.assign(this, { [_new]: this[old] })[old];
-		return this;
-	}

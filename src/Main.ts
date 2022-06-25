@@ -53,7 +53,6 @@ export interface OpenFileArgs {
 	outName?: string;
 
 	edit?: boolean;
-
 	gzip: boolean;
 	bulk: boolean;
 	xmlinput: boolean;
@@ -64,7 +63,7 @@ export interface OpenFileResult {
 	watcher?: chokidar.FSWatcher;
 	convertPromise?: Promise<void>;
 }
-const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt }: OpenFileArgs): Promise<OpenFileResult> => {
+const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenFileResult> => {
 	// out=false means we should create temp file. Else we only create the missing path component
 	// now we have to check outName too...
 	let out = '';
@@ -83,7 +82,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 		console.log(`Writing to ${out}`);
 		await Writer.X2NPipe(input, out, { gzip });
 	}
-	if (xmlinput || input.endsWith('.xml')) {
+	if (xmlinput || !bulk && input.endsWith('.xml')) {
 		if (gzip == undefined)
 			throw `When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red;
 		await XML2NBT(input, out);
