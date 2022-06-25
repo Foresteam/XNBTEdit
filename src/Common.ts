@@ -1,4 +1,5 @@
 import { MojangsonEntry } from "@foresteam/mojangson";
+import fs from 'fs';
 
 /**
  * Types assoc.
@@ -20,7 +21,7 @@ import { MojangsonEntry } from "@foresteam/mojangson";
 // 	11: 'int[]',
 // 	12: 'long[]'
 // }));
-const TYPES = Array.from({
+export const TYPES = Array.from({
 	0: 'end',
 	1: 'byte',
 	2: 'short',
@@ -37,18 +38,18 @@ const TYPES = Array.from({
 	13: 'snbt',
 	length: 14
 }) as NBTType[];
-type NBTType = 'end' | 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'byte[]' | 'string' | 'list' | 'compound' | 'int[]' | 'long[]' | 'snbt';
-const TYPE = (name: NBTType) => TYPES.indexOf(name);
-const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == TYPE('string') || type == TYPE('snbt');
-const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE('int[]') && type != TYPE('snbt');
+export type NBTType = 'end' | 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'byte[]' | 'string' | 'list' | 'compound' | 'int[]' | 'long[]' | 'snbt';
+export const TYPE = (name: NBTType) => TYPES.indexOf(name);
+export const IS_INLINE = (type: number) => type <= TYPE('double') && type > 0 || type == TYPE('string') || type == TYPE('snbt');
+export const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE('int[]') && type != TYPE('snbt');
 
-interface Entry {
+export interface Entry {
 	type: number;
 	contentType?: number;
 	value: any;
 };
 
-const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
+export const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
 	type ||= mjvalue.type;
 	// console.log('#1', mjvalue, type);
 	if (type == 'list') {
@@ -75,7 +76,7 @@ const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
 	return { value: mjvalue.value || mjvalue, type: TYPE(type as NBTType) };
 };
 const MojangsonType = (type: NBTType): string => type.indexOf('[]') >= 0 ? type.replace('[]', 'Array') : type;
-const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
+export const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
 	if (TYPES[entry.type] == 'list')
 		return {
 			type: MojangsonType(TYPES[entry.type]),
@@ -157,9 +158,47 @@ const decodeUTF8 = (array: Uint8Array): string => {
 	return String.fromCharCode.apply(null, codepoints);
 }
 
-type PipeOptions = {
+export type PipeOptions = {
 	parseSNBT?: boolean;
 	gzip?: boolean;
 };
 
-export { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Mojangson2Entry, Entry2Mojangson, PipeOptions };
+export interface IConfig {
+	editor?: string;
+}
+export class Config {
+	filename: string;
+	default: IConfig;
+	wasSaved: boolean;
+	self: IConfig;
+
+	constructor(filename: string, _default: IConfig = {}) {
+		this.filename = filename;
+		this.default = _default;
+		fs.watchFile(this.filename, (curr, prev) => {
+			if (this.wasSaved)
+				this.wasSaved = false;
+			else
+				this.load();
+		});
+		this.load();
+	}
+	load() {
+		try { this.self = JSON.parse(fs.readFileSync(this.filename).toString('utf-8')); } catch { this.self = this.default; }
+	}
+	save() {
+		this.wasSaved = true;
+		fs.writeFileSync(this.filename, JSON.stringify(this.self, null, '\t'));
+	}
+}
+
+declare global {
+	interface Object {
+		Rename(old: string, _new: string): Object;
+	}
+}
+if (!Object.prototype.Rename)
+	Object.prototype.Rename = function (old: string, _new: string) {
+		delete Object.assign(this, { [_new]: this[old] })[old];
+		return this;
+	}

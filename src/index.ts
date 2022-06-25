@@ -8,39 +8,10 @@ import fsp from 'node:fs/promises';
 import os from 'os';
 import tempy from 'tempy';
 import path from 'path';
-import { spawn } from 'child_process';
 import Reader from './Reader.js';
 import Writer from './Writer.js';
-import glob from 'glob';
 
-interface IConfig {
-	editor?: string;
-}
-class Config {
-	filename: string;
-	default: IConfig;
-	wasSaved: boolean;
-	self: IConfig;
-
-	constructor(filename: string, _default: IConfig = {}) {
-		this.filename = filename;
-		this.default = _default;
-		fs.watchFile(this.filename, (curr, prev) => {
-			if (this.wasSaved)
-				this.wasSaved = false;
-			else
-				this.load();
-		});
-		this.load();
-	}
-	load() {
-		try { this.self = JSON.parse(fs.readFileSync(this.filename).toString('utf-8')); } catch { this.self = this.default; }
-	}
-	save() {
-		this.wasSaved = true;
-		fs.writeFileSync(this.filename, JSON.stringify(this.self, null, '\t'));
-	}
-}
+import * as main from './Main.js'
 
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
@@ -51,19 +22,14 @@ const optionList = [
 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, or NBT', defaultOption: true },
 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, or NBT. Leave empty to edit (the input file has to be NBT then).' },
 	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' },
-	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Convertion mode for bulk mode. Default is nbt -> xml' }
+	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Conversion mode for bulk mode. Default is nbt -> xml' },
+	{ name: 'overwrite', alias: 'w', type: Boolean, description: 'Overwrite output files if they exist' }
 ];
-const options = cmdargs(optionList) as {
-	help?: boolean;
-	'set-editor'?: string;
-	edit?: boolean;
-	compression?: 'gzip' | 'none';
-	'no-snbt'?: boolean;
-	input?: string;
-	out?: string;
-	bulk?: boolean;
-	xmlinput?: boolean;
-};
+const options = cmdargs(optionList) as main.Options;
+options.Rename('set-editor', 'set-editor');
+options.Rename('no-snbt', 'no-snbt');
+options.compression = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
+
 const usage = cmdusage([
 	{
 		header: 'XNBTEdit'.cyan,
@@ -102,181 +68,35 @@ const usage = cmdusage([
 
 if (options.help) {
 	console.log(usage);
-	exit();
+	exit(0);
 }
-
-
-const APPDATA = os.platform() == 'linux' ? os.homedir() + '/.config/XNBTEdit/' : '';
-const CONFIG = APPDATA + 'config.json';
-try { APPDATA && fs.mkdirSync(APPDATA); } catch { }
-
-let config = new Config(CONFIG, {});
-
-const FindTopFolderName = (p: string): string => {
-	let parts = p.split(path.sep);
-	let i = 0;
-	for (; i < parts.length; i++)
-		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
-			break;
-		}
-	return path.resolve(parts.splice(0, i).join(path.sep));
+if (options.editor) {
+	main.SetEditor(options.editor);
+	exit(0);
 }
-const SubtractBeginning = (path: string, top: string) => {
-	path = path.substring(top.length);
-	if (path.startsWith('/'))
-		path = path.substring(1);
-	return path;
-}
-
-interface OpenFileArgs {
-	/** Input file */
-	input: string;
-
-	/** Out directory, "edit mode" */
-	tempDir?: string;
-	/** The part with future "project directory" */
-	inputMeaningful?: string;
-
-	/** Out directory, "convert mode" */
-	outDir?: string;
-
-	/** Out name, "single convert mode" */
-	outName?: string;
-
-	gzip: boolean;
-	bulk: boolean;
-	xmlinput: boolean;
-}
-interface OpenFileResult {
-	filename: string;
-	watcher: chokidar.FSWatcher;
-}
-const OpenFile = async ({ input, inputMeaningful, tempDir, outDir, outName, bulk, xmlinput, gzip }: OpenFileArgs): Promise<OpenFileResult> => {
-	// out=false means we should create temp file. Else we only create the missing path component
-	// now we have to check outName too...
-	let out = '';
-	if (tempDir !== undefined)
-		out = path.join(tempDir, inputMeaningful);
-	else if (outDir !== undefined)
-		out = path.join(outDir, inputMeaningful);
-	else if (outName)
-		out = outName;
-
-	if (out)
-		await fsp.mkdir(path.dirname(out), { recursive: true }).catch(() => {});
-
-	const XML2NBT = async (input: string, out: string) => {
-		if (!out) {
-			console.log('Destination should be specified for XML --input.'.red);
-			exit(1);
-		}
-		console.log(`Writing to ${out}`);
-		await Writer.X2NPipe(input, out, { gzip });
-	}
-	if (!bulk && input.endsWith('.xml') || bulk && xmlinput) {
-		if (gzip == undefined) {
-			console.log(`When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red);
-			exit(1);
-		}
-		await XML2NBT(input, out);
-		return null;
-	}
-	else {
-		if (gzip == undefined) {
-			let istream = fs.createReadStream(input, { mode: 1 });
-			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
-			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
-			istream.close();
-		}
-		let edit = !!tempDir || !out;
-		if (!out)
-			out = tempy.file({ 'name': path.basename(input) + '.xml' });
-		Reader.N2XPipe(input, out, { gzip, parseSNBT: !options['no-snbt'] });
-		fs.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary', () => console.log(`Saved previous data as ${input}.backup`));
-		if (!edit)
-			return null;
-		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
-		watcher.on('change', () => XML2NBT(out, input));
-		return { filename: out, watcher };
-	}
+if (main.CheckOpenGUI(options)) {
+	console.log('Opened GUI');
+	exit(0);
 }
 
 const Main = async () => {
-	if (options['set-editor']) {
-		config.self.editor = options['set-editor'];
-		config.save();
-		console.log(`Configuration written to "${CONFIG}".`);
-		exit(0);
-	}
+	const { input: _input, out: _out, bulk, xmlinput, edit, overwrite, snbt } = options;
+	let gzip = options.compression as boolean;
 
-	const { input: _input, out: _out, bulk, xmlinput, edit } = options;
-	let gzip = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
-	
-	if (!_input) {
-		console.log('No input file specified.'.red);
+	let opened: main.OpenFileResult[];
+	try {
+		opened = await main.Perform(options);
+	}
+	catch (e) {
+		console.error(e);
 		exit(1);
 	}
 
-	const inputs: string[] = [];
-	if (bulk) {
-		try {
-			if (fs.statSync(_input).isFile())
-				exit(1);
-		}
-		catch {}
-
-		try {
-			if (!fs.statSync(_input).isFile())
-				await new Promise<void>(resolve => glob(path.join(_input, '**', '*'), (err, files) => {
-					if (err)
-						exit(1);
-					for (let filename of files)
-						if (fs.statSync(filename).isFile())
-							inputs.push(filename)
-					resolve();
-				}));
-		}
-		catch {
-			let fns = (await new Promise(resolve => glob(_input, (err, files) => {
-				if (err)
-					exit(1);
-				resolve(files);
-			}))) as string[];
-			for (let filename of fns)
-				inputs.push(filename);
-		}
+	if (!edit) {
+		for (let rs of opened)
+			if (rs && rs.convertPromise)
+				await rs.convertPromise;
+		exit(0);
 	}
-	else
-		inputs.push(_input);
-
-	console.log(inputs);
-	console.log(FindTopFolderName(_input));
-	// exit();
-
-	const top = FindTopFolderName(_input);
-	let tempDir: string, outDir: string;
-	if (bulk) {
-		if (edit)
-			tempDir = tempy.directory();
-		else
-			outDir = top;
-	}
-	let opened: OpenFileResult[] = [];
-	for (let fn of inputs)
-		opened.push(await OpenFile({
-			input: fn,
-			inputMeaningful: SubtractBeginning(fn, top),
-			tempDir,
-			outDir,
-			outName: !bulk ? _out : undefined,
-			bulk, xmlinput, gzip
-		}));
-	process.on('exit', () => opened.forEach((rs?: OpenFileResult) => {
-		if (!rs)
-			return;
-		rs.watcher.close();
-		fs.rmSync(rs.filename);
-	}));
-	process.on('SIGINT', process.exit);
 };
 Main();
