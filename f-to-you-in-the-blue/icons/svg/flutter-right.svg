@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24px"
+   height="24px"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg8"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12" />
+  <g
+     id="g6"
+     transform="matrix(-1,0,0,1,24,0)">
+    <path
+       fill="none"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       id="path2" />
+    <path
+       fill-rule="nonzero"
+       d="m 13.503,2.001 -10,10 3.083,3.083 13.08,-13.083 z M 13.497,11.199 8.122,16.62 13.494,22 h 6.189 l -5.387,-5.4 5.389,-5.4 h -6.188 z"
+       id="path4" />
+  </g>
+</svg>

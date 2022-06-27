@@ -1,0 +1,26 @@
+@font-face {
+    font-family: 'FIcons';
+    src: url('icons/f-icons.ttf');
+}
+.fi {
+    font-family: 'FIcons';
+    /* font-weight: bold; */
+}
+.fi-disk:before {
+    content: '0';
+}
+.fi-documents:before {
+    content: '1';
+}
+.fi-flutter-left:before {
+    content: '2';
+}
+.fi-flutter-right:before {
+    content: '3';
+}
+.fi-paste:before {
+    content: '4';
+}
+.fi-cut:before {
+    content: '5';
+}
