@@ -2,22 +2,15 @@
 	"name": "xnbtedit",
 	"version": "0.10.0",
 	"description": "Named Binary Tag XML editor/converter",
-	"main": "dist/index.js",
-	"type": "module",
 	"scripts": {
-		"test": "ts-node src/tests.ts",
-		"prepare": "tsc",
-		"build": "tsc && rm -r dist && tsc && mkdir dist/bin && caxa -i . '{{caxa}}/node_modules/.bin/node' '{{caxa}}/dist' -o dist/bin/xnbtedit",
-		"pack-lin": "tar -caf XNBTEdit-0.9.12-Lin.tar.gz dist/bin/xnbtedit LICENSE",
-		"pack-win": "tar -caf XNBTEdit-0.9.12-Win.zip dist/bin/xnbtedit.exe LICENSE",
-		"build-win": "tsc && rm -R dist && tsc && mkdir dist/bin && caxa -i . '{{caxa}}/node_modules/.bin/node' '{{caxa}}/dist' -o dist/bin/xnbtedit.exe"
+		"serve": "vue-cli-service serve",
+		"build": "vue-cli-service build",
+		"ebuild": "vue-cli-service electron:build",
+		"eserve": "vue-cli-service electron:serve",
+		"postinstall": "electron-builder install-app-deps",
+		"postuninstall": "electron-builder install-app-deps"
 	},
-	"pkg": {
-		"targets": [
-			"node17-linux"
-		],
-		"assets": "LICENSE"
-	},
+	"main": "background.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Foresteam/XNBTEdit.git"
@@ -35,6 +28,12 @@
 	},
 	"homepage": "https://github.com/Foresteam/XNBTEdit#readme",
 	"dependencies": {
+		"core-js": "^3.8.3",
+		"ts-loader": "~8.2.0",
+		"vue": "^3.2.13",
+		"vue-class-component": "^8.0.0-0",
+		"vue-router": "^4.0.3",
+		"vuex": "^4.0.0",
 		"@foresteam/mojangson": "^2.0.4",
 		"@types/glob": "^7.2.0",
 		"chokidar": "^3.5.3",
@@ -52,8 +51,17 @@
 		"@types/command-line-usage": "^5.0.2",
 		"@types/node": "^17.0.35",
 		"@types/xml2js": "^0.4.11",
-		"caxa": "^2.1.0",
 		"ts-node": "^10.8.0",
-		"typescript": "^4.7.2"
+		"@babel/core": "^7.18.5",
+		"@vue/cli-plugin-babel": "~5.0.0",
+		"@vue/cli-plugin-router": "~5.0.0",
+		"@vue/cli-plugin-typescript": "^5.0.6",
+		"@vue/cli-plugin-vuex": "~5.0.0",
+		"@vue/cli-service": "~5.0.0",
+		"electron": "^13.0.0",
+		"electron-devtools-installer": "^3.1.0",
+		"typescript": "~4.5.5",
+		"vue-cli-plugin-electron-builder": "~2.1.1",
+		"webpack": "^5.73.0"
 	}
 }
