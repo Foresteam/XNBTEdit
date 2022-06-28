@@ -1,11 +1,11 @@
 import path from 'path';
 import chokidar from 'chokidar';
 import fs from 'fs';
-import Reader from './Reader.js';
-import Writer from './Writer.js';
-import tempy from 'tempy';
+import Reader from './Reader';
+import Writer from './Writer';
+import tmp from 'tmp-promise';
 import fsp from 'fs/promises';
-import { Config } from './Common.js';
+import { Config } from './Common';
 import os from 'os';
 import glob from 'glob';
 import { spawn } from 'child_process';
@@ -96,7 +96,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 			istream.close();
 		}
 		if (!out)
-			out = tempy.file({ 'name': path.basename(input) + '.xml' });
+			out = tmp.fileSync({ 'name': path.basename(input) + '.xml' });
 		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
 			console.log(`Backup written (${input}.backup)`);
 			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
@@ -172,7 +172,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 	let dir: string;
 	if (bulk) {
 		if (edit)
-			dir = tempy.directory();
+			dir = tmp.dirSync();
 		else if (_out !== undefined) {
 			dir = _out;
 			try {

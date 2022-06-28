@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
 import { gzipSync } from 'zlib';
-import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson, PipeOptions } from './Common.js';
+import { TYPES, TYPE, IS_INLINE, IS_ARRAY, Entry, NBTType, Entry2Mojangson, PipeOptions } from './Common';
 import mojangson from '@foresteam/mojangson';
 import { promisify } from 'util';
 

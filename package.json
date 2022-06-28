@@ -7,10 +7,10 @@
 		"build": "vue-cli-service build",
 		"ebuild": "vue-cli-service electron:build",
 		"eserve": "vue-cli-service electron:serve",
-		"postinstall": "electron-builder install-app-deps",
-		"postuninstall": "electron-builder install-app-deps"
+		"postinstall": "pnpx electron-builder install-app-deps",
+		"postuninstall": "pnpx electron-builder install-app-deps"
 	},
-	"main": "background.js",
+	"main": "backend/background.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Foresteam/XNBTEdit.git"
@@ -39,7 +39,7 @@
 		"glob": "^8.0.3",
 		"primeicons": "^5.0.0",
 		"primevue": "^3.15.0",
-		"tempy": "^2.0.0",
+		"tmp-promise": "^3.0.3",
 		"ts-loader": "~8.2.0",
 		"vue": "^3.2.13",
 		"vue-class-component": "^8.0.0-0",

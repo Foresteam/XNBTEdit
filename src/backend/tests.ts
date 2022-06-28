@@ -3,8 +3,8 @@ import { spawnSync } from 'child_process';
 import 'colors';
 import tempy from 'tempy';
 
-import Reader from './Reader.js';
-import Writer from './Writer.js';
+import Reader from './Reader';
+import Writer from './Writer';
 
 const Hash = async (file: string): Promise<string> => spawnSync('sha512sum', ['-b', file]).output.toString().split(' ')[0].substring(1);
 const CompressedHash = (file: string): Promise<string> => new Promise(resolve => tempy.file.task(async t => {
