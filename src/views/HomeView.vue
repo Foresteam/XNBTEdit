@@ -10,7 +10,7 @@
 				: 'Input file'
 			}}
 		</label>
-		<div class="flex-row ui-block ui-block-b">
+		<div class="flex-row ui-block ui-block-b set-wrapper">
 			<p-input-text id="input-path" v-model="input" style="flex-grow: 1"/>
 			<p-button icon="pi fi fi-dots" />
 		</div>
@@ -41,15 +41,18 @@
 				: 'Output file'
 			}}
 		</label>
-		<div class="flex-row ui-block">
+		<div class="flex-row ui-block set-wrapper">
 			<p-input-text id="output-path" v-model="output" :disabled="edit" style="flex-grow: 1"/>
-			<p-button icon="pi fi fi-dots" />
+			<p-button icon="pi fi fi-dots" :disabled="edit" />
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
 			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
 			<label for="compression-checkbox" v-if="compression == false">No compression</label>
 			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
+		</div>
+		<div class="flex-row ui-block flex-center">
+			<p-button :label="edit ? 'Edit' : 'Convert'" class="p-button-success" style="font-size: 20pt" />
 		</div>
 	</div>
 </template>

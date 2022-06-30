@@ -14,7 +14,7 @@ const OpenGUI = () => {
 		// Create the browser window.
 		const win = new BrowserWindow({
 			width: 600,
-			height: 900,
+			height: 430,
 			autoHideMenuBar: true,
 			resizable: false,
 			icon: './icon.ico',
