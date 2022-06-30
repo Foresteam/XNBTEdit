@@ -13,12 +13,16 @@ import '@/assets/common-styles.css'
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import ToggleButton from 'primevue/togglebutton';
+import Checkbox from 'primevue/checkbox';
+import TriStateCheckbox from 'primevue/tristatecheckbox';
 
 const app = createApp(App)
 
 app.component('p-input-text', InputText);
 app.component('p-button', Button);
 app.component('p-toggle-button', ToggleButton);
+app.component('p-checkbox', Checkbox);
+app.component('p-tri-state-checkbox', TriStateCheckbox);
 
 app.use(ToastService);
 app.use(store);

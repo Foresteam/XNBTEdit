@@ -100,6 +100,9 @@ html {
 	margin-bottom: 2pt !important;
 	margin-top: 2pt !important;
 }
+.ui-block-full {
+	margin: 2pt !important;
+}
 .flex-row {
 	display: flex;
 	flex-flow: row;
