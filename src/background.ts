@@ -10,12 +10,14 @@ const OpenGUI = () => {
 	protocol.registerSchemesAsPrivileged([
 		{ scheme: 'app', privileges: { secure: true, standard: true } }
 	])
-
 	async function createWindow() {
 		// Create the browser window.
 		const win = new BrowserWindow({
-			width: 800,
-			height: 600,
+			width: 600,
+			height: 900,
+			autoHideMenuBar: true,
+			resizable: false,
+			icon: './icon.ico',
 			webPreferences: {
 
 				// Use pluginOptions.nodeIntegration, leave this alone
@@ -28,7 +30,7 @@ const OpenGUI = () => {
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
 			// Load the url of the dev server if in development mode
 			await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-			if (!process.env.IS_TEST) win.webContents.openDevTools()
+			// if (!process.env.IS_TEST) win.webContents.openDevTools()
 		} else {
 			createProtocol('app')
 			// Load the index.html when not in development
@@ -89,6 +91,7 @@ import { exit } from 'process';
 
 import * as main from './backend/Main';
 import { RenameKey } from './backend/Common';
+import path from 'path'
 
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },

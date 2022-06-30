@@ -1,4 +1,6 @@
 # XNBTEdit. Edit NBT in XML
+![](logo-icon.png)
+
 NBT-XML converter. Also capable of editing.
 ## Features
 * NBT -> XML and back
@@ -6,6 +8,7 @@ NBT-XML converter. Also capable of editing.
 * Text editor of your choice
 * Ability to only convert a file
 * SNBTs are also parsed. No more scary inline tags!
+* Bulk editing/conversion
 *There may be issues with non-ASCII characters. Gonna implement, later.*
 
 **WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version saved in the same folder with .backup extension.**
@@ -120,7 +123,3 @@ pnpm pack-lin # or npm run pack-win
 ```sh
 xnbtedit --help
 ```
-
-#
-Somewhen:
-* Add bulk convertion/editing.

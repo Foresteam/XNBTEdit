@@ -6,10 +6,10 @@
     font-family: 'FIcons';
     /* font-weight: bold; */
 }
-.fi-disk:before {
+.fi-file:before {
     content: '0';
 }
-.fi-documents:before {
+.fi-package:before {
     content: '1';
 }
 .fi-flutter-left:before {
@@ -18,9 +18,6 @@
 .fi-flutter-right:before {
     content: '3';
 }
-.fi-paste:before {
+.fi-dots:before {
     content: '4';
-}
-.fi-cut:before {
-    content: '5';
 }

@@ -1,0 +1,55 @@
+.p-orderlist-list-container, .p-listbox-list-wrapper {
+    max-height: inherit;
+    display: flex;
+    flex-flow: column;
+}
+.p-orderlist-list, .p-listbox-list {
+    max-height: inherit;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.p-orderlist-controls {
+    display: none;
+}
+.p-orderlist {
+    /* wtf... If this property is something else, the markup breaks and div overflows... */
+    display: -webkit-box;
+}
+.p-listbox {
+    display: flex;
+    flex-flow: column;
+}
+.p-panel-header {
+	text-align: center;
+	justify-content: center;
+	font-weight: bold;
+}
+
+.listbox-header {
+    background: #1e1e1e;
+    color: var(--text-color);
+    padding: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--surface-d);
+}
+.button-bigtext {
+	padding: 0 !important;
+}
+.button-bigtext > span {
+	font-size: 20pt !important;
+}
+/* A wrapper to disable round and make elements look seemless */
+.set-wrapper > :not(:first-child):not(:last-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.set-wrapper > :first-child {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.set-wrapper > :last-child {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}

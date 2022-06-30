@@ -10,7 +10,7 @@
 		"postinstall": "pnpx electron-builder install-app-deps",
 		"postuninstall": "pnpx electron-builder install-app-deps"
 	},
-	"main": "backend/background.js",
+	"main": "background.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Foresteam/XNBTEdit.git"
@@ -28,6 +28,7 @@
 	},
 	"homepage": "https://github.com/Foresteam/XNBTEdit#readme",
 	"dependencies": {
+		"@electron/remote": "^2.0.8",
 		"@foresteam/mojangson": "^2.0.4",
 		"@types/glob": "^7.2.0",
 		"chokidar": "^3.5.3",
@@ -59,7 +60,7 @@
 		"@vue/cli-plugin-typescript": "^5.0.6",
 		"@vue/cli-plugin-vuex": "~5.0.0",
 		"@vue/cli-service": "~5.0.0",
-		"electron": "^13.0.0",
+		"electron": "19.0.6",
 		"electron-devtools-installer": "^3.1.0",
 		"ts-node": "^10.8.0",
 		"typescript": "~4.5.5",
