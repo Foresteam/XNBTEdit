@@ -86,21 +86,21 @@ html {
 	background: var(--surface-b);
 	border-top: 2px solid var(--surface-d);
 }
-.ui-block {
-	margin-left: 2pt !important;
-	margin-right: 2pt !important;
-}
 .ui-block-b {
 	margin-bottom: 2pt !important;
 }
 .ui-block-t {
 	margin-top: 2pt !important;
 }
+.ui-block-h {
+	margin-left: 2pt !important;
+	margin-right: 2pt !important;
+}
 .ui-block-v {
 	margin-bottom: 2pt !important;
 	margin-top: 2pt !important;
 }
-.ui-block-full {
+.ui-block {
 	margin: 2pt !important;
 }
 .flex-row {

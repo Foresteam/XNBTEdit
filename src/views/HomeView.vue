@@ -1,11 +1,17 @@
 <template>
 	<div class="home flex-col">
-		<div class="ui-block-full flex-row" style="align-items: center">
+		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">Bulk mode</label>
 		</div>
-		<div class="flex-row ui-block-full">
-			<p-input-text id="path" style="flex-grow: 1"/>
+		<label for="input-path" class="ui-block" style="text-align: left">
+			{{ bulk
+				? 'Input directory or mask (e.g. dir/*.dat)'
+				: 'Input file'
+			}}
+		</label>
+		<div class="flex-row ui-block ui-block-b">
+			<p-input-text id="input-path" v-model="input" style="flex-grow: 1"/>
 			<p-button icon="pi fi fi-dots" />
 		</div>
 		<div class="flex-row flex-center mode-switch ui-block-v" style="">
@@ -25,8 +31,22 @@
 				<span>XML</span>
 			</i>
 		</div>
-		<div class="flex-row ui-block-full" style="align-items: center">
-			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" />
+		<div class="ui-block flex-row" style="align-items: center">
+			<p-checkbox id="edit-checkbox" v-model="edit" :binary="true" :disabled="xmlinput" style="" />
+			<label for="edit-checkbox">Edit</label>
+		</div>
+		<label for="output-path" class="ui-block" style="text-align: left">
+			{{ bulk
+				? 'Output directory'
+				: 'Output file'
+			}}
+		</label>
+		<div class="flex-row ui-block">
+			<p-input-text id="output-path" v-model="output" :disabled="edit" style="flex-grow: 1"/>
+			<p-button icon="pi fi fi-dots" />
+		</div>
+		<div class="flex-row ui-block" style="align-items: center">
+			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
 			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
 			<label for="compression-checkbox" v-if="compression == false">No compression</label>
 			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
@@ -42,8 +62,17 @@ import { Options, Vue } from "vue-class-component";
 	data: () => ({
 		xmlinput: false,
 		compression: null,
-		bulk: false
-	})
+		bulk: false,
+		edit: false,
+		input: '',
+		output: ''
+	}),
+	watch: {
+		xmlinput(val, old) {
+			if (val)
+				this.edit = false;
+		}
+	}
 })
 export default class HomeView extends Vue {}
 </script>
@@ -81,6 +110,5 @@ export default class HomeView extends Vue {}
 }
 .p-tristatecheckbox, .p-checkbox {
 	margin-right: 5pt !important;
-	margin-left: 5pt !important;
 }
 </style>
