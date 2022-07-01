@@ -9,9 +9,9 @@
    id="svg5"
    sodipodi:docname="logo-icon.svg"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   inkscape:export-filename="logo-icon.png"
-   inkscape:export-xdpi="500"
-   inkscape:export-ydpi="500"
+   inkscape:export-filename="icon.png"
+   inkscape:export-xdpi="272.34"
+   inkscape:export-ydpi="272.34"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -27,9 +27,9 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.0469406"
-     inkscape:cx="267.44592"
-     inkscape:cy="294.19051"
+     inkscape:zoom="2.0938812"
+     inkscape:cx="248.82023"
+     inkscape:cy="349.59003"
      inkscape:window-width="1920"
      inkscape:window-height="1015"
      inkscape:window-x="0"
@@ -67,13 +67,13 @@
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect275);display:inline;fill:#000000;fill-opacity:1;stroke:none" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;line-height:1.2;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';fill:#000000;fill-opacity:1;stroke:#ff9c9c;stroke-width:0.664;stroke-dasharray:none;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;line-height:1.2;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';fill:#000000;fill-opacity:1;stroke:#ff9c9c;stroke-width:3.46400004;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        x="48.315048"
        y="112.99728"
        id="text281"><tspan
          sodipodi:role="line"
          id="tspan279"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';stroke:#ff9c9c;stroke-width:0.664;stroke-dasharray:none;stroke-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35.2778px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';stroke:#ff9c9c;stroke-width:3.46400004;stroke-dasharray:none;stroke-opacity:1;fill:#000000;fill-opacity:1;paint-order:stroke fill markers"
          x="48.315048"
          y="112.99728">XNE</tspan></text>
   </g>
