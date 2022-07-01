@@ -133,6 +133,9 @@ html {
 #footer .p-divider::before {
 	border-left: 2px solid var(--surface-d) !important;
 }
+.p-tristatecheckbox, .p-checkbox, .p-inputswitch {
+	margin-right: 5pt !important;
+}
 
 ::-webkit-scrollbar {
 	width: 7px;

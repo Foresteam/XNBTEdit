@@ -15,7 +15,7 @@ import Button from 'primevue/button';
 import ToggleButton from 'primevue/togglebutton';
 import Checkbox from 'primevue/checkbox';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
-import Panel from 'primevue/panel';
+import InputSwitch from 'primevue/inputswitch';
 
 const app = createApp(App)
 
@@ -24,7 +24,7 @@ app.component('p-button', Button);
 app.component('p-toggle-button', ToggleButton);
 app.component('p-checkbox', Checkbox);
 app.component('p-tri-state-checkbox', TriStateCheckbox);
-app.component('p-panel', Panel);
+app.component('p-input-switch', InputSwitch);
 
 app.use(ToastService);
 app.use(store);

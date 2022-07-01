@@ -118,7 +118,4 @@ export default class MainView extends Vue {}
 	justify-content: center;
 	padding-bottom: 35pt
 }
-.p-tristatecheckbox, .p-checkbox {
-	margin-right: 5pt !important;
-}
 </style>
