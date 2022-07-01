@@ -35,7 +35,7 @@ import '@/shared/IPCTypes';
 		this.fetchConfig();
 	}
 })
-export default class App extends Vue {}
+export default class extends Vue {}
 </script>
 
 <style>

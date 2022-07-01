@@ -4,16 +4,26 @@
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">Bulk mode</label>
 		</div>
-		<label for="input-path" class="ui-block-h ui-block-t">
-			{{ bulk
+<!-- <label for="input-path" class="ui-block-h ui-block-t">
+	{{ bulk
+		? 'Input directory or mask (e.g. dir/*.dat)'
+		: 'Input file'
+	}}
+</label>
+<div class="flex-row ui-block ui-block-b set-wrapper">
+	<p-input-text ref="input-path" id="input-path" v-model="input" style="flex-grow: 1"/>
+	<p-button icon="pi fi fi-dots" @click="selectDialog('input', bulk)" />
+</div> -->
+		<file-input
+			:id="'input-path'"
+			:isDir="bulk"
+			:label="bulk
 				? 'Input directory or mask (e.g. dir/*.dat)'
 				: 'Input file'
-			}}
-		</label>
-		<div class="flex-row ui-block ui-block-b set-wrapper">
-			<p-input-text ref="input-path" id="input-path" v-model="input" style="flex-grow: 1"/>
-			<p-button icon="pi fi fi-dots" @click="selectDialog('input', bulk)" />
-		</div>
+			"
+			@change="inputChanged"
+			v-model="input"
+		/>
 		<div class="flex-row flex-center mode-switch ui-block-v" style="">
 			<i class="pi fi fi-package icon">
 				<span>NBT</span>
@@ -35,16 +45,15 @@
 			<p-checkbox id="edit-checkbox" v-model="edit" :binary="true" :disabled="xmlinput" style="" />
 			<label for="edit-checkbox">Edit</label>
 		</div>
-		<label for="output-path" class="ui-block-h ui-block-t">
-			{{ bulk
+		<file-input
+			:id="'output-path'"
+			:isDir="bulk"
+			:label="bulk
 				? 'Output directory'
 				: 'Output file'
-			}}
-		</label>
-		<div class="flex-row ui-block set-wrapper">
-			<p-input-text id="output-path" v-model="output" :disabled="edit" style="flex-grow: 1"/>
-			<p-button icon="pi fi fi-dots" :disabled="edit" @click="selectDialog('output', bulk)" />
-		</div>
+			"
+			v-model="output"
+		/>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
 			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
@@ -60,9 +69,12 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import '@/shared/IPCTypes';
+import FileInput from '@/components/FileInput.vue';
 
 @Options({
-	components: {},
+	components: {
+		FileInput
+	},
 	data: () => ({
 		xmlinput: false,
 		compression: null,
@@ -81,10 +93,13 @@ import '@/shared/IPCTypes';
 		async selectDialog(vmodel: string, isDir: boolean) {
 			let path = await window.backend.SelectorDialog(isDir);
 			this[vmodel] = path;
+		},
+		inputChanged(...args) {
+			console.log(args);
 		}
 	}
 })
-export default class MainView extends Vue {}
+export default class extends Vue {}
 </script>
 
 <style>

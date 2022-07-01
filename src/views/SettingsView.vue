@@ -1,10 +1,12 @@
 <template>
 	<div class="flex-col">
-		<label for="editor-config" class="ui-block-h ui-block-t">Editor path</label>
-		<div class="flex-row ui-block-h ui-block-b set-wrapper">
-			<p-input-text id="editor-config" style="flex-grow: 1" v-model="_editor" @change="e => configure(['editor', e.target.value])"/>
-			<p-button icon="pi fi fi-dots" @click="selectEditor()" />
-		</div>
+		<file-input
+			:id="'editor-config'"
+			:isDir="false"
+			label="Editor path"
+			v-model="_editor"
+			@change="editorSelected"
+		/>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-input-switch v-model="_russian" />
 			<label>{{ _russian ? 'Russian' : 'English' }}</label>
@@ -15,19 +17,19 @@
 import { Options, Vue } from "vue-class-component";
 import { mapActions, mapGetters } from 'vuex';
 import '@/shared/IPCTypes';
-import IConfig from '@/shared/IConfig';
+import FileInput from '@/components/FileInput.vue';
 
 @Options({
+	components: {
+		FileInput
+	},
 	data: () => ({
 		_editor: '',
 		_russian: ''
 	}),
 	methods: {
-		async selectEditor() {
-			let path = await window.backend.SelectorDialog(false);
-			if (path)
-				this.configure(['editor', this._editor = path]);
-			console.log(path);
+		async editorSelected(path) {
+			this.configure(['editor', path]);
 		},
 		...mapActions(['configure'])
 	},
@@ -38,5 +40,5 @@ import IConfig from '@/shared/IConfig';
 		this._editor = this.editor;
 	}
 })
-export default class SettingsVue extends Vue {}
+export default class extends Vue {}
 </script>
