@@ -1,5 +1,5 @@
 'use strict'
-import OpenGUI from './backend/ReactBackend';
+import OpenGui from './backend/ReactBackend';
 
 import cmdargs from 'command-line-args';
 import cmdusage from 'command-line-usage';
@@ -8,7 +8,6 @@ import { exit } from 'process';
 
 import * as main from './backend/Main';
 import { RenameKey } from './backend/Common';
-import path from 'path'
 
 const optionList = [
 	{ name: 'help', type: Boolean, description: 'Show help' },
@@ -74,33 +73,33 @@ if (options.editor) {
 	main.SetEditor(options.editor);
 	exit(0);
 }
-if (main.CheckOpenGUI(options))
-	OpenGUI();
-else {
+
+const Main = async () => {
+	if (main.CheckOpenGUI(options)) {
+		return OpenGui();
+	}
 	if (!options.edit && !options.out) {
 		console.error(`No output was specified, nor edit mode (${'-e'.bold}) was selected`.red);
 		exit(1);
 	}
 
-	const Main = async () => {
-		const { input: _input, out: _out, edit } = options;
+	const { input: _input, out: _out, edit } = options;
 
-		let opened: main.OpenFileResult[];
-		try {
-			opened = await main.Perform(options);
-		}
-		catch (e) {
-			console.error(e);
-			exit(1);
-		}
+	let opened: main.OpenFileResult[];
+	try {
+		opened = await main.Perform(options);
+	}
+	catch (e) {
+		console.error(e);
+		exit(1);
+	}
 
-		process.on('SIGINT', () => process.exit(1));
-		if (!edit) {
-			for (let rs of opened)
-				if (rs && rs.convertPromise)
-					await rs.convertPromise;
-			exit(0);
-		}
-	};
-	Main();
-}
+	process.on('SIGINT', () => process.exit(1));
+	if (!edit) {
+		for (let rs of opened)
+			if (rs && rs.convertPromise)
+				await rs.convertPromise;
+		exit(0);
+	}
+};
+Main();

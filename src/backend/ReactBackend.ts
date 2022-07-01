@@ -1,9 +1,10 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, protocol, BrowserWindow, dialog, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default function () {
@@ -20,12 +21,17 @@ export default function () {
 			resizable: false,
 			icon: isDevelopment ? './public/icon.png' : path.join(__dirname, 'icon.png'),
 			webPreferences: {
-
+				preload: path.join(__dirname, 'preload.js'),
 				// Use pluginOptions.nodeIntegration, leave this alone
 				// See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
 				nodeIntegration: !!process.env.ELECTRON_NODE_INTEGRATION,
 				contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
 			}
+		});
+
+		ipcMain.handle('SelectFile', async (event, isDir: boolean) => {
+			let result = dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] });
+			return result;
 		});
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -84,4 +90,4 @@ export default function () {
 			})
 		}
 	}
-}
+};

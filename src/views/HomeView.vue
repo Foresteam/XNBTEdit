@@ -11,8 +11,8 @@
 			}}
 		</label>
 		<div class="flex-row ui-block ui-block-b set-wrapper">
-			<p-input-text id="input-path" v-model="input" style="flex-grow: 1"/>
-			<p-button icon="pi fi fi-dots" />
+			<p-input-text ref="input-path" id="input-path" v-model="input" style="flex-grow: 1"/>
+			<p-button icon="pi fi fi-dots" @click="selectDialog('input', bulk)" />
 		</div>
 		<div class="flex-row flex-center mode-switch ui-block-v" style="">
 			<i class="pi fi fi-package icon">
@@ -43,7 +43,7 @@
 		</label>
 		<div class="flex-row ui-block set-wrapper">
 			<p-input-text id="output-path" v-model="output" :disabled="edit" style="flex-grow: 1"/>
-			<p-button icon="pi fi fi-dots" :disabled="edit" />
+			<p-button icon="pi fi fi-dots" :disabled="edit" @click="selectDialog('output', bulk)" />
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
@@ -59,6 +59,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
+import '@/IPCTypes';
 
 @Options({
 	components: {},
@@ -74,6 +75,12 @@ import { Options, Vue } from "vue-class-component";
 		xmlinput(val, old) {
 			if (val)
 				this.edit = false;
+		}
+	},
+	methods: {
+		async selectDialog(vmodel: string, isDir: boolean) {
+			let path = await window.backend.SelectorDialog(isDir);
+			this[vmodel] = path;
 		}
 	}
 })

@@ -1,5 +1,5 @@
 # XNBTEdit. Edit NBT in XML
-![](logo-icon.png)
+![](logo.png)
 
 NBT-XML converter. Also capable of editing.
 ## Features
