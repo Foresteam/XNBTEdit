@@ -72,7 +72,7 @@ import '@/shared/IPCTypes';
 		output: ''
 	}),
 	watch: {
-		xmlinput(val, old) {
+		xmlinput(val) {
 			if (val)
 				this.edit = false;
 		}

@@ -7,8 +7,36 @@
 		</span>
 		<p-button icon="pi pi-arrow-left" class="button-bigtext ui-block" v-else @click="$router.back()" />
 	</div>
-	<router-view />
+	<router-view v-slot="{ Component, route }">
+		<transition :name="!isMainPage ? 'slide' : 'slide_back'" mode="out-in">
+			<component :is="Component" :key="route.path" />
+		</transition>
+	</router-view>
 </template>
+
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import { mapActions } from 'vuex';
+import '@/shared/IPCTypes';
+
+@Options({
+	computed: {
+		isMainPage() {
+			return this.$route.name == 'main';
+		}
+	},
+	methods: {
+		openGitHub() {
+			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
+		},
+		...mapActions(['fetchConfig'])
+	},
+	mounted() {
+		this.fetchConfig();
+	}
+})
+export default class App extends Vue {}
+</script>
 
 <style>
 @font-face {
@@ -39,18 +67,29 @@
 	font-size: 30pt;
 }
 
-.slide-enter-active,
-.slide-leave-active {
+.slide-enter-active, .slide-leave-active {
 	transition: 0.15s ease-out;
 	transform: 0.15s;
 }
 .slide-enter-from {
 	opacity: 0;
-	transform: translateY(30%);
+	transform: translateX(30%);
 }
 .slide-leave-to {
 	opacity: 0;
-	transform: translateY(-30%);
+	transform: translateX(-30%);
+}
+.slide_back-enter-active, .slide_back-leave-active {
+	transition: 0.15s ease-out;
+	transform: 0.15s;
+}
+.slide_back-enter-from {
+	opacity: 0;
+	transform: translateX(-30%);
+}
+.slide_back-leave-to {
+	opacity: 0;
+	transform: translateX(30%);
 }
 
 #app {
@@ -162,27 +201,3 @@ label {
 	flex-direction: row-reverse;
 }
 </style>
-
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { mapActions } from 'vuex';
-import '@/shared/IPCTypes';
-
-@Options({
-	computed: {
-		isMainPage() {
-			return this.$route.name == 'main';
-		}
-	},
-	methods: {
-		openGitHub() {
-			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
-		},
-		...mapActions(['fetchConfig'])
-	},
-	mounted() {
-		this.fetchConfig();
-	}
-})
-export default class App extends Vue {}
-</script>
