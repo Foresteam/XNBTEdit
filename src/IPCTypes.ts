@@ -1,5 +1,6 @@
 export interface BackendAPI {
-	SelectorDialog(dir: boolean): Promise<string>;
+	SelectorDialog(isDir: boolean): Promise<string>;
+	ExternalURL(url: string): Promise<void>;
 }
 declare global {
 	interface Window {

@@ -4,6 +4,7 @@ import { app, protocol, BrowserWindow, dialog, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
+import { shell } from 'electron';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -16,7 +17,7 @@ export default function () {
 		// Create the browser window.
 		const win = new BrowserWindow({
 			width: 600,
-			height: 430,
+			height: 460,
 			autoHideMenuBar: true,
 			resizable: false,
 			icon: isDevelopment ? './public/icon.png' : path.join(__dirname, 'icon.png'),
@@ -32,6 +33,9 @@ export default function () {
 		ipcMain.handle('SelectFile', async (event, isDir: boolean) => {
 			let result = dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] });
 			return result;
+		});
+		ipcMain.handle('ExternalURL', async (event, url: string) => {
+			shell.openExternal(url);
 		});
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {

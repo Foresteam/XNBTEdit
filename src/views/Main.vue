@@ -84,7 +84,7 @@ import '@/IPCTypes';
 		}
 	}
 })
-export default class HomeView extends Vue {}
+export default class Main extends Vue {}
 </script>
 
 <style>

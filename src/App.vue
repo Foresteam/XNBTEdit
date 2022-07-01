@@ -1,4 +1,12 @@
 <template>
+	<div class="flex-row ui-block-b" id="header" :style="!isMainPage ? { 'flex-direction': 'row' } : {}">
+		<span v-if="isMainPage">
+			<p-button icon="pi pi-external-link" class="button-bigtext ui-block" title="GitHub page" @click="openGitHub" />
+			<p-button icon="pi pi-info-circle" class="button-bigtext ui-block" title="Info & Help" @click="$router.push({ name: 'about' })" />
+			<p-button icon="pi fi fi-gear" class="button-bigtext ui-block" title="Settings" @click="$router.push({ name: 'settings' })" />
+		</span>
+		<p-button icon="pi pi-arrow-left" class="button-bigtext ui-block" v-else @click="$router.back()" />
+	</div>
 	<router-view />
 </template>
 
@@ -141,4 +149,29 @@ html {
 ::-webkit-scrollbar-thumb:active {
 	background: var(--surface-200);
 }
+
+#header {
+	width: 100%;
+	/* background: var(--surface-a); */
+	flex-direction: row-reverse;
+}
 </style>
+
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import './IPCTypes';
+
+@Options({
+	computed: {
+		isMainPage() {
+			return this.$route.name == 'main';
+		}
+	},
+	methods: {
+		openGitHub() {
+			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
+		}
+	}
+})
+export default class App extends Vue {}
+</script>

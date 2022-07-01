@@ -21,3 +21,6 @@
 .fi-dots:before {
     content: '4';
 }
+.fi-gear:before {
+	content: '5';
+}
