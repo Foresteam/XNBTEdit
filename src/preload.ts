@@ -1,7 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { BackendAPI } from './IPCTypes';
+import { BackendAPI } from './shared/IPCTypes';
 
 contextBridge.exposeInMainWorld('backend', {
-	SelectorDialog: (isDir: boolean) => ipcRenderer.invoke('SelectFile', isDir),
-	ExternalURL: (url: string) => ipcRenderer.invoke('ExternalURL', url)
+	SelectorDialog: (isDir) => ipcRenderer.invoke('SelectFile', isDir),
+	ExternalURL: (url) => ipcRenderer.invoke('ExternalURL', url),
+	Configure: (prop, value) => ipcRenderer.invoke('Configure', prop, value),
+	FetchConfig: () => ipcRenderer.invoke('FetchConfig')
 } as BackendAPI)

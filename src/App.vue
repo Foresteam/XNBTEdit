@@ -150,6 +150,9 @@ html {
 	background: var(--surface-200);
 }
 
+label {
+	text-align: left;
+}
 #header {
 	width: 100%;
 	/* background: var(--surface-a); */
@@ -159,7 +162,8 @@ html {
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import './IPCTypes';
+import { mapActions } from 'vuex';
+import '@/shared/IPCTypes';
 
 @Options({
 	computed: {
@@ -170,7 +174,11 @@ import './IPCTypes';
 	methods: {
 		openGitHub() {
 			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
-		}
+		},
+		...mapActions(['fetchConfig'])
+	},
+	mounted() {
+		this.fetchConfig();
 	}
 })
 export default class App extends Vue {}

@@ -3,8 +3,12 @@
 import { app, protocol, BrowserWindow, dialog, ipcMain } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
+
 import path from 'path';
 import { shell } from 'electron';
+
+import { config, Configure } from './Main';
+import IConfig from '@/shared/IConfig';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -30,13 +34,12 @@ export default function () {
 			}
 		});
 
-		ipcMain.handle('SelectFile', async (event, isDir: boolean) => {
-			let result = dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] });
-			return result;
+		ipcMain.handle('SelectFile', async (_, isDir: boolean): Promise<string> => {
+			return (dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] }) || [''])[0]
 		});
-		ipcMain.handle('ExternalURL', async (event, url: string) => {
-			shell.openExternal(url);
-		});
+		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
+		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
+		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.self);
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
 			// Load the url of the dev server if in development mode

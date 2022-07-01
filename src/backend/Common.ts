@@ -1,4 +1,5 @@
 import { MojangsonEntry } from "@foresteam/mojangson";
+import IConfig from '../shared/IConfig';
 import fs from 'fs';
 
 /**
@@ -163,9 +164,6 @@ export type PipeOptions = {
 	gzip?: boolean;
 };
 
-export interface IConfig {
-	editor?: string;
-}
 export class Config {
 	filename: string;
 	default: IConfig;

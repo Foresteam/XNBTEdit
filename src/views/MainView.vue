@@ -4,7 +4,7 @@
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">Bulk mode</label>
 		</div>
-		<label for="input-path" class="ui-block" style="text-align: left">
+		<label for="input-path" class="ui-block-h ui-block-t">
 			{{ bulk
 				? 'Input directory or mask (e.g. dir/*.dat)'
 				: 'Input file'
@@ -35,7 +35,7 @@
 			<p-checkbox id="edit-checkbox" v-model="edit" :binary="true" :disabled="xmlinput" style="" />
 			<label for="edit-checkbox">Edit</label>
 		</div>
-		<label for="output-path" class="ui-block" style="text-align: left">
+		<label for="output-path" class="ui-block-h ui-block-t">
 			{{ bulk
 				? 'Output directory'
 				: 'Output file'
@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import '@/IPCTypes';
+import '@/shared/IPCTypes';
 
 @Options({
 	components: {},
@@ -84,7 +84,7 @@ import '@/IPCTypes';
 		}
 	}
 })
-export default class Main extends Vue {}
+export default class MainView extends Vue {}
 </script>
 
 <style>

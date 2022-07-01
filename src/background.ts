@@ -70,7 +70,7 @@ if (options.help) {
 	exit(0);
 }
 if (options.editor) {
-	main.SetEditor(options.editor);
+	main.Configure('editor', options.editor);
 	exit(0);
 }
 

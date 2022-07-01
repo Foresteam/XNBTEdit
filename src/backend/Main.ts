@@ -118,8 +118,8 @@ try { APPDATA && fs.mkdirSync(APPDATA); } catch { }
 
 export const config = new Config(CONFIG, {});
 
-export const SetEditor = (editor: string) => {
-	config.self.editor = editor;
+export const Configure = (prop: string, value: any) => {
+	config.self[prop] = value;
 	config.save();
 	console.log(`Wrote configuration to "${CONFIG}".`);
 }
