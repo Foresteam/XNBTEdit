@@ -31,6 +31,16 @@
 				<span>XML</span>
 			</i>
 		</div>
+		<div class="flex-row ui-block" style="align-items: center">
+			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
+			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
+			<label for="compression-checkbox" v-if="compression == false">No compression</label>
+			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
+		</div>
+		<div class="flex-row ui-block" style="align-items: center">
+			<p-checkbox id="snbt-checkbox" v-model="snbt" binary :disabled="xmlinput" />
+			<label for="snbt-checkbox">Parse SNBT</label>
+		</div>
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="edit-checkbox" v-model="edit" :binary="true" :disabled="xmlinput" style="" />
 			<label for="edit-checkbox">Edit</label>
@@ -44,30 +54,25 @@
 				: 'Output file'
 			"
 			v-model="output"
+			:disabled="edit"
 		/>
-		<div class="flex-row ui-block" style="align-items: center">
-			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
-			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
-			<label for="compression-checkbox" v-if="compression == false">No compression</label>
-			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
-		</div>
 		<div class="flex-row ui-block flex-center">
 			<p-toggle-button
-				v-if="edit"
+				v-if="!isConverting && (edit || !isNotEditing)"
 				onLabel="Edit"
 				onIcon="pi fi fi-edit"
 				offLabel="Finish editing"
 				offIcon="pi pi-check"
 				v-model="isNotEditing"
-				class="p-button-success"
-				style="font-size: 20pt"
-				:loading="true"
+				class="p-button-success p-button-lg"
 			/>
 			<p-button
 				v-else
 				label="Convert"
-				:loading="convertationProgress"
-				style="font-size: 20pt"
+				icon="pi fi fi-exchange button-mi"
+				:loading="isConverting"
+				class="p-button-lg"
+				@click="convert()"
 			/>
 		</div>
 	</div>
@@ -89,7 +94,9 @@ import FileInput from '@/components/FileInput.vue';
 		edit: false,
 		input: '',
 		output: '',
-		isNotEditing: true
+		isNotEditing: true,
+		isConverting: false,
+		snbt: false
 	}),
 	watch: {
 		xmlinput(val) {
@@ -100,6 +107,19 @@ import FileInput from '@/components/FileInput.vue';
 	methods: {
 		inputChanged(...args) {
 			console.log(args);
+		},
+		async convert() {
+			this.isConverting = true;
+			// await window.backend.Convert({
+			// 	compression: this.compression,
+			// 	xmlinput: this.xmlinput,
+			// 	snbt: this.snbt,
+			// 	edit: this.edit,
+			// 	input: this.input,
+			// 	out: this.output,
+			// 	overwrite: true // remove later
+			// });
+			// this.isConverting = false;
 		}
 	}
 })
@@ -107,6 +127,11 @@ export default class extends Vue {}
 </script>
 
 <style>
+.p-button-success:not(:hover) .p-button-icon {
+	transition: .5s ease-out;
+	color: var(--primary-color-text) !important;
+}
+
 .home {
 	width: 100%;
 }

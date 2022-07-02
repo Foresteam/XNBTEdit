@@ -7,6 +7,7 @@ import 'colors';
 import { exit } from 'process';
 
 import * as main from './backend/Main';
+import { Options as main_Options } from './shared/IPCTypes';
 import { RenameKey } from './backend/Common';
 
 const optionList = [
@@ -21,7 +22,7 @@ const optionList = [
 	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Conversion mode. Required for bulk mode, but may be used in single mode to ignore extensions. Default is nbt -> xml' },
 	{ name: 'overwrite', alias: 'w', type: Boolean, description: 'Overwrite output files if they exist' }
 ];
-const options = cmdargs(optionList) as main.Options;
+const options = cmdargs(optionList) as main_Options;
 RenameKey.call(options, 'set-editor', 'editor');
 RenameKey.call(options, 'no-snbt', 'snbt');
 options.compression = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);

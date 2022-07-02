@@ -9,8 +9,9 @@
 				style="flex-grow: 1"
 				:modelValue="modelValue"
 				@change="e => $emit('update:modelValue', e.target.value)"
+				:disabled="disabled"
 			/>
-			<p-button icon="pi fi fi-dots" @click="selectDialog" />
+			<p-button icon="pi fi fi-dots" @click="selectDialog" :disabled="disabled" />
 		</div>
 	</div>
 </template>
@@ -37,6 +38,10 @@ import { Options, Vue } from 'vue-class-component';
 			type: String,
 			default: 'open'
 		},
+		disabled: {
+			type: Boolean,
+			default: false
+		},
 		modelValue: String
 	},
 	methods: {
@@ -53,5 +58,6 @@ export default class extends Vue {
 	isDir!: boolean;
 	mode!: 'open' | 'save';
 	id!: string;
+	disabled: boolean;
 }
 </script>

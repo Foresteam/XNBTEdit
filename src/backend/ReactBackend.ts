@@ -7,9 +7,10 @@ import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { shell } from 'electron';
 
-import { config, Configure } from './Main';
+import { config, Configure, Perform } from './Main';
 import IConfig from '@/shared/IConfig';
 import { spawnSync } from 'child_process';
+import { Options } from '@/shared/IPCTypes';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -55,6 +56,15 @@ export default function () {
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
 		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.self);
+		ipcMain.handle('Convert', async (_, options: Options): Promise<string | null> => {
+			try {
+				for (let rs of await Perform(options))
+					await rs?.convertPromise;
+			}
+			catch (msg) {
+				return msg;
+			}
+		})
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
 			// Load the url of the dev server if in development mode

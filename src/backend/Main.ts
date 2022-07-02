@@ -9,19 +9,7 @@ import { Config } from './Common';
 import os from 'os';
 import glob from 'glob';
 import { spawn } from 'child_process';
-
-export interface Options {
-	help?: boolean;
-	editor?: string;
-	edit?: boolean;
-	compression?: 'gzip' | 'none' | boolean;
-	snbt?: boolean;
-	input?: string;
-	out?: string;
-	bulk?: boolean;
-	xmlinput?: boolean;
-	overwrite?: boolean;
-}
+import { Options } from '@/shared/IPCTypes';
 
 export const FindTopFolderName = (p: string): string => {
 	let parts = p.split(path.sep);

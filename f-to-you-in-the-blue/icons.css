@@ -27,3 +27,6 @@
 .fi-edit:before {
 	content: '6';
 }
+.fi-exchange:before {
+	content: '7';
+}
