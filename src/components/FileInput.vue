@@ -25,13 +25,23 @@ import { Options, Vue } from 'vue-class-component';
 	],
 	props: {
 		label: String,
-		id: String,
-		isDir: Boolean,
+		id: {
+			type: String,
+			required: true
+		},
+		isDir: {
+			type: Boolean,
+			default: false
+		},
+		mode: {
+			type: String,
+			default: 'open'
+		},
 		modelValue: String
 	},
 	methods: {
 		async selectDialog() {
-			let path = await window.backend.SelectorDialog(this.isDir);
+			let path = await window.backend.SelectorDialog(this.isDir, this.mode);
 			if (!path)
 				return;
 			this.$emit('update:modelValue', path);
@@ -41,6 +51,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class extends Vue {
 	isDir!: boolean;
+	mode!: 'open' | 'save';
 	id!: string;
 }
 </script>

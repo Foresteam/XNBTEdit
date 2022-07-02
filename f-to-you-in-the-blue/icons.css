@@ -24,3 +24,6 @@
 .fi-gear:before {
 	content: '5';
 }
+.fi-edit:before {
+	content: '6';
+}

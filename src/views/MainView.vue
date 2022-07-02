@@ -4,18 +4,8 @@
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">Bulk mode</label>
 		</div>
-<!-- <label for="input-path" class="ui-block-h ui-block-t">
-	{{ bulk
-		? 'Input directory or mask (e.g. dir/*.dat)'
-		: 'Input file'
-	}}
-</label>
-<div class="flex-row ui-block ui-block-b set-wrapper">
-	<p-input-text ref="input-path" id="input-path" v-model="input" style="flex-grow: 1"/>
-	<p-button icon="pi fi fi-dots" @click="selectDialog('input', bulk)" />
-</div> -->
 		<file-input
-			:id="'input-path'"
+			id="input-path"
 			:isDir="bulk"
 			:label="bulk
 				? 'Input directory or mask (e.g. dir/*.dat)'
@@ -46,8 +36,9 @@
 			<label for="edit-checkbox">Edit</label>
 		</div>
 		<file-input
-			:id="'output-path'"
+			id="output-path"
 			:isDir="bulk"
+			mode="save"
 			:label="bulk
 				? 'Output directory'
 				: 'Output file'
@@ -61,7 +52,23 @@
 			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
 		</div>
 		<div class="flex-row ui-block flex-center">
-			<p-button :label="edit ? 'Edit' : 'Convert'" class="p-button-success" style="font-size: 20pt" />
+			<p-toggle-button
+				v-if="edit"
+				onLabel="Edit"
+				onIcon="pi fi fi-edit"
+				offLabel="Finish editing"
+				offIcon="pi pi-check"
+				v-model="isNotEditing"
+				class="p-button-success"
+				style="font-size: 20pt"
+				:loading="true"
+			/>
+			<p-button
+				v-else
+				label="Convert"
+				:loading="convertationProgress"
+				style="font-size: 20pt"
+			/>
 		</div>
 	</div>
 </template>
@@ -81,7 +88,8 @@ import FileInput from '@/components/FileInput.vue';
 		bulk: false,
 		edit: false,
 		input: '',
-		output: ''
+		output: '',
+		isNotEditing: true
 	}),
 	watch: {
 		xmlinput(val) {
@@ -90,10 +98,6 @@ import FileInput from '@/components/FileInput.vue';
 		}
 	},
 	methods: {
-		async selectDialog(vmodel: string, isDir: boolean) {
-			let path = await window.backend.SelectorDialog(isDir);
-			this[vmodel] = path;
-		},
 		inputChanged(...args) {
 			console.log(args);
 		}

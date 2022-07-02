@@ -9,8 +9,19 @@ import { shell } from 'electron';
 
 import { config, Configure } from './Main';
 import IConfig from '@/shared/IConfig';
+import { spawnSync } from 'child_process';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const CheckKDialog = () => process.platform == 'linux' && spawnSync('which', ['kdialog']).status == 0;
+const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<string> => {
+	let openArg = isDir && 'getexistingdirectory';
+	if (!openArg)
+		openArg = mode == 'open' ? 'getopenfilename' : 'getsavefilename';
+	let path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
+	// strip the output. For some reason it appends extra symbols
+	return path.substring(1, path.length - 3);
+}
 
 export default function () {
 	// Scheme must be registered before the app is ready
@@ -34,8 +45,12 @@ export default function () {
 			}
 		});
 
-		ipcMain.handle('SelectFile', async (_, isDir: boolean): Promise<string> => {
-			return (dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] }) || [''])[0]
+		ipcMain.handle('SelectFile', async (_, isDir: boolean, mode: 'open' | 'save'): Promise<string> => {
+			if (CheckKDialog())
+				return await KFilePicker(isDir, mode);
+			if (mode != 'save' || isDir)
+				return (dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] }) || [''])[0];
+			return dialog.showSaveDialogSync(win);
 		});
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
