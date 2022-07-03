@@ -108,8 +108,7 @@ try { APPDATA && fs.mkdirSync(APPDATA); } catch { }
 export const config = new Config(CONFIG, {});
 
 export const Configure = (prop: string, value: any) => {
-	config.self[prop] = value;
-	config.save();
+	config.set(prop, value);
 	console.log(`Wrote configuration to "${CONFIG}".`);
 }
 export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == undefined && !input;
@@ -195,7 +194,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 	}));
 
 	if (edit)
-		await spawn(config.self.config_editor, [dir !== undefined ? dir : opened[0].filename]);
+		await spawn(config.get().config_editor, [dir !== undefined ? dir : opened[0].filename]);
 	
 	return opened;
 }

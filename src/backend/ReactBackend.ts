@@ -58,7 +58,7 @@ export default function () {
 		});
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
-		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.self);
+		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.get());
 		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode> => {
 			if (opened)
 				throw 'Another operation is in progress';

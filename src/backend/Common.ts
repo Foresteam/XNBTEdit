@@ -168,7 +168,7 @@ export class Config {
 	filename: string;
 	default: IConfig;
 	wasSaved: boolean;
-	self: IConfig;
+	#self: IConfig;
 
 	constructor(filename: string, _default: IConfig = {}) {
 		this.filename = filename;
@@ -181,12 +181,19 @@ export class Config {
 		});
 		this.load();
 	}
+	get() {
+		return Object.assign({}, this.#self);
+	}
+	set(field: string, value: any, save = true) {
+		this.#self[field] = value;
+		save && this.save();
+	}
 	load() {
-		try { this.self = JSON.parse(fs.readFileSync(this.filename).toString('utf-8')); } catch { this.self = this.default; }
+		try { this.#self = JSON.parse(fs.readFileSync(this.filename).toString('utf-8')); } catch { this.#self = this.default; }
 	}
 	save() {
 		this.wasSaved = true;
-		fs.writeFileSync(this.filename, JSON.stringify(this.self, null, '\t'));
+		fs.writeFileSync(this.filename, JSON.stringify(this.#self, null, '\t'));
 	}
 }
 
