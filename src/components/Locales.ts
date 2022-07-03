@@ -1,4 +1,4 @@
-import { ErrorCode } from "./ErrorCodes";
+import { ErrorCode } from "@/shared/ErrorCodes";
 
 export enum Locales { EN = 0, RU }
 

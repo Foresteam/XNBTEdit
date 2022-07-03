@@ -134,8 +134,8 @@ import { ErrorCode } from "@/shared/ErrorCodes";
 				this.$toast.add({
 					severity: 'error',
 					summary: 'Error',
-					detail: error,
-					lifetime: 3000
+					detail: this.locales[error],
+					life: 3000
 				});
 
 			this.isConverting = false;

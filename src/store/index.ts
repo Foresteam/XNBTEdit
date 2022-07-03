@@ -1,7 +1,7 @@
 import { createStore } from 'vuex';
 import IConfig from '@/shared/IConfig';
 import '@/shared/IPCTypes';
-import glocales, { Locales } from '@/shared/Locales';
+import glocales, { Locales } from '@/components/Locales';
 
 export default createStore({
 	state: {

@@ -9,6 +9,7 @@ import 'primeicons/primeicons.css';								// icons
 import '../f-to-you-in-the-blue/icons.css';						// my icons
 import '@/assets/common-styles.css'								// :)
 
+import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 
@@ -21,7 +22,7 @@ import InputSwitch from 'primevue/inputswitch';
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
 
-const app = createApp(App)
+const app = createApp(App);
 
 app.component('p-input-text', InputText);
 app.component('p-button', Button);
@@ -32,6 +33,7 @@ app.component('p-input-switch', InputSwitch);
 app.component('p-confirm-dialog', ConfirmDialog);
 app.component('p-toast', Toast);
 
+app.use(PrimeVue);
 app.use(ConfirmationService);
 app.use(ToastService);
 app.use(store);

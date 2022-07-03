@@ -18,7 +18,7 @@ import { Options, Vue } from "vue-class-component";
 import { mapActions, mapGetters } from 'vuex';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
-import { Locales } from "@/shared/Locales";
+import { Locales } from "@/components/Locales";
 
 @Options({
 	components: {
