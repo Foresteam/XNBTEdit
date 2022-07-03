@@ -22,7 +22,8 @@ const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<strin
 		openArg = mode == 'open' ? 'getopenfilename' : 'getsavefilename';
 	let path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
 	// strip the output. For some reason it appends extra symbols
-	return path.substring(1, path.length - 3);
+	console.log(`"${path}"`);
+	return path.split('\n')[0].substring(1, path.length - 1);
 }
 
 let opened: OpenFileResult[];

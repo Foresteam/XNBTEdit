@@ -8,7 +8,6 @@
 			id="input-path"
 			:isDir="bulk"
 			:label="locales[`Main.input-path.${Number(bulk)}`]"
-			@change="inputChanged"
 			v-model="input"
 		/>
 		<div class="flex-row flex-center mode-switch ui-block-v" style="">
@@ -106,9 +105,6 @@ import { ErrorCode } from "@/shared/ErrorCodes";
 		...mapGetters(['locales'])
 	},
 	methods: {
-		inputChanged(...args) {
-			console.log(args);
-		},
 		async convert(overwrite = false) {
 			this.isConverting = true;
 			let error = await window.backend.Convert({
