@@ -1,3 +1,6 @@
+import { Locales } from './Locales';
+
 export default interface IConfig {
-	editor?: string;
+	config_editor?: string;
+	config_locale?: Locales;
 }

@@ -9,9 +9,13 @@
 	</div>
 	<router-view v-slot="{ Component, route }">
 		<transition :name="!isMainPage ? 'slide' : 'slide_back'" mode="out-in">
-			<component :is="Component" :key="route.path" />
+			<keep-alive>
+				<component :is="Component" :key="route.path" />
+			</keep-alive>
 		</transition>
 	</router-view>
+	<p-confirm-dialog />
+	<p-toast position="top-left" />
 </template>
 
 <script lang="ts">

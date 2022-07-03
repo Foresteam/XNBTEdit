@@ -1,15 +1,15 @@
 <template>
 	<div class="flex-col">
 		<file-input
-			:id="'editor-config'"
+			id="editor-config"
 			:isDir="false"
-			label="Editor path"
-			v-model="_editor"
-			@change="editorSelected"
+			:label="locales['Settings.editor-config']"
+			:modelValue="config_editor"
+			@change="path => configure(['editor', path])"
 		/>
 		<div class="flex-row ui-block" style="align-items: center">
-			<p-input-switch v-model="_russian" />
-			<label>{{ _russian ? 'Russian' : 'English' }}</label>
+			<p-input-switch :modelValue="!!config_locale" @update:modelValue="locale => configure(['locale', Number(locale)])" />
+			<label>{{ locales['Settings.locale'] }}</label>
 		</div>
 	</div>
 </template>
@@ -18,26 +18,20 @@ import { Options, Vue } from "vue-class-component";
 import { mapActions, mapGetters } from 'vuex';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
+import { Locales } from "@/shared/Locales";
 
 @Options({
 	components: {
 		FileInput
 	},
-	data: () => ({
-		_editor: '',
-		_russian: ''
-	}),
 	methods: {
-		async editorSelected(path) {
-			this.configure(['editor', path]);
-		},
 		...mapActions(['configure'])
 	},
 	computed: {
-		...mapGetters(['editor'])
+		...mapGetters(['config_editor', 'config_locale', 'locales'])
 	},
 	mounted() {
-		this._editor = this.editor;
+		this._editor = this.config_editor;
 	}
 })
 export default class extends Vue {}

@@ -2,15 +2,12 @@
 	<div class="home flex-col">
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
-			<label for="bulk-checkbox">Bulk mode</label>
+			<label for="bulk-checkbox">{{ locales['Main.bulk-checkbox'] }}</label>
 		</div>
 		<file-input
 			id="input-path"
 			:isDir="bulk"
-			:label="bulk
-				? 'Input directory or mask (e.g. dir/*.dat)'
-				: 'Input file'
-			"
+			:label="locales[`Main.input-path.${Number(bulk)}`]"
 			@change="inputChanged"
 			v-model="input"
 		/>
@@ -33,42 +30,41 @@
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
-			<label for="compression-checkbox" v-if="compression == null">Guess compression by header</label>
-			<label for="compression-checkbox" v-if="compression == false">No compression</label>
-			<label for="compression-checkbox" v-if="compression == true">GZip compression</label>
+			<label for="compression-checkbox" v-if="compression == null">{{ locales['Main.compression-checkbox.0'] }}</label>
+			<label for="compression-checkbox" v-if="compression == false">{{ locales['Main.compression-checkbox.1'] }}</label>
+			<label for="compression-checkbox" v-if="compression == true">{{ locales['Main.compression-checkbox.2'] }}</label>
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-checkbox id="snbt-checkbox" v-model="snbt" binary :disabled="xmlinput" />
-			<label for="snbt-checkbox">Parse SNBT</label>
+			<label for="snbt-checkbox">{{ locales['Main.snbt-checkbox'] }}</label>
 		</div>
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="edit-checkbox" v-model="edit" :binary="true" :disabled="xmlinput" style="" />
-			<label for="edit-checkbox">Edit</label>
+			<label for="edit-checkbox">{{ locales['Main.edit-checkbox'] }}</label>
 		</div>
 		<file-input
 			id="output-path"
 			:isDir="bulk"
 			mode="save"
-			:label="bulk
-				? 'Output directory'
-				: 'Output file'
-			"
+			:label="locales[`Main.output-path.${Number(bulk)}`]"
 			v-model="output"
 			:disabled="edit"
 		/>
 		<div class="flex-row ui-block flex-center">
 			<p-toggle-button
+				id="perform-edit"
 				v-if="!isConverting && (edit || !isNotEditing)"
-				onLabel="Edit"
+				:onLabel="locales['Main.perform-edit.0']"
 				onIcon="pi fi fi-edit"
-				offLabel="Finish editing"
+				:offLabel="locales['Main.perform-edit.1']"
 				offIcon="pi pi-check"
 				v-model="isNotEditing"
 				class="p-button-success p-button-lg"
 			/>
 			<p-button
+				id="perform-convert"
 				v-else
-				label="Convert"
+				:label="locales['Main.perform-convert']"
 				icon="pi fi fi-exchange button-mi"
 				:loading="isConverting"
 				class="p-button-lg"
@@ -82,6 +78,8 @@
 import { Options, Vue } from "vue-class-component";
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
+import { mapGetters } from 'vuex';
+import { ErrorCode } from "@/shared/ErrorCodes";
 
 @Options({
 	components: {
@@ -104,11 +102,14 @@ import FileInput from '@/components/FileInput.vue';
 				this.edit = false;
 		}
 	},
+	computed: {
+		...mapGetters(['locales'])
+	},
 	methods: {
 		inputChanged(...args) {
 			console.log(args);
 		},
-		async convert() {
+		async convert(overwrite = false) {
 			this.isConverting = true;
 			let error = await window.backend.Convert({
 				compression: this.compression,
@@ -117,9 +118,26 @@ import FileInput from '@/components/FileInput.vue';
 				edit: this.edit,
 				input: this.input,
 				out: this.output,
-				overwrite: false // remove later
+				overwrite
 			});
-			error && alert(error);
+			if (error == ErrorCode.ASK_OVERWRITE) {
+				if (await new Promise(resolve => this.$confirm.require({
+					message: this.locales[ErrorCode.ASK_OVERWRITE],
+					header: '',
+					icon: 'pi pi-exclamation-triangle',
+					accept: () => resolve(true),
+					reject: () => resolve(false)
+				})))
+					return this.convert();
+			}
+			else if (error)
+				this.$toast.add({
+					severity: 'error',
+					summary: 'Error',
+					detail: error,
+					lifetime: 3000
+				});
+
 			this.isConverting = false;
 		}
 	}

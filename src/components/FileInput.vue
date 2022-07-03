@@ -8,7 +8,7 @@
 				:id="id"
 				style="flex-grow: 1"
 				:modelValue="modelValue"
-				@change="e => $emit('update:modelValue', e.target.value)"
+				@change="e => emitChange(e.target.value)"
 				:disabled="disabled"
 			/>
 			<p-button icon="pi fi fi-dots" @click="selectDialog" :disabled="disabled" />
@@ -49,6 +49,9 @@ import { Options, Vue } from 'vue-class-component';
 			let path = await window.backend.SelectorDialog(this.isDir, this.mode);
 			if (!path)
 				return;
+			this.emitChange(path);
+		},
+		emitChange(path) {
 			this.$emit('update:modelValue', path);
 			this.$emit('change', path);
 		}
