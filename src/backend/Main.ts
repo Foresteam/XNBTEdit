@@ -9,7 +9,8 @@ import { Config } from './Common';
 import os from 'os';
 import glob from 'glob';
 import { spawn } from 'child_process';
-import { Options } from '@/shared/IPCTypes';
+import Options from '@/shared/Options';
+import { ErrorCode } from '@/shared/ErrorCodes';
 
 export const FindTopFolderName = (p: string): string => {
 	let parts = p.split(path.sep);
@@ -66,13 +67,13 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 
 	const XML2NBT = async (input: string, out: string) => {
 		if (!out)
-			throw `Destination should be specified for XML ${'--input'.bold}.`.red;
+			throw ErrorCode.XML_NO_OUT;
 		console.log(`Writing to ${out}`);
 		await Writer.X2NPipe(input, out, { gzip });
 	}
 	if (xmlinput || !bulk && input.endsWith('.xml')) {
 		if (gzip == undefined)
-			throw `When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red;
+			throw ErrorCode.XML_COMPRESSION_UNDEFINED;
 		await XML2NBT(input, out);
 		return null;
 	}
@@ -111,16 +112,14 @@ export const Configure = (prop: string, value: any) => {
 	config.save();
 	console.log(`Wrote configuration to "${CONFIG}".`);
 }
-export const CheckOpenGUI = ({ edit, out, input}: Options) => {
-	return !edit && out == undefined && !input;
-	/** It was needed when the app was command line only */
-	// if (!edit && out == undefined)
-	// 	throw `No output file/dir was specified, nor edit mode (${'-e'.bold}) was selected. Nothing to do.`.red;
-	// if (!input)
-	// 	throw 'No input file specified.'.red;
-}
+export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == undefined && !input;
 
 export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite, xmlinput, compression: gzip, snbt }: Options) => {
+	if (!_input)
+		throw ErrorCode.NO_INPUT;
+	if (!edit && !_out)
+		throw ErrorCode.NO_OUT_NO_EDIT;
+	
 	const inputs: string[] = [];
 	if (bulk) {
 		try {
@@ -129,14 +128,14 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		}
 		catch (e) {
 			if (e == 0)
-				throw 'Input shouldn\'t be a file (for bulk mode)';
+				throw ErrorCode.BULK_INPUT_FILE;
 		}
 
 		try {
 			if (!fs.statSync(_input).isFile())
 				await new Promise<void>(resolve => glob(path.join(_input, '**', '*'), (err, files) => {
 					if (err)
-						throw 'Nothing to be found (?)';
+						throw ErrorCode.IDK;
 					for (let filename of files)
 						if (fs.statSync(filename).isFile())
 							inputs.push(path.resolve(filename))
@@ -146,7 +145,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		catch {
 			let fns = (await new Promise(resolve => glob(_input, (err, files) => {
 				if (err)
-					throw 'Nothing to be found (?)';
+					throw ErrorCode.IDK;
 				resolve(files);
 			}))) as string[];
 			for (let filename of fns)
@@ -171,11 +170,11 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 						throw 0;
 			} catch (e) {
 				if (e == 0)
-					throw `Output directory already exists and is not empty. Rerun the program with ${'--overwrite'.bold} flag to write anyway.`.red;
+					throw ErrorCode.ASK_OVERWRITE;
 			}
 		}
 		else
-			throw `No out dir was specified, nor edit mode (${'-e'.bold}) was selected.`.red;
+			throw ErrorCode.NO_OUT_NO_EDIT;
 	}
 	
 	const opened: OpenFileResult[] = [];

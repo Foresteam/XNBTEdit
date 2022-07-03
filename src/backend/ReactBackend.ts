@@ -7,10 +7,11 @@ import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { shell } from 'electron';
 
-import { config, Configure, Perform } from './Main';
+import { config, Configure, OpenFileResult, Perform } from './Main';
 import IConfig from '@/shared/IConfig';
 import { spawnSync } from 'child_process';
-import { Options } from '@/shared/IPCTypes';
+import Options from '@/shared/Options';
+import { ErrorCode } from '@/shared/ErrorCodes';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -23,6 +24,8 @@ const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<strin
 	// strip the output. For some reason it appends extra symbols
 	return path.substring(1, path.length - 3);
 }
+
+let opened: OpenFileResult[];
 
 export default function () {
 	// Scheme must be registered before the app is ready
@@ -56,10 +59,15 @@ export default function () {
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
 		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.self);
-		ipcMain.handle('Convert', async (_, options: Options): Promise<string | null> => {
+		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode> => {
+			if (opened)
+				throw 'Another operation is in progress';
 			try {
-				for (let rs of await Perform(options))
+				opened = await Perform(options);
+				for (let rs of opened)
 					await rs?.convertPromise;
+				opened = null;
+				return ErrorCode.OK;
 			}
 			catch (msg) {
 				return msg;

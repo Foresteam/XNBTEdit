@@ -110,16 +110,17 @@ import FileInput from '@/components/FileInput.vue';
 		},
 		async convert() {
 			this.isConverting = true;
-			// await window.backend.Convert({
-			// 	compression: this.compression,
-			// 	xmlinput: this.xmlinput,
-			// 	snbt: this.snbt,
-			// 	edit: this.edit,
-			// 	input: this.input,
-			// 	out: this.output,
-			// 	overwrite: true // remove later
-			// });
-			// this.isConverting = false;
+			let error = await window.backend.Convert({
+				compression: this.compression,
+				xmlinput: this.xmlinput,
+				snbt: this.snbt,
+				edit: this.edit,
+				input: this.input,
+				out: this.output,
+				overwrite: false // remove later
+			});
+			error && alert(error);
+			this.isConverting = false;
 		}
 	}
 })

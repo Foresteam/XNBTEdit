@@ -7,7 +7,8 @@ import 'colors';
 import { exit } from 'process';
 
 import * as main from './backend/Main';
-import { Options as main_Options } from './shared/IPCTypes';
+import main_Options from './shared/Options';
+import { ErrorCode } from './shared/ErrorCodes';
 import { RenameKey } from './backend/Common';
 
 const optionList = [
@@ -79,10 +80,7 @@ const Main = async () => {
 	if (main.CheckOpenGUI(options)) {
 		return OpenGui();
 	}
-	if (!options.edit && !options.out) {
-		console.error(`No output was specified, nor edit mode (${'-e'.bold}) was selected`.red);
-		exit(1);
-	}
+	
 
 	const { input: _input, out: _out, edit } = options;
 
@@ -91,7 +89,16 @@ const Main = async () => {
 		opened = await main.Perform(options);
 	}
 	catch (e) {
-		console.error(e);
+		let text: string = {
+			[ErrorCode.NO_INPUT]: 'No input was specified'.red,
+			[ErrorCode.NO_OUT_NO_EDIT]: `No output was specified, nor edit mode (${'-e'.bold}) was selected`.red,
+			[ErrorCode.BULK_INPUT_FILE]: 'Input shouldn\'t be a file (for bulk mode)',
+			[ErrorCode.IDK]: 'Nothing to be found',
+			[ErrorCode.ASK_OVERWRITE]: `Output directory already exists and is not empty. Rerun the program with ${'--overwrite'.bold} flag to write anyway.`.red,
+			[ErrorCode.XML_NO_OUT]: `Destination should be specified for XML ${'--input'.bold}.`.red,
+			[ErrorCode.XML_COMPRESSION_UNDEFINED]: `When input is an XML file, compression method (${'--compression'.bold}) must be specified.`.red
+		}[e];
+		console.error(text || e);
 		exit(1);
 	}
 
