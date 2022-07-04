@@ -1,5 +1,6 @@
 export default interface Options {
 	help?: boolean;
+	license?: boolean;
 	editor?: string;
 	edit?: boolean;
 	compression?: 'gzip' | 'none' | boolean;

@@ -6,11 +6,10 @@ import glocales, { Locales } from '@/components/Locales';
 export const useConfig = defineStore('config', {
 	state: (): IConfig => ({
 		editor: '',
-		locale: Locales.EN
+		locale: Locales.EN,
+		seenLicense: false
 	}),
 	getters: {
-		config_editor: (state) => state.editor,
-		config_locale: (state) => state.locale,
 		locales: (state) => glocales[state.locale as Locales]
 	},
 	actions: {

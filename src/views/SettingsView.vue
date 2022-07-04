@@ -5,11 +5,11 @@
 			mode="open"
 			:isDir="false"
 			:label="locales['Settings.editor-config']"
-			:modelValue="config_editor"
+			:modelValue="editor"
 			@change="path => configure('editor', path)"
 		/>
 		<div class="flex-row ui-block" style="align-items: center">
-			<p-input-switch :modelValue="!!config_locale" @update:modelValue="(locale: boolean) => configure('locale', Number(locale))" />
+			<p-input-switch :modelValue="!!locale" @update:modelValue="(locale: boolean) => configure('locale', Number(locale))" />
 			<label>{{ locales['Settings.locale'] }}</label>
 		</div>
 	</div>
@@ -30,7 +30,7 @@ export default defineComponent({
 		...mapActions(useConfig, ['configure'])
 	},
 	computed: {
-		...mapState(useConfig, ['config_editor', 'config_locale', 'locales'])
+		...mapState(useConfig, ['editor', 'locale', 'locales'])
 	}
 });
 </script>

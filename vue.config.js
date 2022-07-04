@@ -5,6 +5,7 @@ module.exports = defineConfig({
 	pluginOptions: {
 		electronBuilder: {
 			preload: 'src/preload.ts',
+			customFileProtocol: './'
 		}
 	}
 })

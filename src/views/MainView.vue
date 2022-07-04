@@ -1,5 +1,6 @@
 <template>
 	<div class="home flex-col">
+		<p v-if="!seenLicense">See license (the yellow button) to use the software</p>
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">{{ locales['Main.bulk-checkbox'] }}</label>
@@ -50,7 +51,7 @@
 			v-model="output"
 			:disabled="edit"
 		/>
-		<div class="flex-row ui-block flex-center">
+		<div class="flex-col ui-block flex-center" v-if="seenLicense">
 			<p-toggle-button
 				v-if="!isConverting && (edit || isEditing)"
 				id="perform-edit"
@@ -83,7 +84,6 @@ import { mapState, mapWritableState } from 'pinia';
 import { useConfig } from '@/store/configStore';
 import { ErrorCode } from "@/shared/ErrorCodes";
 import { useMain } from '@/store/mainStore';
-import { Locales } from '@/components/Locales';
 
 export default defineComponent({
 	components: {
@@ -106,7 +106,7 @@ export default defineComponent({
 		}
 	},
 	computed: {
-		...mapState(useConfig, ['locales', 'config_editor']),
+		...mapState(useConfig, ['locales', 'editor', 'seenLicense']),
 		...mapWritableState(useMain, ['isEditing'])
 	},
 	methods: {
@@ -149,7 +149,7 @@ export default defineComponent({
 			});
 		},
 		async EditOpen() {
-			if (!this.config_editor)
+			if (!this.editor)
 				return this.$toast.add({
 					severity: 'info',
 					summary: 'Info',

@@ -5,14 +5,17 @@ import cmdargs from 'command-line-args';
 import cmdusage from 'command-line-usage';
 import 'colors';
 import { exit } from 'process';
+import fs from 'fs';
 
 import * as main from './backend/Main';
 import main_Options from './shared/Options';
 import { ErrorCode } from './shared/ErrorCodes';
 import { RenameKey } from './backend/Common';
+import path from 'path';
 
 const optionList = [
-	{ name: 'help', type: Boolean, description: 'Show help' },
+	{ name: 'help', type: Boolean, description: 'Show this message' },
+	{ name: 'license', type: Boolean, description: 'Show license' },
 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
 	{ name: 'edit', alias: 'e', type: Boolean, description: 'Open for editing' },
 	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress. Should be "gzip" or "none". If not specified, will guess by header' },
@@ -31,10 +34,11 @@ options.snbt = !!options.snbt;
 
 const usage = cmdusage([
 	{
-		header: 'XNBTEdit'.cyan,
+		header: 'XNBTEdit Copyright (C) 2022, GNU GPL v3'.cyan,
 		content: [
-			'Author: Foresteam (https://github.com/Foresteam)',
+			'Author: Foresteam (https://github.com/Foresteam), licensed under GNU GPL v3.',
 			'Git repository: https://github.com/Foresteam/XNBTEdit',
+			'This program comes with ABSOLUTELY NO WARRANTY; This is free software, and you are welcome to redistribute it under certain conditions. See in license.',
 			'',
 			'WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.'.red,
 			'',
@@ -69,6 +73,11 @@ const usage = cmdusage([
 
 if (options.help) {
 	console.log(usage);
+	exit(0);
+}
+if (options.license) {
+	console.log(fs.readFileSync(path.join(__dirname, 'LICENSE')).toString());
+	main.Configure('seenLicense', true);
 	exit(0);
 }
 if (options.editor) {

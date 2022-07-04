@@ -11,6 +11,7 @@ import glob from 'glob';
 import { spawn } from 'child_process';
 import Options from '@/shared/Options';
 import { ErrorCode } from '@/shared/ErrorCodes';
+import IConfig from '@/shared/IConfig';
 
 export const FindTopFolderName = (p: string): string => {
 	let parts = p.split(path.sep);
@@ -104,13 +105,13 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 	}
 }
 
-const APPDATA = os.platform() == 'linux' ? os.homedir() + '/.config/XNBTEdit/' : '';
-const CONFIG = APPDATA + 'config.json';
-try { APPDATA && fs.mkdirSync(APPDATA); } catch { }
+const APPDATA = os.platform() == 'win32' ? path.join(process.env.APPDATA || '.', 'XNBTEdit') : path.join(os.homedir(), '.config/XNBTEdit');
+const CONFIG = path.join(APPDATA, 'config.json');
+try { APPDATA && fs.mkdirSync(APPDATA, { recursive: true }); } catch { }
 
 export const config = new Config(CONFIG, {});
 
-export const Configure = (prop: string, value: any) => {
+export const Configure = (prop: keyof IConfig, value: any) => {
 	config.set(prop, value);
 	console.log(`Wrote configuration to "${CONFIG}".`);
 }

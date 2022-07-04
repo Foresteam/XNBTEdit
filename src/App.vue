@@ -1,11 +1,20 @@
 <template>
 	<div class="flex-row ui-block-b" id="header" :style="!isMainPage ? { 'flex-direction': 'row' } : {}">
 		<span v-if="isMainPage">
-			<p-button icon="pi pi-external-link" class="button-bigtext ui-block" title="GitHub page" @click="openGitHub" />
-			<p-button icon="pi pi-info-circle" class="button-bigtext ui-block" title="Info & Help" @click="$router.push({ name: 'about' })" />
+			<p-button
+				icon="pi fi fi-license"
+				:class="{
+					'button-bigtext': true,
+					'ui-block': true,
+					'p-button-warning': !seenLicense
+				}"
+				title="License"
+				@click="showLicense"
+			/>
+			<p-button icon="pi pi-info-circle" class="button-bigtext ui-block" title="Info & Help" @click="openGitHub()" />
 			<p-button icon="pi fi fi-gear" class="button-bigtext ui-block" title="Settings" @click="$router.push({ name: 'settings' })" />
 		</span>
-		<p-button icon="pi pi-arrow-left" class="button-bigtext ui-block" v-else @click="$router.back()" />
+		<p-button v-else icon="pi pi-arrow-left" class="button-bigtext ui-block" @click="$router.back()" />
 	</div>
 	<router-view v-slot="{ Component, route }">
 		<transition :name="!isMainPage ? 'slide' : 'slide_back'" mode="out-in">
@@ -20,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { useConfig } from './store/configStore';
 import '@/shared/IPCTypes';
 
@@ -28,13 +37,18 @@ export default defineComponent({
 	computed: {
 		isMainPage() {
 			return this.$route.name == 'main';
-		}
+		},
+		...mapState(useConfig, ['seenLicense'])
 	},
 	methods: {
 		openGitHub() {
 			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
 		},
-		...mapActions(useConfig, ['fetchConfig'])
+		async showLicense() {
+			this.configure('seenLicense', true);
+			this.$router.push('license');
+		},
+		...mapActions(useConfig, ['fetchConfig', 'configure'])
 	},
 	mounted() {
 		this.fetchConfig();

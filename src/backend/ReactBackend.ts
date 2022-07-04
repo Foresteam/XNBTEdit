@@ -41,7 +41,7 @@ export default function () {
 			height: 460,
 			autoHideMenuBar: true,
 			resizable: false,
-			icon: isDevelopment ? './public/icon.png' : path.join(__dirname, 'icon.png'),
+			icon: path.join(isDevelopment ? './public' : __dirname, 'icon.png'),
 			webPreferences: {
 				preload: path.join(__dirname, 'preload.js'),
 				// Use pluginOptions.nodeIntegration, leave this alone
@@ -59,7 +59,7 @@ export default function () {
 			return dialog.showSaveDialogSync(win) || '';
 		});
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
-		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
+		ipcMain.handle('Configure', async (_, prop: keyof IConfig, value) => Configure(prop, value));
 		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.get());
 		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode|string> => {
 			if (opened)

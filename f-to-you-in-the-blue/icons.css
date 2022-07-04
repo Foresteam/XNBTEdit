@@ -1,3 +1,6 @@
+/*
+All the icons were found on https://www.svgrepo.com/svg and are properties of their authors
+*/
 @font-face {
     font-family: 'FIcons';
     src: url('icons/f-icons.ttf');
@@ -29,4 +32,7 @@
 }
 .fi-exchange:before {
 	content: '7';
+}
+.fi-license:before {
+	content: '8';
 }

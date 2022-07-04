@@ -5,7 +5,7 @@ import { ErrorCode } from "./ErrorCodes";
 export interface BackendAPI {
 	SelectorDialog(isDir: boolean, mode: 'open' | 'save'): Promise<string>;
 	ExternalURL(url: string): Promise<void>;
-	Configure(prop: string, value: any): Promise<void>;
+	Configure(prop: keyof IConfig, value: any): Promise<void>;
 	FetchConfig(): Promise<IConfig>;
 	Convert(options: Options): Promise<ErrorCode|string>;
 	EditOpen(options: Options): Promise<ErrorCode|string>;
