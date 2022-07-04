@@ -74,13 +74,13 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
+import { defineComponent } from '@vue/runtime-core';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
 import { mapGetters } from 'vuex';
 import { ErrorCode } from "@/shared/ErrorCodes";
 
-@Options({
+export default defineComponent({
 	components: {
 		FileInput
 	},
@@ -105,10 +105,10 @@ import { ErrorCode } from "@/shared/ErrorCodes";
 		...mapGetters(['locales'])
 	},
 	methods: {
-		async convert(overwrite = false) {
+		async convert(overwrite = false): Promise<void> {
 			this.isConverting = true;
-			let error = await window.backend.Convert({
-				compression: this.compression,
+			const error = await window.backend.Convert({
+				compression: this.compression == null ? undefined : this.compression,
 				xmlinput: this.xmlinput,
 				snbt: this.snbt,
 				edit: this.edit,
@@ -137,8 +137,7 @@ import { ErrorCode } from "@/shared/ErrorCodes";
 			this.isConverting = false;
 		}
 	}
-})
-export default class extends Vue {}
+});
 </script>
 
 <style>

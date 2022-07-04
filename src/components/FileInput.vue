@@ -8,7 +8,7 @@
 				:id="id"
 				style="flex-grow: 1"
 				:modelValue="modelValue"
-				@change="e => emitChange(e.target.value)"
+				@change="(e: any) => emitChange(e.target.value)"
 				:disabled="disabled"
 			/>
 			<p-button icon="pi fi fi-dots" @click="selectDialog" :disabled="disabled" />
@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { defineComponent } from "vue";
 
-@Options({
+export default defineComponent({
 	emits: [
 		'change',
 		'update:modelValue'
@@ -46,21 +46,15 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	methods: {
 		async selectDialog() {
-			let path = await window.backend.SelectorDialog(this.isDir, this.mode);
+			const path = await window.backend.SelectorDialog(this.isDir, this.mode as ('open' | 'save'));
 			if (!path)
 				return;
 			this.emitChange(path);
 		},
-		emitChange(path) {
+		emitChange(path: string) {
 			this.$emit('update:modelValue', path);
 			this.$emit('change', path);
 		}
 	}
-})
-export default class extends Vue {
-	isDir!: boolean;
-	mode!: 'open' | 'save';
-	id!: string;
-	disabled: boolean;
-}
+});
 </script>

@@ -1,6 +1,7 @@
 import { MojangsonEntry } from "@foresteam/mojangson";
 import IConfig from '../shared/IConfig';
 import fs from 'fs';
+import { stringify } from "querystring";
 
 /**
  * Types assoc.
@@ -51,13 +52,13 @@ export interface Entry {
 };
 
 export const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
-	type ||= mjvalue.type;
+	type ||= mjvalue.type as string;
 	// console.log('#1', mjvalue, type);
 	if (type == 'list') {
 		let result: Entry = { value: null, type: 0 };
 		result.type = TYPE('list');
-		result.contentType = mjvalue.value.type;
-		result.value = (mjvalue.value.value as any[]).map(v => Mojangson2Entry(v, TYPES[result.contentType]));
+		result.contentType = mjvalue.value.type as number;
+		result.value = (mjvalue.value.value as any[]).map(v => Mojangson2Entry(v, TYPES[result.contentType as number]));
 		return result;
 	}
 	if (type.indexOf('Array') >= 0) {
@@ -82,7 +83,7 @@ export const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
 		return {
 			type: MojangsonType(TYPES[entry.type]),
 			value: {
-				type: MojangsonType(TYPES[entry.contentType]),
+				type: MojangsonType(TYPES[entry.contentType as number]),
 				value: (entry.value as Entry[]).map(v => Entry2Mojangson(v.value))
 			}
 		};
@@ -90,7 +91,7 @@ export const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
 		return {
 			type: MojangsonType(TYPES[entry.type]),
 			value: {
-				type: MojangsonType(TYPES[entry.contentType]),
+				type: MojangsonType(TYPES[entry.contentType as number]),
 				value: (entry.value as Entry[]).map(v => v.value)
 			}
 		};
@@ -173,6 +174,8 @@ export class Config {
 	constructor(filename: string, _default: IConfig = {}) {
 		this.filename = filename;
 		this.default = _default;
+		this.wasSaved = false;
+		this.#self = {};
 		fs.watchFile(this.filename, (curr, prev) => {
 			if (this.wasSaved)
 				this.wasSaved = false;
@@ -185,7 +188,7 @@ export class Config {
 		return Object.assign({}, this.#self);
 	}
 	set(field: string, value: any, save = true) {
-		this.#self[field] = value;
+		(this.#self as any)[field] = value;
 		save && this.save();
 	}
 	load() {
@@ -197,7 +200,7 @@ export class Config {
 	}
 }
 
-export function RenameKey(old: string, _new: string) {
+export function RenameKey(this: any, old: string, _new: string) {
 	delete Object.assign(this, { [_new]: this[old] })[old];
 	return this;
 }

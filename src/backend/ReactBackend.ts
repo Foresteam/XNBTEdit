@@ -26,7 +26,7 @@ const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<strin
 	return path.split('\n')[0].substring(1, path.length - 1);
 }
 
-let opened: OpenFileResult[];
+let opened: OpenFileResult[] | null;
 
 export default function () {
 	// Scheme must be registered before the app is ready
@@ -55,7 +55,7 @@ export default function () {
 				return await KFilePicker(isDir, mode);
 			if (mode != 'save' || isDir)
 				return (dialog.showOpenDialogSync(win, { properties: [isDir ? 'openDirectory' : 'openFile'] }) || [''])[0];
-			return dialog.showSaveDialogSync(win);
+			return dialog.showSaveDialogSync(win) || '';
 		});
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
@@ -71,7 +71,7 @@ export default function () {
 				return ErrorCode.OK;
 			}
 			catch (msg) {
-				return msg;
+				return msg as ErrorCode;
 			}
 		})
 

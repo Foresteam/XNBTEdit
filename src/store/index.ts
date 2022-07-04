@@ -23,8 +23,8 @@ export default createStore({
 	},
 	mutations: {
 		setConfig(state, config: IConfig) {
-			for (let [k, v] of Object.entries(config))
-				state.config[k] = v;
+			for (const [k, v] of Object.entries(config))
+				(state.config as any)[k] = v;
 		}
 	},
 	actions: {

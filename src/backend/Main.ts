@@ -42,10 +42,10 @@ export interface OpenFileArgs {
 	outName?: string;
 
 	edit?: boolean;
-	gzip: boolean;
-	bulk: boolean;
-	xmlinput: boolean;
-	snbt: boolean;
+	gzip?: boolean;
+	bulk?: boolean;
+	xmlinput?: boolean;
+	snbt?: boolean;
 }
 export interface OpenFileResult {
 	filename?: string;
@@ -74,8 +74,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 	if (xmlinput || !bulk && input.endsWith('.xml')) {
 		if (gzip == undefined)
 			throw ErrorCode.XML_COMPRESSION_UNDEFINED;
-		await XML2NBT(input, out);
-		return null;
+		return { convertPromise: XML2NBT(input, out) };
 	}
 	else {
 		if (gzip == undefined) {
@@ -155,7 +154,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		inputs.push(path.resolve(_input));
 
 	const top = FindTopFolderName(_input);
-	let dir: string;
+	let dir = '';
 	if (bulk) {
 		if (edit)
 			dir = tmp.dirSync();
@@ -181,9 +180,9 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		opened.push(await OpenFile({
 			input: fn,
 			inputMeaningful: SubtractBeginning(fn, top),
-			dir,
+			dir: dir,
 			outName: !bulk ? _out : undefined,
-			snbt, bulk, xmlinput, gzip: gzip as boolean, edit
+			snbt, bulk, xmlinput, gzip: gzip as boolean | undefined, edit
 		}));
 
 	process.on('exit', () => opened.forEach(rs => {
@@ -194,7 +193,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 	}));
 
 	if (edit)
-		await spawn(config.get().config_editor, [dir !== undefined ? dir : opened[0].filename]);
+		await spawn(config.get().config_editor as string, [dir !== undefined ? dir : opened[0].filename as string]);
 	
 	return opened;
 }

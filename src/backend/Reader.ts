@@ -20,7 +20,7 @@ class Reader {
 	}
 	GetName(pos: number, headless: boolean) {
 		if (headless)
-			return { name: null, offset: 0 };
+			return { name: undefined, offset: 0 };
 		let len = this.buffer.readUInt16BE(pos);
 		return {
 			name: this.buffer.toString('binary', pos + 2, pos + 2 + len),
@@ -81,7 +81,7 @@ class Reader {
 		let len = this.buffer.readInt32BE(pos);
 		pos += 4;
 		for (let i = 0; i < len; i++) {
-			let entryInfo = this.ReadNumber(pos, self.contentType, true);
+			let entryInfo = this.ReadNumber(pos, self.contentType as number, true);
 			(self.value as Entry[]).push(entryInfo.entry);
 			pos = entryInfo.endPos;
 		}
@@ -98,7 +98,7 @@ class Reader {
 			entryInfo = this.ReadList(pos, type, headless);
 		else if (type == TYPE('compound'))
 			entryInfo = this.ReadCompound(pos, type, headless);
-		else if (type == TYPE('byte[]') || type >= TYPE('int[]'))
+		else// if (type == TYPE('byte[]') || type >= TYPE('int[]'))
 			entryInfo = this.ReadArray(pos, type, headless);
 		return entryInfo;
 	}
@@ -137,7 +137,7 @@ class Reader {
 
 			let entryInfo = this._TheSwitch(pos + 1, type, false);
 			if (entryInfo) {
-				self.value[entryInfo.name] = entryInfo.entry;
+				self.value[entryInfo.name as string] = entryInfo.entry;
 				pos = entryInfo.endPos;
 				continue;
 			}
@@ -166,24 +166,26 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 		else
 			tag = parent.ele('compound', { name });
 	}
-	if (block.type == TYPE('list'))
-		tag = parent.ele('list', { of: TYPES[block.contentType], name });
-	if (TYPES[block.type].includes('[]')) {
-		tag = parent.ele('array', { of: TYPES[block.contentType], name });
+	else if (block.type == TYPE('list'))
+		tag = parent.ele('list', { of: TYPES[block.contentType as number], name });
+	else if (TYPES[block.type].includes('[]')) {
+		tag = parent.ele('array', { of: TYPES[block.contentType as number], name });
 	}
-	if (block.type == TYPE('snbt')) {
+	else {
 		tag = parent.ele('snbt', { name });
 		block.value = [block.value];
 	}
 
 	for (let [k, v] of Object.entries(block.value))
-		BuildXML(v as Entry, tag, false, named ? k : null);
+		BuildXML(v as Entry, tag, false, named ? k : undefined);
 };
 
 
 const ReadNBT = ({ nbtBytes, gunzip = false, parseSNBT = true, filename }: { nbtBytes?: Buffer, gunzip?: boolean, parseSNBT?: boolean, filename?: string }): Entry => {
 	if (filename)
 		nbtBytes = fs.readFileSync(filename);
+	if (!nbtBytes)
+		throw new Error();
 	if (gunzip)
 		nbtBytes = gunzipSync(nbtBytes);
 	return new Reader(nbtBytes, parseSNBT).ReadCompound(1, TYPE('compound')).entry;

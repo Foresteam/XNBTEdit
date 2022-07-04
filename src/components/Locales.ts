@@ -103,8 +103,8 @@ const exp = Object.values(Locales).map(v => []) as any as {
 		[key: string | number]: string;
 	}
 };
-for (let [name, v] of Object.entries(locales))
-	for (let [slocale, str] of Object.entries(v))
-		exp[Number(slocale)][name] = str;
+for (const [name, v] of Object.entries(locales))
+	for (const [slocale, str] of Object.entries(v))
+		exp[Number(slocale) as Locales][name] = str;
 
 export default exp;

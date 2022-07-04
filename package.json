@@ -1,68 +1,74 @@
 {
-	"name": "xnbtedit",
-	"version": "1.0.0",
-	"description": "Named Binary Tag XML editor/converter",
-	"scripts": {
-		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build",
-		"ebuild": "vue-cli-service electron:build",
-		"eserve": "vue-cli-service electron:serve",
-		"postinstall": "pnpx electron-builder install-app-deps",
-		"postuninstall": "pnpx electron-builder install-app-deps"
-	},
-	"main": "background.js",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Foresteam/XNBTEdit.git"
-	},
-	"keywords": [
-		"nbt",
-		"minecraft",
-		"xml",
-		"edit"
-	],
-	"author": "Foresteam",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/Foresteam/XNBTEdit/issues"
-	},
-	"homepage": "https://github.com/Foresteam/XNBTEdit#readme",
-	"dependencies": {
-		"@foresteam/mojangson": "^2.0.4",
-		"chokidar": "^3.5.3",
-		"colors": "^1.4.0",
-		"command-line-args": "^5.2.1",
-		"command-line-usage": "^6.1.3",
-		"core-js": "^3.8.3",
-		"fast-xml-parser": "^4.0.7",
-		"glob": "^8.0.3",
-		"tmp-promise": "^3.0.3",
-		"typescript": "~4.5.5"
-	},
-	"devDependencies": {
-		"@babel/core": "^7.18.5",
-		"@types/command-line-args": "^5.2.0",
-		"@types/command-line-usage": "^5.0.2",
-		"@types/glob": "^7.2.0",
-		"@types/node": "^17.0.35",
-		"@types/xml2js": "^0.4.11",
-		"@vue/cli-plugin-babel": "~5.0.0",
-		"@vue/cli-plugin-router": "~5.0.0",
-		"@vue/cli-plugin-typescript": "^5.0.6",
-		"@vue/cli-plugin-vuex": "~5.0.0",
-		"@vue/cli-service": "~5.0.0",
-		"electron": "19.0.7",
-		"electron-devtools-installer": "^3.1.0",
-		"primeicons": "^5.0.0",
-		"primevue": "^3.15.0",
-		"ts-loader": "~8.2.0",
-		"vue": "^3.2.13",
-		"vue-class-component": "^8.0.0-0",
-		"vue-cli-plugin-electron-builder": "~2.1.1",
-		"vue-router": "^4.0.3",
-		"vuex": "^4.0.0",
-		"webpack": "^5.73.0",
-		"xml2js": "^0.4.23",
-		"xmlbuilder2": "^3.0.2"
-	}
+  "name": "xnbtedit",
+  "version": "1.0.0",
+  "description": "Named Binary Tag XML editor/converter",
+  "author": "Foresteam",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "ebuild": "vue-cli-service electron:build",
+    "eserve": "vue-cli-service electron:serve",
+    "postinstall": "npx electron-builder install-app-deps",
+    "postuninstall": "npx electron-builder install-app-deps"
+  },
+  "main": "background.js",
+  "dependencies": {
+    "@foresteam/mojangson": "^2.0.4",
+    "chokidar": "^3.5.3",
+    "colors": "^1.4.0",
+    "command-line-args": "^5.2.1",
+    "command-line-usage": "^6.1.3",
+    "core-js": "^3.8.3",
+    "fast-xml-parser": "^4.0.7",
+    "glob": "^8.0.3",
+    "tmp-promise": "^3.0.3",
+    "typescript": "~4.5.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@types/command-line-args": "^5.2.0",
+    "@types/command-line-usage": "^5.0.2",
+    "@types/glob": "^7.2.0",
+    "@types/node": "^17.0.35",
+    "@types/xml2js": "^0.4.11",
+    "@typescript-eslint/eslint-plugin": "^5.30.4",
+    "@typescript-eslint/parser": "^5.30.4",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "^5.0.6",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-typescript": "^5.0.6",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/eslint-config-typescript": "^11.0.0",
+    "electron": "19.0.7",
+    "electron-devtools-installer": "^3.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "primeicons": "^5.0.0",
+    "primevue": "^3.15.0",
+    "ts-loader": "~8.2.0",
+    "vue": "^3.2.13",
+    "vue-cli-plugin-electron-builder": "~2.1.1",
+    "vue-router": "^4.0.3",
+    "vuex": "^4.0.0",
+    "webpack": "^5.73.0",
+    "xml2js": "^0.4.23",
+    "xmlbuilder2": "^3.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/Foresteam/XNBTEdit/issues"
+  },
+  "homepage": "https://github.com/Foresteam/XNBTEdit#readme",
+  "keywords": [
+    "nbt",
+    "minecraft",
+    "xml",
+    "edit"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Foresteam/XNBTEdit.git"
+  }
 }

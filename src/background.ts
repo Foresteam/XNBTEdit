@@ -89,6 +89,7 @@ const Main = async () => {
 	}
 	catch (e) {
 		let text: string = {
+			[ErrorCode.OK]: '',
 			[ErrorCode.NO_INPUT]: 'No input was specified'.red,
 			[ErrorCode.NO_OUT_NO_EDIT]: `No output was specified, nor edit mode (${'-e'.bold}) was selected`.red,
 			[ErrorCode.BULK_INPUT_FILE]: 'Input shouldn\'t be a file (for bulk mode)',
@@ -96,7 +97,7 @@ const Main = async () => {
 			[ErrorCode.ASK_OVERWRITE]: `Output directory already exists and is not empty. Rerun the program with ${'--overwrite'.bold} flag to write anyway.`.red,
 			[ErrorCode.XML_NO_OUT]: `Destination should be specified for XML->NBT mode`.red,
 			[ErrorCode.XML_COMPRESSION_UNDEFINED]: `Compression method (${'--compression'.bold}) must be specified for XML->NBT mode.`.red
-		}[e];
+		}[e as ErrorCode];
 		console.error(text || e);
 		exit(1);
 	}

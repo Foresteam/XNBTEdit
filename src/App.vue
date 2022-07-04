@@ -19,11 +19,11 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
+import { defineComponent } from 'vue';
 import { mapActions } from 'vuex';
 import '@/shared/IPCTypes';
 
-@Options({
+export default defineComponent({
 	computed: {
 		isMainPage() {
 			return this.$route.name == 'main';
@@ -38,8 +38,7 @@ import '@/shared/IPCTypes';
 	mounted() {
 		this.fetchConfig();
 	}
-})
-export default class extends Vue {}
+});
 </script>
 
 <style>

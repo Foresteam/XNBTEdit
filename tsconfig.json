@@ -11,8 +11,12 @@
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
 		"useDefineForClassFields": true,
+		"strict": true,
 		"sourceMap": true,
 		"baseUrl": ".",
+		"types": [
+			"webpack-env"
+		],
 		"paths": {
 			"@/*": [
 				"src/*"
@@ -22,8 +26,7 @@
 			"esnext",
 			"dom",
 			"dom.iterable",
-			"scripthost",
-			"ES2016.Array.Include"
+			"scripthost"
 		]
 	},
 	"include": [

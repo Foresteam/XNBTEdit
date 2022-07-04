@@ -26,7 +26,7 @@ class Writer {
 		this.WriteBuf(buf);
 	}
 	WriteInline(type: number, entry: Entry, name?: string, headless = false) {
-		let buf: Buffer;
+		let buf: Buffer | undefined;
 		if (type == TYPE('byte')) {
 			buf = Buffer.alloc(1);
 			buf.writeInt8(Number(entry.value));
@@ -62,6 +62,8 @@ class Writer {
 			buf.write(String(entry.value), 2, 'utf-8');
 		}
 
+		if (!buf)
+			throw new Error();
 		// should be in the end, 'cause otherwise it'll write the artificient SNBT tag
 		this.WriteTypeAndName(type, name, headless);
 
@@ -73,7 +75,7 @@ class Writer {
 		length.writeInt32BE((entry.value as Entry[]).length);
 		this.WriteBuf(length);
 		for (let v of entry.value as Entry[])
-			this.WriteInline(entry.contentType, v, null, true);
+			this.WriteInline(entry.contentType as number, v, undefined, true);
 	}
 	WriteSwitch(type: number, entry: Entry, name?: string, headless = false) {
 		if (IS_INLINE(entry.type))
@@ -88,11 +90,11 @@ class Writer {
 	WriteList(entry: Entry, name?: string, headless = false) {
 		this.WriteTypeAndName(entry.type, name, headless);
 		let info = Buffer.alloc(1 + 4);
-		info.writeUInt8(entry.contentType);
+		info.writeUInt8(entry.contentType as number);
 		info.writeInt32BE((entry.value as Entry[]).length, 1);
 		this.WriteBuf(info);
 		for (let v of entry.value as Entry[]) 
-			this.WriteSwitch(entry.contentType, v, null, true);
+			this.WriteSwitch(entry.contentType as number, v, undefined, true);
 	}
 	// headless = !!name
 	WriteCompound(entry: Entry, name?: string, headless = false) {
@@ -118,7 +120,7 @@ interface XMLEntryDescriptor {
 	of: string;
 }
 interface XMLEntry {
-	[type: string]: XMLEntry[] | XMLEntryDescriptor;
+	[type: string]: XMLEntry[] | XMLEntryDescriptor | undefined;
 	':@'?: XMLEntryDescriptor;
 }
 const Entrify = (tag: XMLEntry): [string | number, Entry] => {
@@ -142,12 +144,14 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 		if (type == 'array')
 			entry.type = TYPE(`${TYPES[entry.contentType]}[]` as NBTType);
 	}
-	return [tag[':@']?.name, entry];
+	return [tag[':@']?.name as (number | string), entry];
 }
 
 const ReadXML = ({ xml, filename }: { xml?: string, filename?: string}): Entry => {
+	if (!filename && !xml)
+		throw new Error();
 	let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
-	let json = parser.parse(filename ? fs.readFileSync(filename) : xml) as XMLEntry[];
+	let json = parser.parse(filename ? fs.readFileSync(filename) : xml as string) as XMLEntry[];
 	return Entrify(json[0])[1];
 }
 const WriteNBT = async ({ filename, root, gzip = false }: { filename?: string, root: Entry, gzip?: boolean }): Promise<Buffer|void> => {
