@@ -124,8 +124,8 @@ interface XMLEntry {
 	':@'?: XMLEntryDescriptor;
 }
 const Entrify = (tag: XMLEntry): [string | number, Entry] => {
-	let [type, entries] = Object.entries(tag)[0];
-	let entry: Entry = { type: 0, value: null };
+	const [type, entries] = Object.entries(tag)[0];
+	const entry: Entry = { type: 0, value: null };
 
 	if (type == 'array')
 		entry.value = (entries as XMLEntry[]).map(e => Entrify(e)[1]);
@@ -150,14 +150,21 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 const ReadXML = ({ xml, filename }: { xml?: string, filename?: string}): Entry => {
 	if (!filename && !xml)
 		throw new Error();
-	let parser = new XMLParser({ preserveOrder: true, ignoreAttributes: false, attributeNamePrefix: "", allowBooleanAttributes: true, ignoreDeclaration: true });
-	let json = parser.parse(filename ? fs.readFileSync(filename) : xml as string) as XMLEntry[];
+	const parser = new XMLParser({
+		preserveOrder: true,
+		ignoreAttributes: false,
+		attributeNamePrefix: "",
+		allowBooleanAttributes: true,
+		ignoreDeclaration: true,
+		ignorePiTags: true
+	});
+	const json = parser.parse(filename ? fs.readFileSync(filename) : xml as string) as XMLEntry[];
 	return Entrify(json[0])[1];
 }
 const WriteNBT = async ({ filename, root, gzip = false }: { filename?: string, root: Entry, gzip?: boolean }): Promise<Buffer|void> => {
-	let writer = new Writer();
+	const writer = new Writer();
 	writer.WriteCompound(root);
-	let buf = writer.End(gzip);
+	const buf = writer.End(gzip);
 	if (filename)
 		await promisify(fs.writeFile)(filename, buf, 'binary');
 	else

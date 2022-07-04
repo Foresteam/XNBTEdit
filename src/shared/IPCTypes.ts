@@ -7,8 +7,9 @@ export interface BackendAPI {
 	ExternalURL(url: string): Promise<void>;
 	Configure(prop: string, value: any): Promise<void>;
 	FetchConfig(): Promise<IConfig>;
-	Convert(options: Options): Promise<ErrorCode>;
-	OpenEdit(options: Options): Promise<ErrorCode>;
+	Convert(options: Options): Promise<ErrorCode|string>;
+	EditOpen(options: Options): Promise<ErrorCode|string>;
+	EditClose(): void;
 }
 declare global {
 	interface Window {

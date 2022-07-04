@@ -30,9 +30,9 @@
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-tri-state-checkbox id="compression-checkbox" v-model="compression" :disabled="xmlinput" />
-			<label for="compression-checkbox" v-if="compression == null">{{ locales['Main.compression-checkbox.0'] }}</label>
-			<label for="compression-checkbox" v-if="compression == false">{{ locales['Main.compression-checkbox.1'] }}</label>
-			<label for="compression-checkbox" v-if="compression == true">{{ locales['Main.compression-checkbox.2'] }}</label>
+			<label v-if="compression == null" for="compression-checkbox">{{ locales['Main.compression-checkbox.0'] }}</label>
+			<label v-if="compression == false" for="compression-checkbox">{{ locales['Main.compression-checkbox.1'] }}</label>
+			<label v-if="compression == true" for="compression-checkbox">{{ locales['Main.compression-checkbox.2'] }}</label>
 		</div>
 		<div class="flex-row ui-block" style="align-items: center">
 			<p-checkbox id="snbt-checkbox" v-model="snbt" binary :disabled="xmlinput" />
@@ -52,19 +52,19 @@
 		/>
 		<div class="flex-row ui-block flex-center">
 			<p-toggle-button
-				id="perform-edit"
 				v-if="!isConverting && (edit || isEditing)"
+				id="perform-edit"
 				:onLabel="locales['Main.perform-edit.0']"
 				onIcon="pi fi fi-edit"
 				:offLabel="locales['Main.perform-edit.1']"
 				offIcon="pi pi-check"
 				:modelValue="!isEditing"
-				@update:modelValue="(v: boolean) => isEditing = !v"
+				@update:modelValue="isEditing ? EditClose() : EditOpen()"
 				class="p-button-success p-button-lg"
 			/>
 			<p-button
-				id="perform-convert"
 				v-else
+				id="perform-convert"
 				:label="locales['Main.perform-convert']"
 				icon="pi fi fi-exchange button-mi"
 				:loading="isConverting"
@@ -83,6 +83,7 @@ import { mapState, mapWritableState } from 'pinia';
 import { useConfig } from '@/store/configStore';
 import { ErrorCode } from "@/shared/ErrorCodes";
 import { useMain } from '@/store/mainStore';
+import { Locales } from '@/components/Locales';
 
 export default defineComponent({
 	components: {
@@ -105,7 +106,7 @@ export default defineComponent({
 		}
 	},
 	computed: {
-		...mapState(useConfig, ['locales']),
+		...mapState(useConfig, ['locales', 'config_editor']),
 		...mapWritableState(useMain, ['isEditing'])
 	},
 	methods: {
@@ -146,6 +147,38 @@ export default defineComponent({
 				summary: 'Conversion done',
 				life: 3000
 			});
+		},
+		async EditOpen() {
+			if (!this.config_editor)
+				return this.$toast.add({
+					severity: 'info',
+					summary: 'Info',
+					detail: this.locales['Main.no-editor'],
+					life: 3000
+				});
+			this.isEditing = true;
+			const error = await window.backend.EditOpen({
+				compression: this.compression == null ? undefined : this.compression,
+				bulk: this.bulk,
+				xmlinput: this.xmlinput,
+				snbt: this.snbt,
+				edit: this.edit,
+				input: this.input,
+				out: this.output
+			});
+			if (error) {
+				this.$toast.add({
+					severity: 'error',
+					summary: 'Error',
+					detail: error in this.locales ? this.locales[error] : error,
+					life: 3000
+				});
+				return;
+			}
+			this.isEditing = false;
+		},
+		EditClose() {
+			window.backend.EditClose();
 		}
 	}
 });

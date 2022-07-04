@@ -55,6 +55,11 @@ const locales = {
 		'Convert',
 		'Конвертировать'
 	],
+	'Main.no-editor': [
+		'Please, specify the editor path in settings.',
+		'Укажите путь к редактору в настройках.'
+	],
+
 	'Settings.locale': [
 		'English',
 		'Русский'
@@ -63,13 +68,14 @@ const locales = {
 		'Editor path',
 		'Путь до редактора'
 	],
+
 	[ErrorCode.NO_INPUT]: [
 		'No input was specified.',
 		'Входной файл не указан.'
 	],
 	[ErrorCode.ASK_OVERWRITE]: [
 		'Output must be specified or edit mode must be selected.',
-		'Необходимо указать выходной путь или выбрать режим редактирования'
+		'Необходимо указать выходной путь или выбрать режим редактирования.'
 	],
 	[ErrorCode.BULK_INPUT_FILE]: [
 		'Input mustn\'t be a file (for bulk mode).',

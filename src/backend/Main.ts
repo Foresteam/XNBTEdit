@@ -48,6 +48,7 @@ export interface OpenFileArgs {
 	snbt?: boolean;
 }
 export interface OpenFileResult {
+	removeCallback?: () => Promise<void>;
 	filename?: string;
 	watcher?: chokidar.FSWatcher;
 	convertPromise?: Promise<void>;
@@ -83,8 +84,11 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
 			istream.close();
 		}
-		if (!out)
-			out = tmp.fileSync({ 'name': path.basename(input) + '.xml' });
+		let removeCallback: (() => Promise<void>);
+		if (out)
+			removeCallback = async () => fs.unlinkSync(out);
+		else
+			({ path: out, cleanup: removeCallback } = await tmp.file({ 'name': path.basename(input) + '.xml' }));
 		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
 			console.log(`Backup written (${input}.backup)`);
 			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
@@ -96,7 +100,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 		await convertPromise;
 		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
 		watcher.on('change', () => XML2NBT(out, input));
-		return { filename: out, watcher };
+		return { filename: out, watcher, removeCallback };
 	}
 }
 
@@ -158,10 +162,10 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 	}
 
 	const top = FindTopFolderName(input);
-	let dir: string | undefined;
+	let dir: string | undefined, dirClear: (() => Promise<void>) | undefined;
 	if (bulk) {
 		if (edit)
-			dir = tmp.dirSync();
+			({ path: dir, cleanup: dirClear } = await tmp.dir());
 		else if (out !== undefined) {
 			dir = out;
 			try {
@@ -188,13 +192,22 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 			outName: !bulk ? out : undefined,
 			snbt, bulk, xmlinput, gzip: gzip as boolean | undefined, edit
 		}));
+	if (dir !== undefined)
+		opened.push({ removeCallback: dirClear });
 
-	process.on('exit', () => opened.forEach(rs => {
-		if (!rs.watcher || rs.filename == undefined)
-			return;
-		rs.watcher.close();
-		fs.rmSync(rs.filename);
-	}));
+	process.on('exit', async () => {
+		for (let rs of opened) {
+			if (rs.watcher) {
+				rs.watcher.close();
+				delete rs.watcher;
+			}
+			if (rs.removeCallback) {
+				let p = rs.removeCallback();
+				delete rs.removeCallback;
+				await p;
+			}
+		}
+	});
 
 	if (edit)
 		await spawn(config.get().editor as string, [dir !== undefined ? dir : opened[0].filename as string]);

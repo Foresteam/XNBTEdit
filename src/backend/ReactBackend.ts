@@ -5,6 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 
 import path from 'path';
+import fs from 'fs';
 import { shell } from 'electron';
 
 import { config, Configure, OpenFileResult, Perform } from './Main';
@@ -60,7 +61,7 @@ export default function () {
 		ipcMain.handle('ExternalURL', async (_, url: string) => shell.openExternal(url));
 		ipcMain.handle('Configure', async (_, prop: string, value) => Configure(prop, value));
 		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.get());
-		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode> => {
+		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode|string> => {
 			if (opened)
 				return ErrorCode.IDK;
 			try {
@@ -71,9 +72,35 @@ export default function () {
 				return ErrorCode.OK;
 			}
 			catch (msg) {
+				console.trace(msg);
 				return msg as ErrorCode;
 			}
-		})
+		});
+		ipcMain.handle('EditOpen', async (_, options: Options): Promise<ErrorCode|string> => {
+			if (opened)
+				return ErrorCode.IDK;
+			try {
+				opened = await Perform(options);
+				await new Promise(resolve => ipcMain.once('EditClose', () => resolve(null)));
+				for (let rs of opened) {
+					if (rs.watcher) {
+						rs.watcher.close();
+						delete rs.watcher;
+					}
+					if (rs.removeCallback) {
+						let p = rs.removeCallback();
+						delete rs.removeCallback;
+						await p;
+					}
+				}
+				opened = null;
+				return ErrorCode.OK;
+			}
+			catch (msg) {
+				console.trace(msg);
+				return msg as ErrorCode;
+			}
+		});
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
 			// Load the url of the dev server if in development mode
