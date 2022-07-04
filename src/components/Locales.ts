@@ -98,7 +98,7 @@ const locales = {
 };
 
 // empty arrays at indexes
-const exp = Object.values(Locales).map(v => []) as any as {
+const exp = Object.values(Locales).map(_ => []) as any as {
 	[key in Locales]: {
 		[key: string | number]: string;
 	}
