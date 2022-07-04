@@ -96,7 +96,8 @@ const Main = async () => {
 			[ErrorCode.IDK]: 'Nothing to be found',
 			[ErrorCode.ASK_OVERWRITE]: `Output directory already exists and is not empty. Rerun the program with ${'--overwrite'.bold} flag to write anyway.`.red,
 			[ErrorCode.XML_NO_OUT]: `Destination should be specified for XML->NBT mode`.red,
-			[ErrorCode.XML_COMPRESSION_UNDEFINED]: `Compression method (${'--compression'.bold}) must be specified for XML->NBT mode.`.red
+			[ErrorCode.XML_COMPRESSION_UNDEFINED]: `Compression method (${'--compression'.bold}) must be specified for XML->NBT mode.`.red,
+			[ErrorCode.INPUT_NOT_A_FILE]: 'Write it later'
 		}[e as ErrorCode];
 		console.error(text || e);
 		exit(1);

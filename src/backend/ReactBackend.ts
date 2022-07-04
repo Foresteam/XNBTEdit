@@ -62,7 +62,7 @@ export default function () {
 		ipcMain.handle('FetchConfig', async (_): Promise<IConfig> => config.get());
 		ipcMain.handle('Convert', async (_, options: Options): Promise<ErrorCode> => {
 			if (opened)
-				throw 'Another operation is in progress';
+				return ErrorCode.IDK;
 			try {
 				opened = await Perform(options);
 				for (let rs of opened)

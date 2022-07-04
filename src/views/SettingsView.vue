@@ -2,6 +2,7 @@
 	<div class="flex-col">
 		<file-input
 			id="editor-config"
+			mode="open"
 			:isDir="false"
 			:label="locales['Settings.editor-config']"
 			:modelValue="config_editor"

@@ -112,17 +112,17 @@ export const Configure = (prop: string, value: any) => {
 }
 export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == undefined && !input;
 
-export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite, xmlinput, compression: gzip, snbt }: Options) => {
-	if (!_input)
+export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, compression: gzip, snbt }: Options) => {
+	if (!input)
 		throw ErrorCode.NO_INPUT;
-	if (!edit && !_out)
+	if (!edit && !out)
 		throw ErrorCode.NO_OUT_NO_EDIT;
 	
 	const inputs: string[] = [];
 	if (bulk) {
 		try {
-			if (fs.statSync(_input).isFile())
-				throw 0;
+			if (fs.statSync(input).isFile())
+			throw 0;
 		}
 		catch (e) {
 			if (e == 0)
@@ -130,8 +130,8 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		}
 
 		try {
-			if (!fs.statSync(_input).isFile())
-				await new Promise<void>(resolve => glob(path.join(_input, '**', '*'), (err, files) => {
+			if (!fs.statSync(input).isFile())
+				await new Promise<void>(resolve => glob(path.join(input, '**', '*'), (err, files) => {
 					if (err)
 						throw ErrorCode.IDK;
 					for (let filename of files)
@@ -141,7 +141,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 				}));
 		}
 		catch {
-			let fns = (await new Promise(resolve => glob(_input, (err, files) => {
+			let fns = (await new Promise(resolve => glob(input, (err, files) => {
 				if (err)
 					throw ErrorCode.IDK;
 				resolve(files);
@@ -150,16 +150,20 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 				inputs.push(path.resolve(filename));
 		}
 	}
-	else
-		inputs.push(path.resolve(_input));
+	else try {
+		inputs.push(path.resolve(input));
+	}
+	catch {
+		throw ErrorCode.INPUT_NOT_A_FILE;
+	}
 
-	const top = FindTopFolderName(_input);
-	let dir = '';
+	const top = FindTopFolderName(input);
+	let dir: string | undefined;
 	if (bulk) {
 		if (edit)
 			dir = tmp.dirSync();
-		else if (_out !== undefined) {
-			dir = _out;
+		else if (out !== undefined) {
+			dir = out;
 			try {
 				if (fs.readdirSync(dir).length > 0)
 					if (overwrite)
@@ -180,8 +184,8 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 		opened.push(await OpenFile({
 			input: fn,
 			inputMeaningful: SubtractBeginning(fn, top),
-			dir: dir,
-			outName: !bulk ? _out : undefined,
+			dir,
+			outName: !bulk ? out : undefined,
 			snbt, bulk, xmlinput, gzip: gzip as boolean | undefined, edit
 		}));
 

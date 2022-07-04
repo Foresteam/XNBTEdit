@@ -8,12 +8,12 @@ const locales = {
 		'Массовый режим'
 	],
 	'Main.input-path.0': [
-		'Input directory or mask (e.g. dir/*.dat)',
-		'Входная директория или маска (напр. dir/*.dat)'
-	],
-	'Main.input-path.1': [
 		'Input file',
 		'Входной файл'
+	],
+	'Main.input-path.1': [
+		'Input directory or mask (e.g. dir/*.dat)',
+		'Входная директория или маска (напр. dir/*.dat)'
 	],
 	'Main.compression-checkbox.0': [
 		'Guess compression by header',
@@ -90,6 +90,14 @@ const locales = {
 	[ErrorCode.XML_COMPRESSION_UNDEFINED]: [
 		'Compression method must be specified for XML->NBT mode.',
 		'В режиме XML->NBT, необходимо выбрать метод сжатия.'
+	],
+	[ErrorCode.INPUT_NOT_A_FILE]: [
+		'Input is not a file.',
+		'Входной путь не является файлом.'
+	],
+	[ErrorCode.NO_OUT_NO_EDIT]: [
+		'No output was specified, nor edit mode was selected.',
+		'Нужно указать выходной путь, либо выбрать режим редактирования'
 	]
 } as {
 	[key: string | number]: {

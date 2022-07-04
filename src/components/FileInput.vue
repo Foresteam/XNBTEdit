@@ -21,7 +21,7 @@ const props = defineProps<{
 	label: string;
 	id: string;
 	isDir: boolean;
-	mode?: 'open' | 'save';
+	mode: 'open' | 'save';
 	disabled?: boolean;
 	modelValue?: string;
 }>();

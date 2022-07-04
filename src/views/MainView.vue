@@ -9,6 +9,7 @@
 			:isDir="bulk"
 			:label="locales[`Main.input-path.${Number(bulk)}`]"
 			v-model="input"
+			mode="open"
 		/>
 		<div class="flex-row flex-center mode-switch ui-block-v" style="">
 			<i class="pi fi fi-package icon">
@@ -95,7 +96,7 @@ export default defineComponent({
 		input: '',
 		output: '',
 		isConverting: false,
-		snbt: false
+		snbt: true
 	}),
 	watch: {
 		xmlinput(val) {
@@ -112,6 +113,7 @@ export default defineComponent({
 			this.isConverting = true;
 			const error = await window.backend.Convert({
 				compression: this.compression == null ? undefined : this.compression,
+				bulk: this.bulk,
 				xmlinput: this.xmlinput,
 				snbt: this.snbt,
 				edit: this.edit,
@@ -127,7 +129,7 @@ export default defineComponent({
 					accept: () => resolve(true),
 					reject: () => resolve(false)
 				})))
-					return this.convert();
+					return this.convert(true);
 			}
 			else if (error)
 				this.$toast.add({
@@ -136,8 +138,14 @@ export default defineComponent({
 					detail: this.locales[error],
 					life: 3000
 				});
+			console.log(error);
 
 			this.isConverting = false;
+			this.$toast.add({
+				severity: 'success',
+				summary: 'Conversion done',
+				life: 3000
+			});
 		}
 	}
 });
