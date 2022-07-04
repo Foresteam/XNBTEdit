@@ -20,7 +20,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapActions } from 'vuex';
+import { mapActions } from 'pinia';
+import { useConfig } from './store/configStore';
 import '@/shared/IPCTypes';
 
 export default defineComponent({
@@ -33,7 +34,7 @@ export default defineComponent({
 		openGitHub() {
 			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
 		},
-		...mapActions(['fetchConfig'])
+		...mapActions(useConfig, ['fetchConfig'])
 	},
 	mounted() {
 		this.fetchConfig();

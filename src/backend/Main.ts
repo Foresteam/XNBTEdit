@@ -193,7 +193,7 @@ export const Perform = async ({ bulk, input: _input, edit, out: _out, overwrite,
 	}));
 
 	if (edit)
-		await spawn(config.get().config_editor as string, [dir !== undefined ? dir : opened[0].filename as string]);
+		await spawn(config.get().editor as string, [dir !== undefined ? dir : opened[0].filename as string]);
 	
 	return opened;
 }

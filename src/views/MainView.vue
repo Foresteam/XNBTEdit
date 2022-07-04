@@ -77,7 +77,8 @@
 import { defineComponent } from '@vue/runtime-core';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
-import { mapGetters } from 'vuex';
+import { mapState } from 'pinia';
+import { useConfig } from '@/store/configStore';
 import { ErrorCode } from "@/shared/ErrorCodes";
 
 export default defineComponent({
@@ -102,7 +103,7 @@ export default defineComponent({
 		}
 	},
 	computed: {
-		...mapGetters(['locales'])
+		...mapState(useConfig, ['locales'])
 	},
 	methods: {
 		async convert(overwrite = false): Promise<void> {
