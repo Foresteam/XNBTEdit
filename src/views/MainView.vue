@@ -52,12 +52,13 @@
 		<div class="flex-row ui-block flex-center">
 			<p-toggle-button
 				id="perform-edit"
-				v-if="!isConverting && (edit || !isNotEditing)"
+				v-if="!isConverting && (edit || isEditing)"
 				:onLabel="locales['Main.perform-edit.0']"
 				onIcon="pi fi fi-edit"
 				:offLabel="locales['Main.perform-edit.1']"
 				offIcon="pi pi-check"
-				v-model="isNotEditing"
+				:modelValue="!isEditing"
+				@update:modelValue="(v: boolean) => isEditing = !v"
 				class="p-button-success p-button-lg"
 			/>
 			<p-button
@@ -77,9 +78,10 @@
 import { defineComponent } from '@vue/runtime-core';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
-import { mapState } from 'pinia';
+import { mapState, mapWritableState } from 'pinia';
 import { useConfig } from '@/store/configStore';
 import { ErrorCode } from "@/shared/ErrorCodes";
+import { useMain } from '@/store/mainStore';
 
 export default defineComponent({
 	components: {
@@ -92,7 +94,6 @@ export default defineComponent({
 		edit: false,
 		input: '',
 		output: '',
-		isNotEditing: true,
 		isConverting: false,
 		snbt: false
 	}),
@@ -103,7 +104,8 @@ export default defineComponent({
 		}
 	},
 	computed: {
-		...mapState(useConfig, ['locales'])
+		...mapState(useConfig, ['locales']),
+		...mapWritableState(useMain, ['isEditing'])
 	},
 	methods: {
 		async convert(overwrite = false): Promise<void> {
