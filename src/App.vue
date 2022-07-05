@@ -35,16 +35,16 @@ import '@/shared/IPCTypes';
 
 export default defineComponent({
 	computed: {
-		isMainPage() {
+		isMainPage(): boolean {
 			return this.$route.name == 'main';
 		},
 		...mapState(useConfig, ['seenLicense'])
 	},
 	methods: {
-		openGitHub() {
+		openGitHub(): void {
 			window.backend.ExternalURL('https://github.com/Foresteam/XNBTEdit')
 		},
-		async showLicense() {
+		showLicense(): void {
 			this.configure('seenLicense', true);
 			this.$router.push('license');
 		},

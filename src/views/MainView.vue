@@ -51,7 +51,7 @@
 			v-model="output"
 			:disabled="edit"
 		/>
-		<div class="flex-col ui-block flex-center" v-if="seenLicense">
+		<div v-if="seenLicense" class="flex-col ui-block flex-center">
 			<p-toggle-button
 				v-if="!isConverting && (edit || isEditing)"
 				id="perform-edit"
@@ -60,7 +60,7 @@
 				:offLabel="locales['Main.perform-edit.1']"
 				offIcon="pi pi-check"
 				:modelValue="!isEditing"
-				@update:modelValue="isEditing ? EditClose() : EditOpen()"
+				@update:modelValue="isEditing ? editClose() : editOpen()"
 				class="p-button-success p-button-lg"
 			/>
 			<p-button
@@ -131,24 +131,30 @@ export default defineComponent({
 					reject: () => resolve(false)
 				})))
 					return this.convert(true);
-			}
-			else if (error)
-				this.$toast.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: this.locales[error],
+				this.isConverting = false;
+				return this.$toast.add({
+					severity: 'info',
+					summary: 'Info',
+					detail: this.locales['Main.conversion-aborted'],
 					life: 3000
 				});
-			console.log(error);
+			}
+			error && this.$toast.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: this.locales[error],
+				life: 3000
+			});
 
 			this.isConverting = false;
 			this.$toast.add({
 				severity: 'success',
-				summary: 'Conversion done',
+				summary: 'Success',
+				detail: this.locales['Main.conversion-done'],
 				life: 3000
 			});
 		},
-		async EditOpen() {
+		async editOpen(): Promise<void> {
 			if (!this.editor)
 				return this.$toast.add({
 					severity: 'info',
@@ -177,7 +183,7 @@ export default defineComponent({
 			}
 			this.isEditing = false;
 		},
-		EditClose() {
+		editClose(): void {
 			window.backend.EditClose();
 		}
 	}
@@ -185,6 +191,9 @@ export default defineComponent({
 </script>
 
 <style>
+.p-dialog-header-icon.p-dialog-header-close.p-link {
+	display: none;
+}
 .p-button-success:not(:hover) .p-button-icon {
 	transition: .5s ease-out;
 	color: var(--primary-color-text) !important;

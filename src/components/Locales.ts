@@ -63,6 +63,14 @@ const locales = {
 		'See license (the yellow button) to use the software',
 		'Пожалуйста, ознакомьтесь с лицензией (желтая кнопка)'
 	],
+	'Main.conversion-done': [
+		'Conversion done.',
+		'Конвертация выполнена.'
+	],
+	'Main.conversion-aborted': [
+		'Conversion aborted.',
+		'Конвертация отменена.'
+	],
 
 	'Settings.locale': [
 		'English',

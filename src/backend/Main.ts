@@ -13,98 +13,6 @@ import Options from '@/shared/Options';
 import { ErrorCode } from '@/shared/ErrorCodes';
 import IConfig from '@/shared/IConfig';
 
-export const FindTopFolderName = (p: string): string => {
-	let parts = p.split(path.sep);
-	let i = 0;
-	for (; i < parts.length; i++)
-		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
-			break;
-		}
-	return path.resolve(parts.splice(0, i).join(path.sep));
-}
-export const SubtractBeginning = (path: string, top: string) => {
-	path = path.substring(top.length);
-	if (path.startsWith('/'))
-		path = path.substring(1);
-	return path;
-}
-
-export interface OpenFileArgs {
-	/** Input file */
-	input: string;
-
-	/** Out directory */
-	dir?: string;
-
-	/** The part with future "project directory" */
-	inputMeaningful?: string;
-
-	/** Out name, "single convert mode" */
-	outName?: string;
-
-	edit?: boolean;
-	gzip?: boolean;
-	bulk?: boolean;
-	xmlinput?: boolean;
-	snbt?: boolean;
-}
-export interface OpenFileResult {
-	removeCallback?: () => Promise<void>;
-	filename?: string;
-	watcher?: chokidar.FSWatcher;
-	convertPromise?: Promise<void>;
-}
-const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenFileResult> => {
-	// out=false means we should create temp file. Else we only create the missing path component
-	// now we have to check outName too...
-	let out = '';
-	let xmlsuf = !xmlinput ? '.xml' : '';
-	if (dir !== undefined)
-		out = path.join(dir, inputMeaningful + xmlsuf);
-	else if (outName)
-		out = outName;
-
-	if (out)
-		try { fs.mkdirSync(path.dirname(out), { recursive: true }); } catch { }
-
-	const XML2NBT = async (input: string, out: string) => {
-		if (!out)
-			throw ErrorCode.XML_NO_OUT;
-		console.log(`Writing to ${out}`);
-		await Writer.X2NPipe(input, out, { gzip });
-	}
-	if (xmlinput || !bulk && input.endsWith('.xml')) {
-		if (gzip == undefined)
-			throw ErrorCode.XML_COMPRESSION_UNDEFINED;
-		return { convertPromise: XML2NBT(input, out) };
-	}
-	else {
-		if (gzip == undefined) {
-			let istream = fs.createReadStream(input, { mode: 1 });
-			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
-			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
-			istream.close();
-		}
-		let removeCallback: (() => Promise<void>);
-		if (out)
-			removeCallback = async () => fs.unlinkSync(out);
-		else
-			({ path: out, cleanup: removeCallback } = await tmp.file({ 'name': path.basename(input) + '.xml' }));
-		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
-			console.log(`Backup written (${input}.backup)`);
-			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
-				console.log(`Conversion done (${out})`)
-			);
-		});
-		if (!edit)
-			return { convertPromise };
-		await convertPromise;
-		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
-		watcher.on('change', () => XML2NBT(out, input));
-		return { filename: out, watcher, removeCallback };
-	}
-}
-
 const APPDATA = os.platform() == 'win32' ? path.join(process.env.APPDATA || '.', 'XNBTEdit') : path.join(os.homedir(), '.config/XNBTEdit');
 const CONFIG = path.join(APPDATA, 'config.json');
 try { APPDATA && fs.mkdirSync(APPDATA, { recursive: true }); } catch { }
@@ -214,4 +122,91 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 		await spawn(config.get().editor as string, [dir !== undefined ? dir : opened[0].filename as string]);
 	
 	return opened;
+}
+
+export const FindTopFolderName = (p: string): string => {
+	let parts = p.split(path.sep);
+	let i = 0;
+	for (; i < parts.length; i++)
+		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
+			break;
+		}
+	return path.resolve(parts.splice(0, i).join(path.sep));
+}
+export const SubtractBeginning = (path: string, top: string) => {
+	path = path.substring(top.length);
+	if (path.startsWith('/'))
+		path = path.substring(1);
+	return path;
+}
+
+export interface OpenFileArgs {
+	/** Input file */
+	input: string;
+	/** Out directory (convert mode) */
+	dir?: string;
+	/** The path after "project directory" */
+	inputMeaningful?: string;
+	/** Out (single mode) */
+	outName?: string;
+	edit?: boolean;
+	gzip?: boolean;
+	bulk?: boolean;
+	xmlinput?: boolean;
+	snbt?: boolean;
+}
+export interface OpenFileResult {
+	filename?: string;
+	watcher?: chokidar.FSWatcher;
+	convertPromise?: Promise<void>;
+	/** Now use this instead of deleting by "filename" */
+	removeCallback?: () => Promise<void>;
+}
+const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenFileResult> => {
+	let out = '';
+	let xmlsuf = !xmlinput ? '.xml' : '';
+	if (dir !== undefined)
+		out = path.join(dir, inputMeaningful + xmlsuf);
+	else if (outName)
+		out = outName;
+
+	if (out)
+		try { fs.mkdirSync(path.dirname(out), { recursive: true }); } catch { }
+
+	const XML2NBT = async (input: string, out: string) => {
+		if (!out)
+			throw ErrorCode.XML_NO_OUT;
+		console.log(`Writing to ${out}`);
+		await Writer.X2NPipe(input, out, { gzip });
+	}
+	if (xmlinput || !bulk && input.endsWith('.xml')) {
+		if (gzip == undefined)
+			throw ErrorCode.XML_COMPRESSION_UNDEFINED;
+		return { convertPromise: XML2NBT(input, out) };
+	}
+	else {
+		if (gzip == undefined) {
+			let istream = fs.createReadStream(input, { mode: 1 });
+			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+			istream.close();
+		}
+		let removeCallback: (() => Promise<void>);
+		if (out)
+			removeCallback = async () => fs.unlinkSync(out);
+		else
+			({ path: out, cleanup: removeCallback } = await tmp.file({ 'name': path.basename(input) + '.xml' }));
+		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
+			console.log(`Backup written (${input}.backup)`);
+			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
+				console.log(`Conversion done (${out})`)
+			);
+		});
+		if (!edit)
+			return { convertPromise };
+		await convertPromise;
+		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		watcher.on('change', () => XML2NBT(out, input));
+		return { filename: out, watcher, removeCallback };
+	}
 }

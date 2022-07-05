@@ -16,19 +16,7 @@ import { ErrorCode } from '@/shared/ErrorCodes';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-const CheckKDialog = () => process.platform == 'linux' && spawnSync('which', ['kdialog']).status == 0;
-const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<string> => {
-	let openArg = isDir && 'getexistingdirectory';
-	if (!openArg)
-		openArg = mode == 'open' ? 'getopenfilename' : 'getsavefilename';
-	let path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
-	// strip the output. For some reason it appends extra symbols
-	console.log(`"${path}"`);
-	return path.split('\n')[0].substring(1, path.length - 1);
-}
-
-let opened: OpenFileResult[] | null;
-
+let opened: OpenFileResult[] | undefined;
 export default function () {
 	// Scheme must be registered before the app is ready
 	protocol.registerSchemesAsPrivileged([
@@ -69,7 +57,7 @@ export default function () {
 				opened = await Perform(options);
 				for (let rs of opened)
 					await rs?.convertPromise;
-				opened = null;
+				opened = undefined;
 				return ErrorCode.OK;
 			}
 			catch (msg) {
@@ -82,7 +70,7 @@ export default function () {
 				return ErrorCode.IDK;
 			try {
 				opened = await Perform(options);
-				await new Promise(resolve => ipcMain.once('EditClose', () => resolve(null)));
+				await new Promise(resolve => ipcMain.once('EditClose', () => resolve(true)));
 				for (let rs of opened) {
 					if (rs.watcher) {
 						rs.watcher.close();
@@ -94,7 +82,7 @@ export default function () {
 						await p;
 					}
 				}
-				opened = null;
+				opened = undefined;
 				return ErrorCode.OK;
 			}
 			catch (msg) {
@@ -160,3 +148,13 @@ export default function () {
 		}
 	}
 };
+
+const CheckKDialog = () => process.platform == 'linux' && spawnSync('which', ['kdialog']).status == 0;
+const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<string> => {
+	let openArg = isDir && 'getexistingdirectory';
+	if (!openArg)
+		openArg = mode == 'open' ? 'getopenfilename' : 'getsavefilename';
+	let path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
+	// strip the output, for it has extra symbols
+	return path.split('\n')[0].substring(1, path.length - 1);
+}
