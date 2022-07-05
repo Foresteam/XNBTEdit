@@ -100,7 +100,7 @@ Then:
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
-npm i
+npm i --save-dev
 npm run ebuild
 ```
 Or:

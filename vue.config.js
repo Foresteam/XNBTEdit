@@ -5,7 +5,21 @@ module.exports = defineConfig({
 	pluginOptions: {
 		electronBuilder: {
 			preload: 'src/preload.ts',
-			customFileProtocol: './'
+			customFileProtocol: './',
+			builderOptions: {
+				appId: 'xnbtedit.foresteam.github.com',
+				productName: 'XNBTEdit',
+				linux: {
+					target: 'AppImage',
+					icon: 'public/',
+					category: 'Utility',
+					synopsis: 'NBT-XML converter'
+				},
+				win: {
+					target: 'msi',
+					icon: 'public/icon.ico'
+				}
+			}
 		}
-	}
+	},
 })

@@ -5,7 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 
 import path from 'path';
-import fs from 'fs';
+import os from 'os';
 import { shell } from 'electron';
 
 import { config, Configure, OpenFileResult, Perform } from './Main';
@@ -37,11 +37,12 @@ export default function () {
 	async function createWindow() {
 		// Create the browser window.
 		const win = new BrowserWindow({
+			title: 'XNBTEdit',
 			width: 600,
 			height: 460,
 			autoHideMenuBar: true,
 			resizable: false,
-			icon: path.join(isDevelopment ? './public' : __dirname, 'icon.png'),
+			icon: path.join(isDevelopment ? './public' : __dirname, 'icon.' + (os.platform() == 'win32' ? 'ico' : 'png')),
 			webPreferences: {
 				preload: path.join(__dirname, 'preload.js'),
 				// Use pluginOptions.nodeIntegration, leave this alone
