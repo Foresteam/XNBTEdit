@@ -38,8 +38,8 @@ export default function () {
 		// Create the browser window.
 		const win = new BrowserWindow({
 			title: 'XNBTEdit',
-			width: 600,
-			height: 460,
+			width: 640,
+			height: os.platform() == 'win32' ? 510 : 460,
 			autoHideMenuBar: true,
 			resizable: false,
 			icon: path.join(isDevelopment ? './public' : __dirname, 'icon.' + (os.platform() == 'win32' ? 'ico' : 'png')),
