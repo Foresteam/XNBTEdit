@@ -59,6 +59,10 @@ const locales = {
 		'Please, specify the editor path in settings.',
 		'Укажите путь к редактору в настройках.'
 	],
+	'Main.see-license': [
+		'See license (the yellow button) to use the software',
+		'Пожалуйста, ознакомьтесь с лицензией (желтая кнопка)'
+	],
 
 	'Settings.locale': [
 		'English',

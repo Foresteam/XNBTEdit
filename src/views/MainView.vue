@@ -1,6 +1,6 @@
 <template>
 	<div class="home flex-col">
-		<p v-if="!seenLicense">See license (the yellow button) to use the software</p>
+		<p v-if="!seenLicense">{{ locales['Main.see-license'] }}</p>
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">{{ locales['Main.bulk-checkbox'] }}</label>
