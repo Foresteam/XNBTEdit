@@ -94,32 +94,27 @@ But you'll get:
 ## Binary
 Download a distribution from ***Releases*** section.
 ## From source
-Install **NodeJS v17.9.0** (i used this version), ***pnpm*** (not on Windows).
+Install **NodeJS v16.15.1**, ***npm*** and (optionally) ***yarn***.
 
 Then:
-
-Linux / Mac(?):
-```sh
-git clone https://github.com/Foresteam/XNBTEdit.git
-cd XNBTEdit
-pnpm install
-pnpm build # may require unix-like shell
-```
-Windows (git bash):
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
 npm i
-npm run build-win
+npm run ebuild
 ```
-**Important note**: on Windows ***npm*** should be used instead. For pnpm creates privilege issues with Caxa archives (argues something about symlinks), and thus requires admin rights to build or first time execute the binary either.
-
-The executable will be in **./dist/bin**. You can also pack it, if you like (requires TAR):
+Or:
 ```sh
-pnpm pack-lin # or npm run pack-win
+git clone https://github.com/Foresteam/XNBTEdit.git
+cd XNBTEdit
+yarn -D
+yarn ebuild
 ```
+
+The executable will be in **dist_electron**.
 
 # Usage
+The application has a GUI and a command line interfaces. To use the second one:
 ```sh
-xnbtedit --help
+xnbtedit -- --help
 ```

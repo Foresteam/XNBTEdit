@@ -50,19 +50,19 @@ const usage = cmdusage([
 		header: 'Examples',
 		content: [
 			'Open compressed file for editing:'.italic.dim,
-			`${'./xnbtedit'.green} {bold --compression=gzip} {bold --edit} {underline example.dat}`,
+			`${'./xnbtedit'.green} -- {bold --compression=gzip} {bold --edit} {underline example.dat}`,
 			'Convert from uncompressed .dat to XML:'.italic.dim,
-			`${'./xnbtedit'.green} {underline example.dat.uncompressed} {bold --out} {underline example.xml}`,
+			`${'./xnbtedit'.green} -- {underline example.dat.uncompressed} {bold --out} {underline example.xml}`,
 			'Convert from xml to .dat, {underline compress (implicit)} (gzip assumed):'.italic.dim,
-			`${'./xnbtedit'.green} {underline example.xml} {bold --out} {underline example.dat}`,
+			`${'./xnbtedit'.green} -- {underline example.xml} {bold --out} {underline example.dat}`,
 			'Convert from xml to .dat, {underline do not compress (explicit)} (despite the .dat extension):'.italic.dim,
-			`${'./xnbtedit'.green} {bold -c} {underline none} {underline example.xml} {bold --out} {underline example.dat}`,
+			`${'./xnbtedit'.green} -- {bold -c} {underline none} {underline example.xml} {bold --out} {underline example.dat}`,
 			'Set the editor:'.italic.dim,
-			`${'./xnbtedit'.green} {bold --set-editor} {underline vscodium}`,
+			`${'./xnbtedit'.green} -- {bold --set-editor} {underline vscodium}`,
 			'Bulk covert:'.italic.dim,
-			`${'./xnbtedit'.green} {bold --bulk} {underline folder1/} {bold --out} {underline folder2/}`,
+			`${'./xnbtedit'.green} -- {bold --bulk} {underline folder1/} {bold --out} {underline folder2/}`,
 			'Bulk edit (it is important to {bold use quotes} when dealing with masks):'.italic.dim,
-			`${'./xnbtedit'.green} {bold --bulk} {bold -e} {underline 'folder/*.dat'}`
+			`${'./xnbtedit'.green} -- {bold --bulk} {bold -e} {underline 'folder/*.dat'}`
 		]
 	},
 	{
