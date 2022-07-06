@@ -10,6 +10,7 @@
 				:modelValue="modelValue"
 				@change="(e: any) => onChange(e.target.value)"
 				:disabled="disabled"
+				spellcheck="false"
 			/>
 			<p-button icon="pi fi fi-dots" @click="selectDialog" :disabled="disabled" />
 		</div>
