@@ -4,4 +4,5 @@ export default interface IConfig {
 	editor?: string;
 	locale?: Locales;
 	seenLicense?: boolean;
+	tookTheRisk?: boolean;
 }

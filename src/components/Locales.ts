@@ -81,6 +81,19 @@ const locales = {
 		'Путь до редактора'
 	],
 
+	'App.risk-warning.text': [
+		"WARNING. Manually editing NBT files is not safe. So be sure you know what you're doing. Or, at least, create a backup. If you didn't and something went wrong, you can try to load the previous version saved in the same folder with .backup extension. Namely, there may be issues with non-ASCII characters.",
+		'ВНИМАНИЕ. Редактировать NBT файлы вручную - небезопасно. Убедитесь, что вы знаете, что делаете. Или, по крайней мере, создайте бекап. На всякий случай программа тоже создает таковой при каждом редактировании/конвертации, в той же папке и с расширением .backup. Конкретно, могут быть проблемы с не-ASCII символами.'
+	],
+	'App.risk-warning.accept': [
+		'I know what i\'m doing',
+		'Я знаю, что делаю'
+	],
+	'App.risk-warning.reject': [
+		'Take me out of here!',
+		'Заберите меня отсюда!'
+	],
+
 	[ErrorCode.NO_INPUT]: [
 		'No input was specified.',
 		'Входной файл не указан.'

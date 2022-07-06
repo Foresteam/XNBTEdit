@@ -7,7 +7,8 @@ export const useConfig = defineStore('config', {
 	state: (): IConfig => ({
 		editor: '',
 		locale: Locales.EN,
-		seenLicense: false
+		seenLicense: false,
+		tookTheRisk: false
 	}),
 	getters: {
 		locales: (state) => glocales[state.locale as Locales]

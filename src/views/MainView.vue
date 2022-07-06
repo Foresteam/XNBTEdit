@@ -191,9 +191,6 @@ export default defineComponent({
 </script>
 
 <style>
-.p-dialog-header-icon.p-dialog-header-close.p-link {
-	display: none;
-}
 .p-button-success:not(:hover) .p-button-icon {
 	transition: .5s ease-out;
 	color: var(--primary-color-text) !important;

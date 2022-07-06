@@ -38,7 +38,7 @@ export default defineComponent({
 		isMainPage(): boolean {
 			return this.$route.name == 'main';
 		},
-		...mapState(useConfig, ['seenLicense'])
+		...mapState(useConfig, ['seenLicense', 'tookTheRisk', 'locales'])
 	},
 	methods: {
 		openGitHub(): void {
@@ -50,8 +50,21 @@ export default defineComponent({
 		},
 		...mapActions(useConfig, ['fetchConfig', 'configure'])
 	},
-	mounted() {
-		this.fetchConfig();
+	async mounted() {
+		await this.fetchConfig();
+		if (this.tookTheRisk)
+			return;
+		this.tookTheRisk = await new Promise(resolve => this.$confirm.require({
+			header: 'Warning',
+			message: this.locales['App.risk-warning.text'],
+			icon: 'pi pi-exclamation-triangle',
+			acceptLabel: this.locales['App.risk-warning.accept'],
+			rejectLabel: this.locales['App.risk-warning.reject'],
+			accept: () => resolve(true),
+			reject: () => resolve(false),
+		}));
+		if (!this.tookTheRisk)
+			window.close();
 	}
 });
 </script>
@@ -192,6 +205,9 @@ html {
 }
 .p-tristatecheckbox, .p-checkbox, .p-inputswitch {
 	margin-right: 5pt !important;
+}
+.p-dialog-header-icon.p-dialog-header-close.p-link {
+	display: none;
 }
 
 ::-webkit-scrollbar {
