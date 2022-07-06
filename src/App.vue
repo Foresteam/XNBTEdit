@@ -11,7 +11,7 @@
 				title="License"
 				@click="showLicense"
 			/>
-			<p-button icon="pi pi-info-circle" class="button-bigtext ui-block" title="Info & Help" @click="openGitHub()" />
+			<p-button icon="pi pi-info-circle" class="button-bigtext ui-block" title="About" @click="openGitHub()" />
 			<p-button icon="pi fi fi-gear" class="button-bigtext ui-block" title="Settings" @click="$router.push({ name: 'settings' })" />
 		</span>
 		<p-button v-else icon="pi pi-arrow-left" class="button-bigtext ui-block" @click="$router.back()" />
