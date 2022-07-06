@@ -1,102 +1,220 @@
-// import cmdargs from 'command-line-args';
-// import cmdusage from 'command-line-usage';
-// import 'colors';
-// import { exit } from 'process';
+import path from 'path';
+import chokidar from 'chokidar';
+import fs from 'fs';
+import Reader from './Reader';
+import Writer from './Writer';
+import tmp from 'tmp-promise';
+import fsp from 'fs/promises';
+import { Config } from './Common';
+import os from 'os';
+import glob from 'glob';
+import { spawn } from 'child_process';
+import Options from '@/shared/Options';
+import { ErrorCode } from '@/shared/ErrorCodes';
+import IConfig from '@/shared/IConfig';
 
-// import * as main from './Main.js';
-// import { RenameKey } from './Common.js';
+const APPDATA = os.platform() == 'win32' ? path.join(process.env.APPDATA || '.', 'XNBTEdit') : path.join(os.homedir(), '.config/XNBTEdit');
+const CONFIG = path.join(APPDATA, 'config.json');
+try { APPDATA && fs.mkdirSync(APPDATA, { recursive: true }); } catch { }
 
-// const optionList = [
-// 	{ name: 'help', type: Boolean, description: 'Show help' },
-// 	{ name: 'set-editor', type: String, description: 'Set the path to your favourite editor' },
-// 	{ name: 'edit', alias: 'e', type: Boolean, description: 'Open for editing' },
-// 	{ name: 'compression', alias: 'c', type: String, description: 'Use GZip to compress/decompress. Should be "gzip" or "none". If not specified, will guess by header' },
-// 	{ name: 'no-snbt', alias: 's', type: Boolean, description: 'If specified, SNBTs won\'t be parsed' },
-// 	{ name: 'input', alias: 'i', type: String, description: 'Input file: XML, NBT; a folder or a mask in bulk mode', defaultOption: true },
-// 	{ name: 'out', alias: 'o', type: String, description: 'Output file: XML, NBT; a folder in bulk mode' },
-// 	{ name: 'bulk', alias: 'b', type: Boolean, description: 'Bulk mode. Input may be a folder or a mask. Output must be a folder' },
-// 	{ name: 'xmlinput', alias: 'x', type: Boolean, description: 'Conversion mode. Required for bulk mode, but may be used in single mode to ignore extensions. Default is nbt -> xml' },
-// 	{ name: 'overwrite', alias: 'w', type: Boolean, description: 'Overwrite output files if they exist' }
-// ];
-// const options = cmdargs(optionList) as main.Options;
-// RenameKey.call(options, 'set-editor', 'editor');
-// RenameKey.call(options, 'no-snbt', 'snbt');
-// options.compression = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
-// options.snbt = !!options.snbt;
+export const config = new Config(CONFIG, {});
 
-// const usage = cmdusage([
-// 	{
-// 		header: 'XNBTEdit'.cyan,
-// 		content: [
-// 			'Author: Foresteam (https://github.com/Foresteam)',
-// 			'Git repository: https://github.com/Foresteam/XNBTEdit',
-// 			'',
-// 			'WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version, saved in the same folder with .backup extension.'.red,
-// 			'',
-// 			'Edit NBT files, or convert to XML.',
-// 			'xnbtedit [options] {underline <input_file>} [{bold --out} {underline file}]',
-// 		]
-// 	},
-// 	{
-// 		header: 'Examples',
-// 		content: [
-// 			'Open compressed file for editing:'.italic.dim,
-// 			`${'./xnbtedit'.green} {bold --compression=gzip} {bold --edit} {underline example.dat}`,
-// 			'Convert from uncompressed .dat to XML:'.italic.dim,
-// 			`${'./xnbtedit'.green} {underline example.dat.uncompressed} {bold --out} {underline example.xml}`,
-// 			'Convert from xml to .dat, {underline compress (implicit)} (gzip assumed):'.italic.dim,
-// 			`${'./xnbtedit'.green} {underline example.xml} {bold --out} {underline example.dat}`,
-// 			'Convert from xml to .dat, {underline do not compress (explicit)} (despite the .dat extension):'.italic.dim,
-// 			`${'./xnbtedit'.green} {bold -c} {underline none} {underline example.xml} {bold --out} {underline example.dat}`,
-// 			'Set the editor:'.italic.dim,
-// 			`${'./xnbtedit'.green} {bold --set-editor} {underline vscodium}`,
-// 			'Bulk covert:'.italic.dim,
-// 			`${'./xnbtedit'.green} {bold --bulk} {underline folder1/} {bold --out} {underline folder2/}`,
-// 			'Bulk edit (it is important to {bold use quotes} when dealing with masks):'.italic.dim,
-// 			`${'./xnbtedit'.green} {bold --bulk} {bold -e} {underline 'folder/*.dat'}`
-// 		]
-// 	},
-// 	{
-// 		header: 'Options',
-// 		optionList
-// 	}
-// ])
+export const Configure = (prop: keyof IConfig, value: any) => {
+	config.set(prop, value);
+	console.log(`Wrote configuration to "${CONFIG}".`);
+}
+export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == undefined && !input;
 
-// if (options.help) {
-// 	console.log(usage);
-// 	exit(0);
-// }
-// if (options.editor) {
-// 	main.SetEditor(options.editor);
-// 	exit(0);
-// }
-// if (main.CheckOpenGUI(options)) {
-// 	console.log('Opened GUI');
-// 	exit(0);
-// }
-// if (!options.edit && !options.out) {
-// 	console.error(`No output was specified, nor edit mode (${'-e'.bold}) was selected`.red);
-// 	exit(1);
-// }
+interface PerformResult {
+	cleanup: () => Promise<void>;
+	opened: OpenFileResult[];
+}
+export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, compression: gzip, snbt }: Options): Promise<PerformResult> => {
+	if (!input)
+		throw ErrorCode.NO_INPUT;
+	if (!edit && !out)
+		throw ErrorCode.NO_OUT_NO_EDIT;
+	
+	const inputs: string[] = [];
+	if (bulk) {
+		try {
+			if (fs.statSync(input).isFile())
+			throw 0;
+		}
+		catch (e) {
+			if (e == 0)
+				throw ErrorCode.BULK_INPUT_FILE;
+		}
 
-// const Main = async () => {
-// 	const { input: _input, out: _out, edit } = options;
+		try {
+			if (!fs.statSync(input).isFile())
+				await new Promise<void>(resolve => glob(path.join(input, '**', '*'), (err, files) => {
+					if (err)
+						throw ErrorCode.IDK;
+					for (let filename of files)
+						if (fs.statSync(filename).isFile())
+							inputs.push(path.resolve(filename))
+					resolve();
+				}));
+		}
+		catch {
+			let fns = (await new Promise(resolve => glob(input, (err, files) => {
+				if (err)
+					throw ErrorCode.IDK;
+				resolve(files);
+			}))) as string[];
+			for (let filename of fns)
+				inputs.push(path.resolve(filename));
+		}
+	}
+	else try {
+		inputs.push(path.resolve(input));
+	}
+	catch {
+		throw ErrorCode.INPUT_NOT_A_FILE;
+	}
 
-// 	let opened: main.OpenFileResult[];
-// 	try {
-// 		opened = await main.Perform(options);
-// 	}
-// 	catch (e) {
-// 		console.error(e);
-// 		exit(1);
-// 	}
+	const top = FindTopFolderName(input);
+	let dir: string | undefined, dirClear: (() => Promise<void>) | undefined;
+	if (bulk) {
+		if (edit)
+			({ path: dir, cleanup: dirClear } = await tmp.dir());
+		else if (out !== undefined) {
+			dir = out;
+			try {
+				if (fs.readdirSync(dir).length > 0)
+					if (overwrite)
+						console.log('Output directory already exists and is not empty. Overwriting...'.bold);
+					else
+						throw 0;
+			} catch (e) {
+				if (e == 0)
+					throw ErrorCode.ASK_OVERWRITE;
+			}
+		}
+		else
+			throw ErrorCode.NO_OUT_NO_EDIT;
+	}
+	
+	const opened: OpenFileResult[] = [];
+	for (let fn of inputs)
+		opened.push(await OpenFile({
+			input: fn,
+			inputMeaningful: SubtractBeginning(fn, top),
+			dir,
+			outName: !bulk ? out : undefined,
+			snbt, bulk, xmlinput, gzip: gzip as boolean | undefined, edit
+		}));
+	if (dir !== undefined)
+		opened.push({ removeCallback: dirClear });
 
-// 	process.on('SIGINT', () => process.exit(1));
-// 	if (!edit) {
-// 		for (let rs of opened)
-// 			if (rs && rs.convertPromise)
-// 				await rs.convertPromise;
-// 		exit(0);
-// 	}
-// };
-// Main();
+	const rs: PerformResult = {
+		opened,
+		async cleanup() {
+			for (let rs of this.opened) {
+				if (rs.watcher) {
+					rs.watcher.close();
+					delete rs.watcher;
+				}
+				if (rs.removeCallback) {
+					let p = rs.removeCallback();
+					delete rs.removeCallback;
+					await p;
+				}
+			}
+		}
+	};
+	process.on('exit', () => rs.cleanup());
+
+	if (edit)
+		await spawn(config.get().editor as string, [dir !== undefined ? dir : opened[0].filename as string]);
+	
+	return rs;
+}
+
+export const FindTopFolderName = (p: string): string => {
+	let parts = p.split(path.sep);
+	let i = 0;
+	for (; i < parts.length; i++)
+		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
+			break;
+		}
+	return path.resolve(parts.splice(0, i).join(path.sep));
+}
+export const SubtractBeginning = (path: string, top: string) => {
+	path = path.substring(top.length);
+	if (path.startsWith('/'))
+		path = path.substring(1);
+	return path;
+}
+
+export interface OpenFileArgs {
+	/** Input file */
+	input: string;
+	/** Out directory (convert mode) */
+	dir?: string;
+	/** The path after "project directory" */
+	inputMeaningful?: string;
+	/** Out (single mode) */
+	outName?: string;
+	edit?: boolean;
+	gzip?: boolean;
+	bulk?: boolean;
+	xmlinput?: boolean;
+	snbt?: boolean;
+}
+export interface OpenFileResult {
+	filename?: string;
+	watcher?: chokidar.FSWatcher;
+	convertPromise?: Promise<void>;
+	/** Now use this instead of deleting by "filename" */
+	removeCallback?: () => Promise<void>;
+}
+const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenFileResult> => {
+	let out = '';
+	let xmlsuf = !xmlinput ? '.xml' : '';
+	if (dir !== undefined)
+		out = path.join(dir, inputMeaningful + xmlsuf);
+	else if (outName)
+		out = outName;
+
+	if (out)
+		try { fs.mkdirSync(path.dirname(out), { recursive: true }); } catch { }
+
+	const XML2NBT = async (input: string, out: string) => {
+		if (!out)
+			throw ErrorCode.XML_NO_OUT;
+		console.log(`Writing to ${out}`);
+		await Writer.X2NPipe(input, out, { gzip });
+	}
+	if (xmlinput || !bulk && input.endsWith('.xml')) {
+		if (gzip == undefined)
+			throw ErrorCode.XML_COMPRESSION_UNDEFINED;
+		return { convertPromise: XML2NBT(input, out) };
+	}
+	else {
+		if (gzip == undefined) {
+			let istream = fs.createReadStream(input, { mode: 1 });
+			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
+			istream.close();
+		}
+		let removeCallback: (() => Promise<void>);
+		if (out)
+			removeCallback = async () => fs.unlinkSync(out);
+		else
+			({ path: out, cleanup: removeCallback } = await tmp.file({ 'name': path.basename(input) + '.xml' }));
+		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
+			console.log(`Backup written (${input}.backup)`);
+			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
+				console.log(`Conversion done (${out})`)
+			);
+		});
+		if (!edit)
+			return { convertPromise };
+		await convertPromise;
+		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		watcher.on('change', () => XML2NBT(out, input));
+		return { filename: out, watcher, removeCallback };
+	}
+}

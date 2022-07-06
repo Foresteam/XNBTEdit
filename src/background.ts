@@ -7,7 +7,7 @@ import 'colors';
 import { exit } from 'process';
 import fs from 'fs';
 
-import * as main from './backend/Main';
+import * as main from './backend';
 import main_Options from './shared/Options';
 import { ErrorCode } from './shared/ErrorCodes';
 import { RenameKey } from './backend/Common';
@@ -94,7 +94,7 @@ const Main = async () => {
 
 	let opened: main.OpenFileResult[];
 	try {
-		opened = await main.Perform(options);
+		({ opened } = await main.Perform(options));
 	}
 	catch (e) {
 		let text: string = {

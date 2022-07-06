@@ -8,7 +8,7 @@ import path from 'path';
 import os from 'os';
 import { shell } from 'electron';
 
-import { config, Configure, OpenFileResult, Perform } from './Main';
+import { config, Configure, OpenFileResult, Perform } from './';
 import IConfig from '@/shared/IConfig';
 import { spawnSync } from 'child_process';
 import Options from '@/shared/Options';
@@ -54,7 +54,7 @@ export default function () {
 			if (opened)
 				return ErrorCode.IDK;
 			try {
-				opened = await Perform(options);
+				({ opened } = await Perform(options));
 				for (let rs of opened)
 					await rs?.convertPromise;
 				opened = undefined;
@@ -69,19 +69,10 @@ export default function () {
 			if (opened)
 				return ErrorCode.IDK;
 			try {
-				opened = await Perform(options);
+				let cleanup;
+				({ opened, cleanup } = await Perform(options));
 				await new Promise(resolve => ipcMain.once('EditClose', () => resolve(true)));
-				for (let rs of opened) {
-					if (rs.watcher) {
-						rs.watcher.close();
-						delete rs.watcher;
-					}
-					if (rs.removeCallback) {
-						let p = rs.removeCallback();
-						delete rs.removeCallback;
-						await p;
-					}
-				}
+				await cleanup();
 				opened = undefined;
 				return ErrorCode.OK;
 			}
