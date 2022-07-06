@@ -92,9 +92,14 @@ const Main = async () => {
 
 	const { input: _input, out: _out, edit } = options;
 
-	let opened: main.OpenFileResult[];
 	try {
-		({ opened } = await main.Perform(options));
+		const { awaitConvert } = await main.Perform(options);
+
+		process.on('SIGINT', () => process.exit(1));
+		if (!edit) {
+			await awaitConvert();
+			exit(0);
+		}
 	}
 	catch (e) {
 		let text: string = {
@@ -110,14 +115,6 @@ const Main = async () => {
 		}[e as ErrorCode];
 		console.error(text || e);
 		exit(1);
-	}
-
-	process.on('SIGINT', () => process.exit(1));
-	if (!edit) {
-		for (let rs of opened)
-			if (rs && rs.convertPromise)
-				await rs.convertPromise;
-		exit(0);
 	}
 };
 Main();

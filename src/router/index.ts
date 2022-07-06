@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import MainView from '../views/MainView.vue'
+import LicenseView from '@/views/LicenseView.vue';
+import SettingsView from '@/views/SettingsView.vue';
 
 const routes = [
 	{
@@ -10,12 +12,12 @@ const routes = [
 	{
 		path: '/license',
 		name: 'license',
-		component: () => import('../views/LicenseView.vue')
+		component: LicenseView
 	},
 	{
 		path: '/settings',
 		name: 'settings',
-		component: () => import('../views/SettingsView.vue')
+		component: SettingsView
 	}
 ]
 

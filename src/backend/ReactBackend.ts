@@ -54,9 +54,9 @@ export default function () {
 			if (opened)
 				return ErrorCode.IDK;
 			try {
-				({ opened } = await Perform(options));
-				for (let rs of opened)
-					await rs?.convertPromise;
+				let awaitConvert;
+				({ opened, awaitConvert } = await Perform(options));
+				await awaitConvert();
 				opened = undefined;
 				return ErrorCode.OK;
 			}

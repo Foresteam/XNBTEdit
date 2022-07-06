@@ -193,7 +193,7 @@ const ReadNBT = ({ nbtBytes, gunzip = false, parseSNBT = true, filename }: { nbt
 const WriteXML = async ({ data, filename }: { data: Entry, filename?: string }): Promise<string|void> => {
 	let root = XMLBegin();
 	root.dtd({ sysID: 'https://raw.githubusercontent.com/Foresteam/XNBTEdit/master/document.dtd' });
-	root.com('Generated with XNBTEdit by Foresteam (https://github.com/Foresteam/XNBTEdit)');
+	root.com('Generated with XNBTEdit (https://github.com/Foresteam/XNBTEdit)');
 	root = root.ele('compound');
 	BuildXML(data, root, true);
 	let xml = root.end({ prettyPrint: true, indent: '\t' });

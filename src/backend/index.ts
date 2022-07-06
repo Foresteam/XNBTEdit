@@ -27,9 +27,10 @@ export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == un
 
 interface PerformResult {
 	cleanup: () => Promise<void>;
+	awaitConvert: () => Promise<void>;
 	opened: OpenFileResult[];
 }
-export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, compression: gzip, snbt }: Options): Promise<PerformResult> => {
+export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, compression: gzip, snbt }: Options): Promise<Readonly<PerformResult>> => {
 	if (!input)
 		throw ErrorCode.NO_INPUT;
 	if (!edit && !out)
@@ -108,10 +109,10 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 	if (dir !== undefined)
 		opened.push({ removeCallback: dirClear });
 
-	const rs: PerformResult = {
+	const rs: PerformResult = Object.freeze({
 		opened,
-		async cleanup() {
-			for (let rs of this.opened) {
+		cleanup: async () => {
+			for (let rs of opened) {
 				if (rs.watcher) {
 					rs.watcher.close();
 					delete rs.watcher;
@@ -122,8 +123,12 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 					await p;
 				}
 			}
+		},
+		awaitConvert: async () => {
+			for (let rs of opened)
+				await rs?.convertPromise;
 		}
-	};
+	});
 	process.on('exit', () => rs.cleanup());
 
 	if (edit)
