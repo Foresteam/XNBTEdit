@@ -1,15 +1,15 @@
 # XNBTEdit. Edit NBT in XML
 ![](logo.png)
 
-NBT-XML converter. Also capable of editing.
+NBT-XML converter & editor
 ## Features
 * NBT -> XML and back
-* Easy editing in XML (similar to HTML)
+* Easy editing in XML
 * Text editor of your choice
-* Ability to only convert a file
 * SNBTs are also parsed. No more scary inline tags!
 * Bulk editing/conversion
-*There may be issues with non-ASCII characters. Gonna implement, later.*
+
+*There may be issues with non-ASCII characters.*
 
 **WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version saved in the same folder with .backup extension.**
 
@@ -94,16 +94,9 @@ But you'll get:
 ## Binary
 Download a distribution from ***Releases*** section.
 ## From source
-Install **NodeJS v16.15.1**, ***npm*** and (optionally) ***yarn***.
+Install **NodeJS v16.15.1**, ***npm*** and ***yarn***.
 
 Then:
-```sh
-git clone https://github.com/Foresteam/XNBTEdit.git
-cd XNBTEdit
-npm i --save-dev
-npm run ebuild
-```
-Or:
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
