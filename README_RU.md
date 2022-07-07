@@ -1,19 +1,19 @@
-# XNBTEdit. Edit NBT in XML
+# XNBTEdit. Редактируйте NBT с помощью XML
 ![](logo.png)
 
-NBT-XML converter & editor
-## Features
-* NBT -> XML and back
-* Easy editing in XML
-* Text editor of your choice
-* SNBTs are also parsed. No more scary half-screen one-line strings!
-* Bulk editing/conversion
+NBT-XML конвертер & редактор
+## Возможности
+* NBT -> XML и обратно
+* Легкое редактирование на XML
+* Текстовый редактор на ваш выбор
+* SNBT-теги тоже парсятся. Больше не будет ужасных строк на пол-экрана!
+* Массовая конвертация/редактирование
 
-**WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version saved in the same folder with .backup extension.**
+**ВНИМАНИЕ. Редактировать NBT файлы вручную - небезопасно. Убедитесь, что вы знаете, что делаете. Или, по крайней мере, создайте бекап. На всякий случай программа тоже создает таковой при каждом редактировании/конвертации, в той же папке и с расширением .backup.**
 
-*There may be issues with non-ASCII characters.*
+*Могут быть проблемы с не-ASCII символами.*
 
-Before convertation:
+До преобразования:
 ```h
 0a00 0001 000b 7365 656e 4372 6564 6974
 7300 0200 0944 6561 7468 5469 6d65 0000
@@ -25,7 +25,7 @@ Before convertation:
 3a77 6972 656c 6573 735f 756e 6976 6572
 ...
 ```
-After:
+После:
 ```xml
 <?xml version="1.0"?>
 <compound>
@@ -71,13 +71,13 @@ After:
 </compound>
 ```
 ### SNBT
-Basically:
+Изначально:
 ```xml
 <list of="string" name="Lore">
    <string>[{"text":"Text"}]</string>
 </list>
 ```
-But you'll get:
+Но вы получите:
 ```xml
 <list of="string" name="Lore">
    <snbt>
@@ -90,13 +90,13 @@ But you'll get:
 </list>
 ```
 
-# Installation
-## Binary
-Download a distribution from ***Releases*** section.
-## From source
-Install **NodeJS v16.15.1**, ***npm*** and ***yarn***.
+# Установка
+## Бинарники
+Скачайте дистрибутив из секции  ***Релизов***.
+## Из исходников
+Установите **NodeJS v16.15.1**, ***npm*** и ***yarn***.
 
-Then:
+После:
 ```sh
 git clone https://github.com/Foresteam/XNBTEdit.git
 cd XNBTEdit
@@ -104,10 +104,10 @@ yarn -D
 yarn ebuild
 ```
 
-The executable will be in **dist_electron**.
+Исполняемый файл будет в папке **dist_electron**.
 
 # Usage
-The application has a GUI and a command line interfaces. To use the second one:
+У этого приложения есть графический и текстовый интерфейс. Для запуска последнего:
 ```sh
 xnbtedit -- --help
 ```
