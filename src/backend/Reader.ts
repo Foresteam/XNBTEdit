@@ -206,4 +206,5 @@ const N2XPipe = async (nbtInput: string, xmlOutput: string, { gzip: gunzip, pars
 	await WriteXML({ filename: xmlOutput, data: ReadNBT({ filename: nbtInput, gunzip, parseSNBT }) });
 }
 
-export default { ReadNBT, WriteXML, N2XPipe}
+/** NBT->XML */
+export default { ReadNBT, WriteXML, N2XPipe }

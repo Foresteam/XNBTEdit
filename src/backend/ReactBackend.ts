@@ -8,7 +8,7 @@ import path from 'path';
 import os from 'os';
 import { shell } from 'electron';
 
-import { config, Configure, OpenFileResult, Perform } from './';
+import { config, Configure, OpenedFile, Perform } from './';
 import IConfig from '@/shared/IConfig';
 import { spawnSync } from 'child_process';
 import Options from '@/shared/Options';
@@ -16,7 +16,7 @@ import { ErrorCode } from '@/shared/ErrorCodes';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-let opened: OpenFileResult[] | undefined;
+let opened: OpenedFile[] | undefined;
 export default function () {
 	// Scheme must be registered before the app is ready
 	protocol.registerSchemesAsPrivileged([

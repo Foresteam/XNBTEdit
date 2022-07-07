@@ -1,4 +1,4 @@
-'use strict'
+// This is responsible for console UI
 import OpenGui from './backend/ReactBackend';
 
 import cmdargs from 'command-line-args';

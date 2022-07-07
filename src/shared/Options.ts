@@ -1,3 +1,4 @@
+/** backend.Perform options (AKA core function) */
 export default interface Options {
 	help?: boolean;
 	license?: boolean;

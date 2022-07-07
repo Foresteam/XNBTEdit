@@ -20,7 +20,6 @@ import { mapActions, mapState } from 'pinia';
 import { useConfig } from '@/store/configStore';
 import '@/shared/IPCTypes';
 import FileInput from '@/components/FileInput.vue';
-import { Locales } from "@/components/Locales";
 
 export default defineComponent({
 	components: {

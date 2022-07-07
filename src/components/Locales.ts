@@ -146,4 +146,5 @@ for (const [name, v] of Object.entries(locales))
 	for (const [slocale, str] of Object.entries(v))
 		exp[Number(slocale) as Locales][name] = str;
 
+/** Locales[locale][index]: string */
 export default exp;

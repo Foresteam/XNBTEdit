@@ -173,4 +173,6 @@ const WriteNBT = async ({ filename, root, gzip = false }: { filename?: string, r
 const X2NPipe = async (xmlInput: string, nbtOutput: string, { gzip }: PipeOptions = {}): Promise<void> => {
 	await WriteNBT({ filename: nbtOutput, root: ReadXML({ filename: xmlInput }), gzip });
 }
+
+/** XML->NBT */
 export default { ReadXML, WriteNBT, X2NPipe };

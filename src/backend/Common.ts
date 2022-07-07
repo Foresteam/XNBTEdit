@@ -1,28 +1,7 @@
 import { MojangsonEntry } from "@foresteam/mojangson";
 import IConfig from '../shared/IConfig';
 import fs from 'fs';
-import { stringify } from "querystring";
 
-/**
- * Types assoc.
- * I should stop writing inlines in TS....
- * Still weird, btw. I thought i know a better implementation, but realized i don't
- * */
-// const TYPES = Array.from(((v: { [index: number]: string }): ArrayLike<string> => ({ length: Object.entries(v).length, ...Object.entries(v) }))({
-// 	0: 'end',
-// 	1: 'byte',
-// 	2: 'short',
-// 	3: 'int',
-// 	4: 'long',
-// 	5: 'float',
-// 	6: 'double',
-// 	7: 'byte[]',
-// 	8: 'string',
-// 	9: 'list',
-// 	10: 'compound',
-// 	11: 'int[]',
-// 	12: 'long[]'
-// }));
 export const TYPES = Array.from({
 	0: 'end',
 	1: 'byte',

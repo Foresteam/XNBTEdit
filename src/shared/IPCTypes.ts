@@ -1,3 +1,4 @@
+// Electron IPC typing
 import IConfig from "./IConfig";
 import Options from './Options';
 import { ErrorCode } from "./ErrorCodes";

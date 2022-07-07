@@ -28,8 +28,9 @@ export const CheckOpenGUI = ({ edit, out, input}: Options) => !edit && out == un
 interface PerformResult {
 	cleanup: () => Promise<void>;
 	awaitConvert: () => Promise<void>;
-	opened: OpenFileResult[];
+	opened: OpenedFile[];
 }
+/** Core function */
 export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, compression: gzip, snbt }: Options): Promise<Readonly<PerformResult>> => {
 	if (!input)
 		throw ErrorCode.NO_INPUT;
@@ -97,7 +98,7 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 			throw ErrorCode.NO_OUT_NO_EDIT;
 	}
 	
-	const opened: OpenFileResult[] = [];
+	const opened: OpenedFile[] = [];
 	for (let fn of inputs)
 		opened.push(await OpenFile({
 			input: fn,
@@ -168,14 +169,15 @@ export interface OpenFileArgs {
 	xmlinput?: boolean;
 	snbt?: boolean;
 }
-export interface OpenFileResult {
+export interface OpenedFile {
 	filename?: string;
 	watcher?: chokidar.FSWatcher;
 	convertPromise?: Promise<void>;
 	/** Now use this instead of deleting by "filename" */
 	removeCallback?: () => Promise<void>;
 }
-const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenFileResult> => {
+/** 2-nd core function */
+const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenedFile> => {
 	let out = '';
 	let xmlsuf = !xmlinput ? '.xml' : '';
 	if (dir !== undefined)
