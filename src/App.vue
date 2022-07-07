@@ -54,7 +54,7 @@ export default defineComponent({
 		await this.fetchConfig();
 		if (this.tookTheRisk)
 			return;
-		this.tookTheRisk = await new Promise(resolve => this.$confirm.require({
+		await this.configure('tookTheRisk', await new Promise(resolve => this.$confirm.require({
 			header: 'Warning',
 			message: this.locales['App.risk-warning.text'],
 			icon: 'pi pi-exclamation-triangle',
@@ -62,7 +62,7 @@ export default defineComponent({
 			rejectLabel: this.locales['App.risk-warning.reject'],
 			accept: () => resolve(true),
 			reject: () => resolve(false),
-		}));
+		})));
 		if (!this.tookTheRisk)
 			window.close();
 	}
