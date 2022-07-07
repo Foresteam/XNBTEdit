@@ -36,3 +36,9 @@ All the icons were found on https://www.svgrepo.com/svg and are properties of th
 .fi-license:before {
 	content: '8';
 }
+.fi-arrow-right:before {
+	content: '9';
+}
+.fi-arrow-left:before {
+	content: ':';
+}
