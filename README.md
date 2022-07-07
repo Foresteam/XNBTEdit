@@ -9,9 +9,9 @@ NBT-XML converter & editor
 * SNBTs are also parsed. No more scary inline tags!
 * Bulk editing/conversion
 
-*There may be issues with non-ASCII characters.*
-
 **WARNING. Manually editing NBT files is not safe. So be sure you know what you\'re doing. Or, at least, create a backup. If you didn\'t and something went wrong, you can try to load the previous version saved in the same folder with .backup extension.**
+
+*There may be issues with non-ASCII characters.*
 
 Before:
 ```h
@@ -29,64 +29,64 @@ After:
 ```xml
 <?xml version="1.0"?>
 <compound>
-	<byte name="seenCredits">false</byte>
-	<short name="DeathTime">0</short>
-	<int name="foodTickTimer">0</int>
-	<compound name="recipeBook">
-		<list of="string" name="recipes">
-			<string>ae2wtlib:magnet_card</string>
-			<string>ae2wtlib:wireless_universal_terminal/upgrade_crafting</string>
-			<string>ae2wtlib:infinity_booster_card</string>
-		</list>
-		<byte name="isGuiOpen">false</byte>
-		<list of="string" name="toBeDisplayed">
-			<string>ae2wtlib:magnet_card</string>
-			<string>ae2wtlib:wireless_universal_terminal/upgrade_crafting</string>
-			<string>ae2wtlib:infinity_booster_card</string>
-		</list>
-		<byte name="isSmokerGuiOpen">false</byte>
-		<byte name="isFurnaceFilteringCraftable">false</byte>
-		<byte name="isFurnaceGuiOpen">false</byte>
-		<byte name="isBlastingFurnaceFilteringCraftable">false</byte>
-		<byte name="isBlastingFurnaceGuiOpen">false</byte>
-		<byte name="isFilteringCraftable">false</byte>
-		<byte name="isSmokerFilteringCraftable">false</byte>
-	</compound>
-	<int name="XpTotal">0</int>
-	<byte name="OnGround">true</byte>
-	<float name="AbsorptionAmount">0</float>
-	<int name="playerGameType">1</int>
-	<compound name="TenshiLib:Patreon">
-		<int name="Color">0</int>
-		<byte name="ShouldRender">true</byte>
-		<int name="Location">2</int>
-	</compound>
-	<list of="compound" name="Attributes">
-		<compound>
-			<string name="Name">minecraft:generic.movement_speed</string>
-			<double name="Base">0.10000000149011612</double>
-		</compound>
-	</list>
-	...
+   <byte name="seenCredits">false</byte>
+   <short name="DeathTime">0</short>
+   <int name="foodTickTimer">0</int>
+   <compound name="recipeBook">
+      <list of="string" name="recipes">
+         <string>ae2wtlib:magnet_card</string>
+         <string>ae2wtlib:wireless_universal_terminal/upgrade_crafting</string>
+         <string>ae2wtlib:infinity_booster_card</string>
+      </list>
+      <byte name="isGuiOpen">false</byte>
+      <list of="string" name="toBeDisplayed">
+         <string>ae2wtlib:magnet_card</string>
+         <string>ae2wtlib:wireless_universal_terminal/upgrade_crafting</string>
+         <string>ae2wtlib:infinity_booster_card</string>
+      </list>
+      <byte name="isSmokerGuiOpen">false</byte>
+      <byte name="isFurnaceFilteringCraftable">false</byte>
+      <byte name="isFurnaceGuiOpen">false</byte>
+      <byte name="isBlastingFurnaceFilteringCraftable">false</byte>
+      <byte name="isBlastingFurnaceGuiOpen">false</byte>
+      <byte name="isFilteringCraftable">false</byte>
+      <byte name="isSmokerFilteringCraftable">false</byte>
+   </compound>
+   <int name="XpTotal">0</int>
+   <byte name="OnGround">true</byte>
+   <float name="AbsorptionAmount">0</float>
+   <int name="playerGameType">1</int>
+   <compound name="TenshiLib:Patreon">
+      <int name="Color">0</int>
+      <byte name="ShouldRender">true</byte>
+      <int name="Location">2</int>
+   </compound>
+   <list of="compound" name="Attributes">
+      <compound>
+         <string name="Name">minecraft:generic.movement_speed</string>
+         <double name="Base">0.10000000149011612</double>
+      </compound>
+   </list>
+   ...
 </compound>
 ```
 ### SNBT
 Basically:
 ```xml
 <list of="string" name="Lore">
-	<string>[{"text":"Text"}]</string>
+   <string>[{"text":"Text"}]</string>
 </list>
 ```
 But you'll get:
 ```xml
 <list of="string" name="Lore">
-	<snbt>
-		<list of="compound">
-			<compound>
-				<string name="text">Text</string>
-			</compound>
-		</list>
-	</snbt>
+   <snbt>
+      <list of="compound">
+         <compound>
+            <string name="text">Text</string>
+         </compound>
+      </list>
+   </snbt>
 </list>
 ```
 
