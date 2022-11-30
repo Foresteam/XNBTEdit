@@ -1,6 +1,5 @@
 <template>
 	<div class="home flex-col">
-		<p v-if="!seenLicense">{{ locales['Main.see-license'] }}</p>
 		<div class="ui-block flex-row" style="align-items: center">
 			<p-checkbox id="bulk-checkbox" v-model="bulk" :binary="true" style="" />
 			<label for="bulk-checkbox">{{ locales['Main.bulk-checkbox'] }}</label>
@@ -35,7 +34,7 @@
 			v-model="output"
 			:disabled="edit"
 		/>
-		<div v-if="seenLicense" class="flex-col ui-block flex-center">
+		<div class="flex-col ui-block flex-center">
 			<p-toggle-button
 				v-if="!isConverting && (edit || isEditing)"
 				id="perform-edit"

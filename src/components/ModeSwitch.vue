@@ -9,6 +9,8 @@
 				@update:modelValue="(v: boolean) => onChange(v)"
 				onIcon="pi fi fi-arrow-left"
 				offIcon="pi fi fi-arrow-right"
+				onLabel=""
+				offLabel=""
 				class="button-bigtext"
 				style="width: 100%"
 			/>
