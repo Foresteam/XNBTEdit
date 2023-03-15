@@ -91,7 +91,7 @@ But you'll get:
 ```
 
 # Installation
-## Binary
+## Executable
 Download a distribution from ***Releases*** section.
 ## From source
 Install **NodeJS v16.15.1**, ***npm*** and ***yarn***.
