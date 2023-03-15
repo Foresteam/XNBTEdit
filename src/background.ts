@@ -102,7 +102,7 @@ const Main = async () => {
 		}
 	}
 	catch (e) {
-		let text: string = {
+		const text: string = {
 			[ErrorCode.OK]: '',
 			[ErrorCode.NO_INPUT]: 'No input was specified'.red,
 			[ErrorCode.NO_OUT_NO_EDIT]: `No output was specified, nor edit mode (${'-e'.bold}) was selected`.red,

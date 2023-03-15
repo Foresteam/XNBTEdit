@@ -1,4 +1,4 @@
-import { MojangsonEntry } from "@foresteam/mojangson";
+import { MojangsonEntry, type MojangsonAnyType, type MojangsonArrayType, type MojangsonArrayElementType, type MojangsonElementaryType, MojangsonAnyValue, MojangsonList, MojangsonArray, MojangsonCompound } from "@foresteam/mojangson";
 import IConfig from '../shared/IConfig';
 import fs from 'fs';
 
@@ -27,64 +27,71 @@ export const IS_ARRAY = (type: number) => type == TYPE('byte[]') || type >= TYPE
 export interface Entry {
 	type: number;
 	contentType?: number;
-	value: any;
-};
+	value: Entry | Entry[] | (number | string | boolean | bigint) | { [key: string]: Entry } | Exclude<MojangsonAnyValue, MojangsonEntry>;
+}
 
-export const Mojangson2Entry = (mjvalue: any, type?: string): Entry => {
-	type ||= mjvalue.type as string;
+export const Mojangson2Entry = (mjvalue: MojangsonAnyValue, type?: string): Entry => {
+		type ||= (mjvalue as MojangsonEntry).type as string;
 	// console.log('#1', mjvalue, type);
 	if (type == 'list') {
-		let result: Entry = { value: null, type: 0 };
+		const interp = mjvalue as MojangsonList;
+		const result = { type: 0 } as Entry;
 		result.type = TYPE('list');
-		result.contentType = mjvalue.value.type as number;
-		result.value = (mjvalue.value.value as any[]).map(v => Mojangson2Entry(v, TYPES[result.contentType as number]));
+		result.contentType = TYPE(interp.value.type.replace('[]', 'Array') as NBTType);
+		result.value = interp.value.value.map(v => Mojangson2Entry(v, TYPES[result.contentType as number]));
 		return result;
 	}
 	if (type.indexOf('Array') >= 0) {
-		let result: Entry = { value: null, type: 0 };
-		result.type = TYPE((mjvalue.value.type + '[]') as NBTType);
-		result.contentType = mjvalue.value.type;
-		result.value = (mjvalue.value.value as any[]).map(v => ({ value: v, type: result.contentType } as Entry));
+		const interp = mjvalue as MojangsonArray;
+		const result = { type: 0 } as Entry;
+		result.type = TYPE((interp.value.type + '[]') as NBTType);
+		result.contentType = TYPE(interp.value.type);
+		result.value = interp.value.value.map(v => ({ value: v, type: result.contentType } as Entry));
 		return result;
 	}
 	// console.log('#2', mjvalue.value, Object.entries(mjvalue.value));
 	if (type == 'compound') {
+		const interp = mjvalue as MojangsonCompound;
 		return {
 			type: TYPE('compound'),
-			value: Object.fromEntries(Object.entries(mjvalue.value).map(([k, v]) => ([k, Mojangson2Entry(v)])))
+			value: Object.fromEntries(Object.entries(interp.value).map(([k, v]) => ([k, Mojangson2Entry(v)])))
 		};
 	}
-	return { value: mjvalue.value || mjvalue, type: TYPE(type as NBTType) };
+	return { value: <Exclude<MojangsonAnyValue, MojangsonEntry>>((mjvalue as MojangsonEntry).value || mjvalue), type: TYPE(type as NBTType) };
 };
-const MojangsonType = (type: NBTType): string => type.indexOf('[]') >= 0 ? type.replace('[]', 'Array') : type;
+const MojangsonType = (type: NBTType) => (type.indexOf('[]') >= 0 ? type.replace('[]', 'Array') : type) as MojangsonAnyType;
 export const Entry2Mojangson = (entry: Entry): MojangsonEntry => {
 	if (TYPES[entry.type] == 'list')
 		return {
-			type: MojangsonType(TYPES[entry.type]),
+			type: MojangsonType(TYPES[entry.type]) as 'list',
 			value: {
 				type: MojangsonType(TYPES[entry.contentType as number]),
-				value: (entry.value as Entry[]).map(v => Entry2Mojangson(v.value))
+				value: (entry.value as Entry[]).map(v => Entry2Mojangson(v.value as Entry))
 			}
 		};
 	if (TYPES[entry.type].indexOf('[]') >= 0)
 		return {
-			type: MojangsonType(TYPES[entry.type]),
+			type: MojangsonType(TYPES[entry.type]) as MojangsonArrayType,
 			value: {
-				type: MojangsonType(TYPES[entry.contentType as number]),
-				value: (entry.value as Entry[]).map(v => v.value)
+				type: MojangsonType(TYPES[entry.contentType as number]) as MojangsonArrayElementType,
+				value: (entry.value as Entry[]).map(v => v.value) as number[]
 			}
 		};
 	if (TYPES[entry.type] == 'compound')
 		return {
-			type: MojangsonType(TYPES[entry.type]),
+			type: MojangsonType(TYPES[entry.type]) as 'compound',
 			value: Object.fromEntries(Object.entries(entry.value).map(([k, v]) => ([k, Entry2Mojangson(v as Entry)])))
 		}
-	return { value: entry.value, type: MojangsonType(TYPES[entry.type]) };
+	return <MojangsonEntry>{
+		value: entry.value as (string | boolean | number),
+		type: MojangsonType(TYPES[entry.type]) as MojangsonElementaryType
+	};
 };
 
 // to be implemented...
 const encodeUTF8 = (str: string): number[] => {
-	var array = [], i, c;
+	const array: number[] = [];
+	let i: number, c: number;
 	for (i = 0; i < str.length; i++) {
 		c = str.charCodeAt(i);
 		if (c < 0x80) {
@@ -106,7 +113,8 @@ const encodeUTF8 = (str: string): number[] => {
 	return array;
 }
 const decodeUTF8 = (array: Uint8Array): string => {
-	var codepoints = [], i;
+	const codepoints: number[] = [];
+	let i: number;
 	for (i = 0; i < array.length; i++) {
 		if ((array[i] & 0x80) === 0) {
 			codepoints.push(array[i] & 0x7F);
@@ -155,7 +163,7 @@ export class Config {
 		this.default = _default;
 		this.wasSaved = false;
 		this.#self = {};
-		fs.watchFile(this.filename, (curr, prev) => {
+		fs.watchFile(this.filename, () => {
 			if (this.wasSaved)
 				this.wasSaved = false;
 			else
@@ -166,8 +174,8 @@ export class Config {
 	get() {
 		return Object.assign({}, this.#self);
 	}
-	set(field: string, value: any, save = true) {
-		(this.#self as any)[field] = value;
+	set<T extends keyof IConfig>(field: T, value: IConfig[T], save = true) {
+		this.#self[field] = value;
 		save && this.save();
 	}
 	load() {
@@ -179,7 +187,7 @@ export class Config {
 	}
 }
 
-export function RenameKey(this: any, old: string, _new: string) {
+export function RenameKey<T extends object, K extends keyof T>(this: T, old: K, _new: string) {
 	delete Object.assign(this, { [_new]: this[old] })[old];
 	return this;
 }

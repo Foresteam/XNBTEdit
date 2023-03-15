@@ -10,11 +10,14 @@
 		"ebuild": "vue-cli-service electron:build",
 		"eserve": "vue-cli-service electron:serve",
 		"postinstall": "npx electron-builder install-app-deps",
-		"postuninstall": "npx electron-builder install-app-deps"
+		"postuninstall": "npx electron-builder install-app-deps",
+		"test": "ts-mocha -p tsconfig.json tests/xml2nbt.spec.ts"
 	},
 	"main": "background.js",
 	"dependencies": {
-		"@foresteam/mojangson": "^2.0.4",
+		"@foresteam/mojangson": "^2.0.5",
+		"@types/expect": "^24.3.0",
+		"@types/mocha": "^10.0.1",
 		"chokidar": "^3.5.3",
 		"colors": "^1.4.0",
 		"command-line-args": "^5.2.1",
@@ -26,7 +29,9 @@
 		"pinia": "^2.0.14",
 		"tmp-promise": "^3.0.3",
 		"ts-mocha": "^10.0.0",
-		"typescript": "~4.5.5"
+		"ts-node-esm": "^0.0.6",
+		"tsconfig-paths": "^4.1.0",
+		"typescript": "^4.9.3"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.18.5",

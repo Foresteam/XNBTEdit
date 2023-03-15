@@ -53,19 +53,19 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 				await new Promise<void>(resolve => glob(path.join(input, '**', '*'), (err, files) => {
 					if (err)
 						throw ErrorCode.IDK;
-					for (let filename of files)
+					for (const filename of files)
 						if (fs.statSync(filename).isFile())
 							inputs.push(path.resolve(filename))
 					resolve();
 				}));
 		}
 		catch {
-			let fns = (await new Promise(resolve => glob(input, (err, files) => {
+			const fns = (await new Promise(resolve => glob(input, (err, files) => {
 				if (err)
 					throw ErrorCode.IDK;
 				resolve(files);
 			}))) as string[];
-			for (let filename of fns)
+			for (const filename of fns)
 				inputs.push(path.resolve(filename));
 		}
 	}
@@ -99,7 +99,7 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 	}
 	
 	const opened: OpenedFile[] = [];
-	for (let fn of inputs)
+	for (const fn of inputs)
 		opened.push(await OpenFile({
 			input: fn,
 			inputMeaningful: SubtractBeginning(fn, top),
@@ -113,20 +113,20 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 	const rs: PerformResult = Object.freeze({
 		opened,
 		cleanup: async () => {
-			for (let rs of opened) {
+			for (const rs of opened) {
 				if (rs.watcher) {
 					rs.watcher.close();
 					delete rs.watcher;
 				}
 				if (rs.removeCallback) {
-					let p = rs.removeCallback();
+					const p = rs.removeCallback();
 					delete rs.removeCallback;
 					await p;
 				}
 			}
 		},
 		awaitConvert: async () => {
-			for (let rs of opened)
+			for (const rs of opened)
 				await rs?.convertPromise;
 		}
 	});
@@ -139,7 +139,7 @@ export const Perform = async ({ bulk, input, edit, out, overwrite, xmlinput, com
 }
 
 export const FindTopFolderName = (p: string): string => {
-	let parts = p.split(path.sep);
+	const parts = p.split(path.sep);
 	let i = 0;
 	for (; i < parts.length; i++)
 		if (parts[i].indexOf('*') >= 0 || parts[i].indexOf('?') >= 0) {
@@ -179,7 +179,7 @@ export interface OpenedFile {
 /** 2-nd core function */
 const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, edit, snbt, bulk }: OpenFileArgs): Promise<OpenedFile> => {
 	let out = '';
-	let xmlsuf = !xmlinput ? '.xml' : '';
+	const xmlsuf = !xmlinput ? '.xml' : '';
 	if (dir !== undefined)
 		out = path.join(dir, inputMeaningful + xmlsuf);
 	else if (outName)
@@ -201,8 +201,8 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 	}
 	else {
 		if (gzip == undefined) {
-			let istream = fs.createReadStream(input, { mode: 1 });
-			let header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
+			const istream = fs.createReadStream(input, { mode: 1 });
+			const header: Buffer = await new Promise(resolve => istream.on('readable', () => resolve(istream.read(3))));
 			gzip = header.compare(new Uint8Array([0x1f, 0x8b, 0x08])) == 0;
 			istream.close();
 		}
@@ -211,7 +211,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 			removeCallback = async () => fs.unlinkSync(out);
 		else
 			({ path: out, cleanup: removeCallback } = await tmp.file({ 'name': path.basename(input) + '.xml' }));
-		let convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
+		const convertPromise = fsp.writeFile(input + '.backup', fs.readFileSync(input, 'binary'), 'binary').then(() => {
 			console.log(`Backup written (${input}.backup)`);
 			return Reader.N2XPipe(input, out, { gzip, parseSNBT: snbt }).then(() =>
 				console.log(`Conversion done (${out})`)
@@ -220,7 +220,7 @@ const OpenFile = async ({ input, inputMeaningful, dir, outName, xmlinput, gzip, 
 		if (!edit)
 			return { convertPromise };
 		await convertPromise;
-		let watcher = chokidar.watch(out, { awaitWriteFinish: true });
+		const watcher = chokidar.watch(out, { awaitWriteFinish: true });
 		watcher.on('change', () => XML2NBT(out, input));
 		return { filename: out, watcher, removeCallback };
 	}

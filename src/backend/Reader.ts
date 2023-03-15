@@ -10,7 +10,7 @@ interface RSReturn {
 	entry: Entry;
 	endPos: number;
 	name?: string;
-};
+}
 class Reader {
 	buffer: Buffer;
 	parseSNBT: boolean;
@@ -21,15 +21,15 @@ class Reader {
 	GetName(pos: number, headless: boolean) {
 		if (headless)
 			return { name: undefined, offset: 0 };
-		let len = this.buffer.readUInt16BE(pos);
+		const len = this.buffer.readUInt16BE(pos);
 		return {
 			name: this.buffer.toString('binary', pos + 2, pos + 2 + len),
 			offset: 2 + len
 		};
 	}
 	ReadNumber(pos: number, type: number, headless = false): RSReturn {
-		let self: Entry = { type, value: null };
-		let { name, offset: nameOffset } = this.GetName(pos, headless);
+		const self = { type } as Entry;
+		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
 		switch (type) {
 			case TYPE('byte'):
@@ -58,12 +58,12 @@ class Reader {
 				break;
 		}
 		return { entry: self, endPos: pos, name };
-	};
+	}
 	ReadString(pos: number, type: number, headless = false): RSReturn {
-		let self: Entry = { type, value: null };
-		let { name, offset: nameOffset } = this.GetName(pos, headless);
+		const self = { type } as Entry;
+		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
-		let len = this.buffer.readUInt16BE(pos);
+		const len = this.buffer.readUInt16BE(pos);
 		pos += 2;
 		self.value = this.buffer.toString('binary', pos, pos + len);
 
@@ -73,20 +73,20 @@ class Reader {
 		}
 
 		return { entry: self, endPos: pos + len, name };
-	};
+	}
 	ReadArray(pos: number, type: number, headless = false): RSReturn {
-		let self: Entry = { type, value: [], contentType: TYPE(TYPES[type].replace('[]', '') as NBTType) };
-		let { name, offset: nameOffset } = this.GetName(pos, headless);
+		const self: Entry = { type, value: [], contentType: TYPE(TYPES[type].replace('[]', '') as NBTType) };
+		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
-		let len = this.buffer.readInt32BE(pos);
+		const len = this.buffer.readInt32BE(pos);
 		pos += 4;
 		for (let i = 0; i < len; i++) {
-			let entryInfo = this.ReadNumber(pos, self.contentType as number, true);
+			const entryInfo = this.ReadNumber(pos, self.contentType as number, true);
 			(self.value as Entry[]).push(entryInfo.entry);
 			pos = entryInfo.endPos;
 		}
 		return { entry: self, endPos: pos, name }
-	};
+	}
 
 	_TheSwitch(pos: number, type: number, headless: boolean): RSReturn {
 		let entryInfo: RSReturn;
@@ -103,17 +103,17 @@ class Reader {
 		return entryInfo;
 	}
 	ReadList(pos: number, _type: number, headless = false): RSReturn {
-		let self: Entry = { value: [], type: _type };
-		let { name, offset: nameOffset } = this.GetName(pos, headless);
+		const self: Entry = { value: [], type: _type };
+		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
 		// TYPE('byte')
 		self.contentType = this.buffer.readInt8(pos);
 		pos++
 		// TYPE('int')
-		let contentLength = this.buffer.readInt32BE(pos);
+		const contentLength = this.buffer.readInt32BE(pos);
 		pos += 4;
 		for (let i = 0; i < contentLength; i++) {
-			let entryInfo = this._TheSwitch(pos, self.contentType, true);
+			const entryInfo = this._TheSwitch(pos, self.contentType, true);
 			if (entryInfo) {
 				(self.value as Entry[]).push(entryInfo.entry);
 				pos = entryInfo.endPos;
@@ -125,35 +125,35 @@ class Reader {
 	}
 	/** @param pos The buffer offset. The tag type is assumed to be already known, so it must be excluded */
 	ReadCompound(pos: number, _type: number, headless = false): RSReturn {
-		let self: Entry = { value: {}, type: _type };
-		let { name, offset: nameOffset } = this.GetName(pos, headless);
+		const self: Entry = { value: {}, type: _type };
+		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
 		while (pos < Buffer.byteLength(this.buffer)) {
-			let type: number = this.buffer.readUInt8(pos);
+			const type: number = this.buffer.readUInt8(pos);
 			if (type == TYPE('end')) {
 				pos++;
 				break;
 			}
 
-			let entryInfo = this._TheSwitch(pos + 1, type, false);
+			const entryInfo = this._TheSwitch(pos + 1, type, false);
 			if (entryInfo) {
-				self.value[entryInfo.name as string] = entryInfo.entry;
+				(self.value as { [key: string]: Entry })[entryInfo.name as string] = entryInfo.entry;
 				pos = entryInfo.endPos;
 				continue;
 			}
 			pos++;
 		}
 		return { entry: self, endPos: pos, name };
-	};
+	}
 }
 
 const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string): void => {
 	// console.log(block.type, block);
 	if (typeof block.value != 'object') {
 		// not sure it's a good idea, but it greatly boosts readability
-		if (block.type == TYPE('byte') && [0, 1].includes(block.value))
+		if (block.type == TYPE('byte') && [0, 1].includes(block.value as number))
 			block.value = block.value ? 'true' : 'false';
-		parent.ele(TYPES[block.type], { name }).txt(block.value);
+		parent.ele(TYPES[block.type], { name }).txt(block.value.toString());
 		return;
 	}
 
@@ -173,10 +173,10 @@ const BuildXML = (block: Entry, parent: XMLBuilder, root = false, name?: string)
 	}
 	else {
 		tag = parent.ele('snbt', { name });
-		block.value = [block.value];
+		block.value = [block.value as Entry];
 	}
 
-	for (let [k, v] of Object.entries(block.value))
+	for (const [k, v] of Object.entries(block.value))
 		BuildXML(v as Entry, tag, false, named ? k : undefined);
 };
 
@@ -196,7 +196,7 @@ const WriteXML = async ({ data, filename }: { data: Entry, filename?: string }):
 	root.com('Generated with XNBTEdit (https://github.com/Foresteam/XNBTEdit)');
 	root = root.ele('compound');
 	BuildXML(data, root, true);
-	let xml = root.end({ prettyPrint: true, indent: '\t' });
+	const xml = root.end({ prettyPrint: true, indent: '\t' });
 	if (filename)
 		await promisify(fs.writeFile)(filename, xml);
 	else

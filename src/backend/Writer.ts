@@ -17,8 +17,8 @@ class Writer {
 	WriteTypeAndName(type: number, name?: string, headless = false) {
 		if (headless)
 			return;
-		let nameLen = name ? Buffer.from(name, 'binary').byteLength : 0;
-		let buf = Buffer.alloc(1 + 2 + nameLen);
+		const nameLen = name ? Buffer.from(name, 'binary').byteLength : 0;
+		const buf = Buffer.alloc(1 + 2 + nameLen);
 		buf.writeUInt8(type);
 		buf.writeUInt16BE(nameLen, 1);
 		if (name)
@@ -33,30 +33,30 @@ class Writer {
 		}
 		if (type == TYPE('short')) {
 			buf = Buffer.alloc(2);
-			buf.writeInt16BE(entry.value);
+			buf.writeInt16BE(entry.value as number);
 		}
 		if (type == TYPE('int')) {
 			buf = Buffer.alloc(4);
-			buf.writeInt32BE(entry.value);
+			buf.writeInt32BE(entry.value as number);
 		}
 		if (type == TYPE('long')) {
 			buf = Buffer.alloc(8);
-			buf.writeBigInt64BE(BigInt(entry.value));
+			buf.writeBigInt64BE(BigInt(entry.value as bigint));
 		}
 		if (type == TYPE('float')) {
 			buf = Buffer.alloc(4);
-			buf.writeFloatBE(entry.value);
+			buf.writeFloatBE(entry.value as number);
 		}
 		if (type == TYPE('double')) {
 			buf = Buffer.alloc(8);
-			buf.writeDoubleBE(entry.value);
+			buf.writeDoubleBE(entry.value as number);
 		}
 		if (type == TYPE('snbt')) {
 			type = TYPE('string');
-			entry.value = mojangson.stringify(Entry2Mojangson(entry.value), true);
+			entry.value = mojangson.stringify(Entry2Mojangson(entry.value as Entry), true);
 		}
 		if (type == TYPE('string')) {
-			let len = Buffer.from(String(entry.value), 'utf-8').byteLength;
+			const len = Buffer.from(String(entry.value), 'utf-8').byteLength;
 			buf = Buffer.alloc(2 + len);
 			buf.writeUInt16BE(len);
 			buf.write(String(entry.value), 2, 'utf-8');
@@ -71,10 +71,10 @@ class Writer {
 	}
 	WriteArray(entry: Entry, name?: string, headless = false) {
 		this.WriteTypeAndName(entry.type, name, headless);
-		let length = Buffer.alloc(4);
+		const length = Buffer.alloc(4);
 		length.writeInt32BE((entry.value as Entry[]).length);
 		this.WriteBuf(length);
-		for (let v of entry.value as Entry[])
+		for (const v of entry.value as Entry[])
 			this.WriteInline(entry.contentType as number, v, undefined, true);
 	}
 	WriteSwitch(type: number, entry: Entry, name?: string, headless = false) {
@@ -89,20 +89,20 @@ class Writer {
 	}
 	WriteList(entry: Entry, name?: string, headless = false) {
 		this.WriteTypeAndName(entry.type, name, headless);
-		let info = Buffer.alloc(1 + 4);
+		const info = Buffer.alloc(1 + 4);
 		info.writeUInt8(entry.contentType as number);
 		info.writeInt32BE((entry.value as Entry[]).length, 1);
 		this.WriteBuf(info);
-		for (let v of entry.value as Entry[]) 
+		for (const v of entry.value as Entry[]) 
 			this.WriteSwitch(entry.contentType as number, v, undefined, true);
 	}
 	// headless = !!name
 	WriteCompound(entry: Entry, name?: string, headless = false) {
 		this.WriteTypeAndName(TYPE('compound'), name, headless);
-		for (let [name, child] of Object.entries(entry.value) as [string, Entry][])
+		for (const [name, child] of Object.entries(entry.value) as [string, Entry][])
 			this.WriteSwitch(child.type, child, name);
 		// WriteInline(TYPE('byte'), , 'seenCredits');
-		let buf = Buffer.alloc(1);
+		const buf = Buffer.alloc(1);
 		buf.writeUInt8(TYPE('end'));
 		this.WriteBuf(buf);
 	}
@@ -125,7 +125,7 @@ interface XMLEntry {
 }
 const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 	const [type, entries] = Object.entries(tag)[0];
-	const entry: Entry = { type: 0, value: null };
+	const entry = { type: 0 } as Entry;
 
 	if (type == 'array')
 		entry.value = (entries as XMLEntry[]).map(e => Entrify(e)[1]);

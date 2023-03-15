@@ -138,14 +138,14 @@ export default function () {
 			})
 		}
 	}
-};
+}
 
 const CheckKDialog = () => process.platform == 'linux' && spawnSync('which', ['kdialog']).status == 0;
 const KFilePicker = async (isDir: boolean, mode: 'open' | 'save'): Promise<string> => {
 	let openArg = isDir && 'getexistingdirectory';
 	if (!openArg)
 		openArg = mode == 'open' ? 'getopenfilename' : 'getsavefilename';
-	let path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
+	const path = spawnSync('kdialog', [`--${openArg}`]).output.toString();
 	// strip the output, for it has extra symbols
 	return path.split('\n')[0].substring(1, path.length - 1);
 }
