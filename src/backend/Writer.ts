@@ -108,9 +108,9 @@ class Writer {
 	}
 
 	End(gzip = false) {
-		let buf = Buffer.concat(this.#buffers);
+		let buf = Buffer.concat(this.#buffers as any);
 		if (gzip)
-			buf = gzipSync(buf, { info: false });
+			buf = gzipSync(buf as any, { info: false });
 		return buf;
 	}
 }
@@ -134,7 +134,7 @@ const Entrify = (tag: XMLEntry): [string | number, Entry] => {
 	if (type == 'snbt')
 		entry.value = entries ? Entrify((entries as XMLEntry[])[0])[1] : {};
 	else if (IS_INLINE(TYPE(type as NBTType)))
-		entry.value = (entries as XMLEntry[])[0]['#text'];
+		entry.value = (entries as XMLEntry[])[0]['#text'] as any;
 	else if (type == 'list')
 		entry.value = (entries as XMLEntry[]).map(e => Entrify(e)[1]);
 	else if (type == 'compound')
@@ -166,7 +166,7 @@ const WriteNBT = async ({ filename, root, gzip = false }: { filename?: string, r
 	writer.WriteCompound(root);
 	const buf = writer.End(gzip);
 	if (filename)
-		await promisify(fs.writeFile)(filename, buf, 'binary');
+		await promisify(fs.writeFile)(filename, buf as any, 'binary');
 	else
 		return buf;
 }

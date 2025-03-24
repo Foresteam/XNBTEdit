@@ -27,8 +27,9 @@ const optionList = [
 	{ name: 'overwrite', alias: 'w', type: Boolean, description: 'Overwrite output files if they exist' }
 ];
 const options = cmdargs(optionList) as main_Options;
-RenameKey.call(options, 'set-editor', 'editor');
-RenameKey.call(options, 'no-snbt', 'snbt');
+// видимо, здесь переименовываются отрицательные аргументы? Или шо?
+RenameKey.call(options, 'set-editor' as never, 'editor');
+RenameKey.call(options, 'no-snbt' as never, 'snbt');
 options.compression = options.compression == 'gzip' ? true : (options.compression == 'none' ? false : undefined);
 options.snbt = !!options.snbt;
 
