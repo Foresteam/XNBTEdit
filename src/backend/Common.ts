@@ -57,7 +57,10 @@ export const Mojangson2Entry = (mjvalue: MojangsonAnyValue, type?: string): Entr
 			value: Object.fromEntries(Object.entries(interp.value).map(([k, v]) => ([k, Mojangson2Entry(v)])))
 		};
 	}
-	return { value: <Exclude<MojangsonAnyValue, MojangsonEntry>>((mjvalue as MojangsonEntry).value || mjvalue), type: TYPE(type as NBTType) };
+	const value = <Exclude<MojangsonAnyValue, MojangsonEntry>>((mjvalue as MojangsonEntry).value || mjvalue);
+	if (type === 'byte')
+		console.log(type, value);
+	return { value, type: TYPE(type as NBTType) };
 };
 const MojangsonType = (type: NBTType) => (type.indexOf('[]') >= 0 ? type.replace('[]', 'Array') : type) as MojangsonAnyType;
 export const Entry2Mojangson = (entry: Entry): MojangsonEntry => {

@@ -25,6 +25,9 @@ pnpm-debug.log*
 #Electron-builder output
 /dist_electron
 
-tests/data/*.dat*
 XNBTEdit*.zip
 XNBTEdit*.tar.gz
+
+tests/*
+!tests/test.dat
+!tests/test.dat.uncompressed

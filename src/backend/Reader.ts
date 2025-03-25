@@ -128,7 +128,7 @@ class Reader {
 		const self: Entry = { value: {}, type: _type };
 		const { name, offset: nameOffset } = this.GetName(pos, headless);
 		pos += nameOffset;
-		while (pos < Buffer.byteLength(this.buffer)) {
+		while (pos < Buffer.byteLength(this.buffer as any)) {
 			const type: number = this.buffer.readUInt8(pos);
 			if (type == TYPE('end')) {
 				pos++;
@@ -187,7 +187,7 @@ const ReadNBT = ({ nbtBytes, gunzip = false, parseSNBT = true, filename }: { nbt
 	if (!nbtBytes)
 		throw new Error();
 	if (gunzip)
-		nbtBytes = gunzipSync(nbtBytes);
+		nbtBytes = gunzipSync(nbtBytes as any);
 	return new Reader(nbtBytes, parseSNBT).ReadCompound(1, TYPE('compound')).entry;
 };
 const WriteXML = async ({ data, filename }: { data: Entry, filename?: string }): Promise<string|void> => {
